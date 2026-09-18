@@ -40,6 +40,11 @@
     128,
     256
   ],
+  "t3": {
+    "file": "task-topology-glyph-t3.svg",
+    "viewBox": "36 36 440 440",
+    "scaleRelativeToCanonical": 1.1636363636363636
+  },
   "renderer": {
     "aom": "3.15.0",
     "archive": "3.8.9",
@@ -141,6 +146,7 @@
   },
   "files": {
     "task-topology-glyph-adaptive.svg": "c741fac339292d3f39986fb3c789b7bfb923bb936634516847dc893c9793b16b",
+    "task-topology-glyph-t3.svg": "53b07e8e4fe21c0e4be96e541b4929578e3095a781ad1d074ed125bc1e550d82",
     "task-topology-glyph-light.svg": "4779a2e128c700848fac76eea0cdac1a169a1bf48ca142984765166e1f8f16db",
     "task-topology-glyph-dark.svg": "5d72c9a2a4981449e3c3a5fbde8c4309b9409c0b0ab0f066e3b36428d896d9a9",
     "png/light/task-topology-16.png": "36aaba77125ee4b9bbdcbb7662a7e4f79ba587b6ff09913981762c00c437bb45",
@@ -184,6 +190,6 @@
     "qa/contact-sheet.png": "f8517f2258f409060716366aff63106040a1b324d447234e759147250fb4c1ae",
     "qa/favicon-native.png": "aa68712f4a694d443864c12084ea02eb10e0b520336baca3f0542bb5ae70128b",
     "qa/contact-sheet.html": "0b6bd05685507f24d0de1670ac28db26f90d91f268923bdb684bd7e0d928beb3",
-    "qa/adaptive-theme.html": "d352e3b553e0009336febb531ed63c41becec80b784ad225847da7080d85b23c"
+    "qa/adaptive-theme.html": "ab33f9f16b7fb7abbba9ec182652efb7948ded84e8e6147f4deebea29d8d09d6"
   }
 }
