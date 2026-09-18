@@ -30,19 +30,22 @@ renderer and platform. QA labels also use the platform's sans-serif font.
 | Property | Canonical value |
 | --- | --- |
 | ViewBox | `0 0 512 512` |
-| Stroke width | `4.5` SVG units |
+| Stroke width | `9` SVG units |
 | Caps and joins | Round |
 | Surface fill | None |
 | Geometry | One closed perimeter and seven internal cubic Bézier paths |
-| Horizontal extent, including stroke | About 83% of the canvas |
-| Vertical extent, including stroke | About 44% of the canvas |
+| Horizontal extent, including stroke | About 84% of the canvas |
+| Vertical extent, including stroke | About 66% of the canvas |
 | Light | `#111827` on `#FFFFFF` |
 | Dark | `#F8FAFC` on `#0B0F14` |
 | Transparent PNG | `#111827` with alpha |
 
 The repository has no existing application theme tokens. These are the task's default
-palettes. The wide, shallow reference determines the vertical extent. Equal horizontal
-and vertical coverage would distort its proportions.
+palettes. On 2026-09-18, Dan approved option B with a 9-unit stroke at every size
+and 50% more height. The canonical path coordinates contain that revision:
+`y = 256 + 1.5 × (original y - 256)`. X coordinates are unchanged.
+The transform is already applied to the paths. Generation does not apply it again.
+The immutable reference records the original, shallower design.
 
 Paths, control points, and stroke width are identical across themes and formats.
 Standard assets also share the same viewBox, positioning, and padding. The T3 icon
@@ -73,8 +76,10 @@ perimeter, and open mesh. It does not plot benchmark data.
 PNG sizes are 16, 24, 32, 48, 64, 128, 180, 192, 256, 512, and 1024px for each
 of the three palettes. JPG sizes are 512 and 1024px for light and dark.
 
-Every raster starts with the canonical SVG at its target viewport size. No production
-raster is a resized copy of another raster. The ICO packages the generated light PNGs
+Every raster starts with the canonical SVG at its target viewport size. The renderer
+extracts its alpha coverage, then applies the palette with one rounding step per channel.
+This avoids accumulated color rounding at intersections and keeps theme coverage identical.
+No production raster is a resized copy of another raster. The ICO packages the generated light PNGs
 at 16, 24, 32, 48, 64, 128, and 256px as PNG-compressed, 32-bit entries. Its white
 background keeps the dark stroke visible against browser chrome in either theme.
 
@@ -91,12 +96,12 @@ This applies wherever T3 displays the project's icon. No per-thread setup is nee
 
 The T3 variant uses `viewBox="36 36 440 440"`, trimming 36 units of empty canvas
 from each edge. Dan approved this T3-specific padding exception on 2026-09-18.
-It makes the complete glyph 16.4% larger inside T3's 14px square, about 13.5 × 7.1px
-instead of 11.6 × 6.1px. The remaining horizontal clearance is about 8.5 SVG units
+It makes the complete glyph 16.4% larger inside T3's 14px square, about 13.6 × 10.7px
+instead of 11.7 × 9.2px. The remaining horizontal clearance is about 6.2 SVG units
 on each side, including the stroke. The glyph stays centered and unclipped.
 
 Only the T3 variant uses this framing, at every size T3 displays it. Its paths and
-4.5-unit stroke match the canonical SVG exactly. The canonical source, standard
+9-unit stroke match the canonical SVG exactly. The canonical source, standard
 adaptive SVG, fixed palettes, PNGs, JPGs, and ICO retain their original framing.
 
 The configuration and asset must exist in the project checkout T3 reads. Merge and
@@ -107,8 +112,9 @@ Older checkouts need the same files or a project-wide image override.
 
 Open [`qa/contact-sheet.html`](qa/contact-sheet.html) locally at 100% zoom, or inspect
 [`qa/contact-sheet.png`](qa/contact-sheet.png). Both use the production PNGs and show
-the reference beside the vector render. Comparison alignment changes only the QA
-display of the reference. The original file stays byte-for-byte unchanged.
+the original reference beside the approved taller vector render. The reference panel
+keeps the original proportions. Comparison alignment changes only its QA display.
+The original file stays byte-for-byte unchanged.
 
 [`qa/adaptive-theme.html`](qa/adaptive-theme.html) loads the same T3 SVG in light
 and dark containers. Native-size rows compare standard and tight framing at 14, 16,
@@ -119,7 +125,7 @@ images respond without reloading.
 outputs at native resolution. At 16px, antialiasing softens the thin strokes and
 individual intersections merge. The peak, saddle, and broad sheet remain visible.
 The 24px and 32px versions retain more mesh detail. At 48px the curves separate clearly.
-The 4.5-unit stroke preserves the reference's visual weight without a size-specific change.
+The approved 9-unit stroke stays identical at every size, including the T3 icon.
 
 The generator checks dimensions, full raster decoding, alpha, background opacity,
 shared theme coverage, geometry identity, viewBox, stroke width, canvas bounds,
