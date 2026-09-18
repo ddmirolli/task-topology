@@ -2,17 +2,17 @@
 
 Which model should I use here, and how wide a task can I hand it?
 
-TTI plots every AI model as one dot in 3D space, per task tier. Results
-live at [tasktopology.com](https://tasktopology.com). This repo is the
-benchmark itself. Download it, run it on any model, submit the result.
+TTI is being built to plot AI models in 3D, per task tier, with results
+at [tasktopology.com](https://tasktopology.com). This repo holds the
+benchmark design and test fixtures. The runner and results site are pending.
 
 ## The three axes
 
 | Axis | Question | Unit |
 |------|----------|------|
 | Y | How smart is the model? | Epoch Capabilities Index |
-| X | How long can it be trusted to run unattended? | Hours at 90 percent success |
-| Z | How much finished work per dollar? | Successful task hours per dollar |
+| X | How much work can it complete unattended? | Workload at 90 percent success; calibration pending |
+| Z | How much correct work per dollar? | Successful standardized work units per dollar |
 
 Every axis starts at zero and has no ceiling. A model two years from now
 plots beyond today's models without re-scaling the chart.
@@ -34,13 +34,18 @@ Tasks are labeled by the human job they stand in for.
 The ladder is a proxy for agency: intelligence, lateral thinking and
 capability, where capability is effectiveness times efficiency.
 
-## How X is scored
+## Scoring status
 
-Every run records when the model first fails. All runs feed one failure
-rate per 10 minute window, p. X is the point where (1 - p)^n drops to
-0.90. A model that fails 5 percent of windows has X of about 20 minutes.
-One that fails 1 percent has X of about 1.7 hours. Small floor gains move
-X a long way. That is the point.
+The goal is to measure how much work a model can complete unattended at
+90 percent success. Finishing the same work faster must improve TTI when
+correctness, reliability, and cost are equal. Time spent is never credited
+as work completed.
+
+The earlier time-window and composite formulas are retired. Workload
+calibration and a formula that includes speed need validation. The first
+pilot reports task outcomes, elapsed time, and cost. It does not publish
+X, TTI ranks, or claims about hours of reliable unattended operation.
+See [PILOT.md](PILOT.md) for the next step.
 
 ## What counts as a failure
 
@@ -59,6 +64,7 @@ the task text was used word for word.
 
 - [SPEC.md](SPEC.md), the full design.
 - [GRADING.md](GRADING.md), the failure list and tier rubrics.
+- [PILOT.md](PILOT.md), the small validation pilot and its prerequisites.
 - [tasks/](tasks/), the three tier task sets with answer keys the model
   never sees.
 - [schema/](schema/), the run and aggregate data model behind the chart.
@@ -69,6 +75,7 @@ the task text was used word for word.
 
 Task sets, grading rules, and the data model are written. The Tier 1 sample
 app includes baseline tests, hidden checks, and verified reference fixes.
+Its checks still need a fairness audit before grading arbitrary model fixes.
 Run `npm ci --prefix tasks/tier-1-entry/app`, then `npm run test:tier1`.
 The Tier 2 seed script, benchmark grader, harness, and site are next.
 

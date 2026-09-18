@@ -2,7 +2,9 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://tasktopology.com/schema/aggregate.schema.json",
   "title": "TTI aggregate",
-  "description": "One dot on the chart. One per model per tier per task set version. Computed by the server from accepted runs.",
+  "description": "Retired version 0.8 aggregate proposal. Do not generate current X or TTI scores from this schema. Replacement pending scoring validation; see SPEC.md and schema/README.md.",
+  "deprecated": true,
+  "$comment": "Historical draft retained for traceability. No published aggregates or running consumers exist.",
   "type": "object",
   "required": ["model_id", "tier", "set_version", "runs", "x", "y", "z", "tti"],
   "properties": {

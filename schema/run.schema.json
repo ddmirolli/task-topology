@@ -42,7 +42,7 @@
         "set_version": { "type": "string", "description": "Published task set version, e.g. 2026.3" },
         "task_id": { "type": "string" },
         "fingerprint": { "type": "string", "description": "SHA-256 of the exact task text given to the model" },
-        "target_hours": { "type": "number" }
+        "target_hours": { "type": "number", "deprecated": true, "description": "Legacy design estimate only. Never use as elapsed runtime, credited work, or a reliability boundary." }
       }
     },
     "prices": {

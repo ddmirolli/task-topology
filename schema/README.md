@@ -1,41 +1,43 @@
-# Data model
+# Data model status
 
-Two shapes. Runs go in, aggregates come out, the chart reads aggregates.
+The version 0.9 scoring rulings supersede the original aggregate formulas.
+The runner, submission service, and aggregate calculator are not built.
+No result has been published using these schemas.
 
-## Run
+## Run records
 
-`run.schema.json`. One per benchmark run. The harness writes it, `tti
-submit` sends it, the server fills in `grade` after regrading the
-transcript. Anything a submitter puts in `grade` is thrown away.
+`run.schema.json` is a draft record of the model, harness, exact task,
+usage, timing, and transcript. Server grading must ignore submitter scores.
+The `task.target_hours` field is a legacy design estimate. It must not be
+used as measured runtime, credited work, or evidence of a trust boundary.
 
-## Aggregate
+The pilot also needs frozen task work units, provider and environment
+failure outcomes, exclusions with evidence, complete billable usage, and
+cost calculation provenance. Finalize a new run-schema version when those
+requirements are implemented in the runner. Do not infer missing costs.
 
-`aggregate.schema.json`. One per model per tier per task set version. This
-is one dot on the chart. The server recomputes it every time a run for
-that model and tier is accepted.
+## Retired aggregate schema
 
-## How a run becomes a dot
+`aggregate.schema.json` describes the historical version 0.8 proposal and
+is marked deprecated. Its `p_window`, `hours_at_90`, `hours_at_95`,
+`task_hours`, `successful_hours_per_usd`, and `tti` fields must not be used
+to produce current scores. The old cube-root formula omits speed, and the
+elapsed-time formula does not establish a trusted workload boundary.
 
-1. Accept. Task fingerprint matches a published set, prices match the
-   price list for that date, transcript hash matches the upload.
-2. Grade. Apply GRADING.md. Record success, failure rule and failure time.
-3. Trust. Held if far outside the spread for that model and tier.
-   Unverified if one submitter. Verified if two or more independent
-   submitters agree. Official if reproduced in the reference harness.
-4. Aggregate. Over all accepted runs for the model and tier:
-   - p_window = failures / total 10 minute windows observed
-   - hours_at_90 = (10 / 60) x ln(0.90) / ln(1 - p_window)
-   - success_rate = successes / total
-   - mean_cost_per_attempt = mean over runs of tokens x prices
-   - successful_hours_per_usd = task_hours x success_rate / mean_cost_per_attempt
-   - eci from the Epoch Capabilities Index feed, dated
-   - tti = cube root of (hours_at_90 x eci x successful_hours_per_usd)
+A replacement aggregate schema follows validation of workload calibration
+and a TTI formula that satisfies the approved speed rule. Until then,
+publish no X or TTI values. The pilot reports observations in a table:
 
-## Chart
+- Model and provider settings, harness version, exact task set and grader.
+- Attempt counts and per-ticket outcomes, including timeouts and exclusions.
+- Correct work units fixed before runs, never derived from elapsed time.
+- Total elapsed attempt hours and total attempt cost, including failures.
+- Speed: correct work units divided by elapsed attempt hours.
+- Cost efficiency: correct work units divided by attempt cost in USD.
+- Transcript and grading evidence behind each row.
 
-- Reads a list of aggregates.
-- Tier selector filters on `tier`.
-- Trust filter defaults to all, with a switch for reference harness only
-  and for official only.
-- Each dot links to the run list behind it, each run links to its
-  transcript.
+Compare only matched task mixes with equal repetitions. Missing or
+nonpositive time or cost denominators make the corresponding metric
+unavailable. Report excluded infrastructure spend separately and retain it
+in the budget. See [PILOT.md](../PILOT.md) for the trial and [SPEC.md](../SPEC.md)
+for the approved rules.
