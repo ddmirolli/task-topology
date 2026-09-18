@@ -63,6 +63,7 @@ the task text was used word for word.
   never sees.
 - [schema/](schema/), the run and aggregate data model behind the chart.
 - [source/](source/), origin material.
+- [public/brand/](public/brand/README.md), canonical logo and generated production assets.
 
 ## Status
 

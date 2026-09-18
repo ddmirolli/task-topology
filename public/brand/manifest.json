@@ -1,0 +1,189 @@
+{
+  "source": "task-topology-glyph.svg",
+  "sourceSha256": "2e1ab28207b315e2b5f2bfb7a84d153aaa6d2b862eabb8abbdb9424b79569ec9",
+  "referenceSha256": "b7e55e713d63d5701e7015c7e277bec87e7fe77b86968d77f2a4b357f4b5a2b5",
+  "viewBox": "0 0 512 512",
+  "strokeWidth": 4.5,
+  "pathCount": 8,
+  "palettes": {
+    "light": {
+      "foreground": "#111827",
+      "background": "#FFFFFF"
+    },
+    "dark": {
+      "foreground": "#F8FAFC",
+      "background": "#0B0F14"
+    },
+    "transparent": {
+      "foreground": "#111827"
+    }
+  },
+  "sizes": [
+    16,
+    24,
+    32,
+    48,
+    64,
+    128,
+    180,
+    192,
+    256,
+    512,
+    1024
+  ],
+  "icoSizes": [
+    16,
+    24,
+    32,
+    48,
+    64,
+    128,
+    256
+  ],
+  "renderer": {
+    "aom": "3.15.0",
+    "archive": "3.8.9",
+    "cairo": "1.18.4",
+    "cgif": "0.5.3",
+    "exif": "0.6.26",
+    "expat": "2.8.3",
+    "ffi": "3.8.0",
+    "fontconfig": "2.18.3",
+    "freetype": "2.14.3",
+    "fribidi": "1.0.16",
+    "glib": "2.89.4",
+    "harfbuzz": "14.3.1",
+    "heif": "1.23.2",
+    "highway": "1.4.0",
+    "imagequant": "2.4.1",
+    "lcms": "2.19.1",
+    "mozjpeg": "0826579",
+    "pango": "1.58.2",
+    "pixman": "0.46.4",
+    "png": "1.6.58",
+    "proxy-libintl": "0.5",
+    "rsvg": "2.62.91",
+    "tiff": "4.7.2",
+    "uhdr": "2.0.2",
+    "vips": "8.18.6",
+    "webp": "1.6.0",
+    "xml2": "2.15.3",
+    "zlib-ng": "2.3.3",
+    "sharp": "0.35.4"
+  },
+  "alphaBounds": {
+    "16": {
+      "minX": 1,
+      "minY": 4,
+      "maxX": 14,
+      "maxY": 11
+    },
+    "24": {
+      "minX": 2,
+      "minY": 6,
+      "maxX": 21,
+      "maxY": 17
+    },
+    "32": {
+      "minX": 2,
+      "minY": 9,
+      "maxX": 28,
+      "maxY": 22
+    },
+    "48": {
+      "minX": 4,
+      "minY": 13,
+      "maxX": 43,
+      "maxY": 34
+    },
+    "64": {
+      "minX": 5,
+      "minY": 18,
+      "maxX": 58,
+      "maxY": 45
+    },
+    "128": {
+      "minX": 11,
+      "minY": 36,
+      "maxX": 116,
+      "maxY": 91
+    },
+    "180": {
+      "minX": 15,
+      "minY": 50,
+      "maxX": 164,
+      "maxY": 129
+    },
+    "192": {
+      "minX": 16,
+      "minY": 54,
+      "maxX": 175,
+      "maxY": 137
+    },
+    "256": {
+      "minX": 22,
+      "minY": 72,
+      "maxX": 233,
+      "maxY": 183
+    },
+    "512": {
+      "minX": 44,
+      "minY": 144,
+      "maxX": 467,
+      "maxY": 367
+    },
+    "1024": {
+      "minX": 88,
+      "minY": 288,
+      "maxX": 935,
+      "maxY": 735
+    }
+  },
+  "files": {
+    "task-topology-glyph-adaptive.svg": "c741fac339292d3f39986fb3c789b7bfb923bb936634516847dc893c9793b16b",
+    "task-topology-glyph-light.svg": "4779a2e128c700848fac76eea0cdac1a169a1bf48ca142984765166e1f8f16db",
+    "task-topology-glyph-dark.svg": "5d72c9a2a4981449e3c3a5fbde8c4309b9409c0b0ab0f066e3b36428d896d9a9",
+    "png/light/task-topology-16.png": "36aaba77125ee4b9bbdcbb7662a7e4f79ba587b6ff09913981762c00c437bb45",
+    "png/light/task-topology-24.png": "81d23ae477c24e9d6950ee2b3a87ed9b701aab4b92df09da749b4e7751858170",
+    "png/light/task-topology-32.png": "0f3f3e45f359b54b51b20f11fe7ab42871e5815aaffe9e8621e88510ebabd0c9",
+    "png/light/task-topology-48.png": "0e8ad6e402b406641a81f4e77d1c22af0ca221788795e338745f6a743e6d159c",
+    "png/light/task-topology-64.png": "da7a908914bd89a5e299b6a88c3b11deeaddef063ad6ed99edcd7d5d98d60b3d",
+    "png/light/task-topology-128.png": "e6877dd0c9bc9a4cc322b12db422c9db388aed08c6c859fb0420f34b7c313938",
+    "png/light/task-topology-180.png": "843d4251b17bc7c2ce53aed3a0719610fdfbbf861f26456c41513847261e0a5f",
+    "png/light/task-topology-192.png": "fd1de5ab62d9892abbc8a124d972f3e5517395a581f6061ef7852c4e7a5e0202",
+    "png/light/task-topology-256.png": "ff9898d547c82b72026461557a4dca2cd2ca329fae825dad364acaa64861e07e",
+    "png/light/task-topology-512.png": "fa9fea58a542bba2df006baff3145253c26f11b5a02a11111c3ac96087a4426a",
+    "png/light/task-topology-1024.png": "563f1758a3ff5c02b9dc23637f007cbaed48aac13df6f0d2aa168b347da1e121",
+    "png/dark/task-topology-16.png": "329212fe359f52f1e1bd43ffd6d05cffd4d9651349c81c93081bb5be05526c88",
+    "png/dark/task-topology-24.png": "a949ac7288f72e38e8921353c68a0741912475fc820e42813ce1dcf37167c132",
+    "png/dark/task-topology-32.png": "6275e764ef4586b387e58e4c2fe955c84bbf92cec6dd86b994f7d453355c80fd",
+    "png/dark/task-topology-48.png": "dc2cc0d1b18d3eb56177a69f1c1edf13638f5cac7bbab033a51b2d1a5c662f18",
+    "png/dark/task-topology-64.png": "0fce3bd9d253fa9900b02b50862bf50943737b2b26c2610bb9616df9a66d801b",
+    "png/dark/task-topology-128.png": "e4b46691493cf07db4f9a2e457262537aaab7efaf1958a655ed7f31518858b24",
+    "png/dark/task-topology-180.png": "fffd46fcd1bdbb03031a1446bfd8e690f4aae3c7a50c6b836cc7549453eeda9b",
+    "png/dark/task-topology-192.png": "15ca563795da05c813b3db83fcd5ff1d1171dabf3e256aedfbfb8bea2550ef56",
+    "png/dark/task-topology-256.png": "be8004b20ba0e0ba3852cb570c2aa6dbbb57801aea3ad4a95d968be1a367762f",
+    "png/dark/task-topology-512.png": "2dac07f486e2e6b1e6e1891e333ffaf61618736ef88062fff270ce89c5a5ddd7",
+    "png/dark/task-topology-1024.png": "c71269be37c9a50629e12b8fb303f49616d4241f3dbc7a15c4a7f6847920aca6",
+    "png/transparent/task-topology-16.png": "6422434f35a279fc3425140f5372622629403375bf0c141de3bfdfd5606ebaa0",
+    "png/transparent/task-topology-24.png": "bd7bb29485c76a802ca4da33687e4b552b9bedf48833a583d2308bb88477d139",
+    "png/transparent/task-topology-32.png": "c42115143db8daf8c8051c44f887b1baa0fb7eea6509635311d94951f47411bf",
+    "png/transparent/task-topology-48.png": "db2cfecbf2d09fc754b00814a07f7fcbc99ba2de53313420da049f35e91718b2",
+    "png/transparent/task-topology-64.png": "3140d1959b41e083e7480a2cd9356f19d569c4766da17dcd192eb948741ded0f",
+    "png/transparent/task-topology-128.png": "b6e0bb8be7583ea89664325f99f1c3ac83c3bc8a39337e364eb3ef049341c5e7",
+    "png/transparent/task-topology-180.png": "c6acfb8f06c9b1e8c55863adf05f9255d0d51e9743f0dd07f444244264ccc396",
+    "png/transparent/task-topology-192.png": "26cac93095b90275e169141411ba80a513b2be98b31991bcec0f44f0e059fa8b",
+    "png/transparent/task-topology-256.png": "36c9a1756eb6d97680c6d0e63ad59e55629b7e7e96d7ee4ab9d1caaa52551108",
+    "png/transparent/task-topology-512.png": "24c6574f08897ce3f6a6f0781a46eb91465f48af37b93b94b1b4b5b11e0eb68f",
+    "png/transparent/task-topology-1024.png": "dd0a0810556e3b03b21430ad5ec6d187aea70ac2a261fef62b37ceb5a750c693",
+    "jpg/task-topology-light-512.jpg": "b3a54bc748ac4b4c323b37a2c3f6db1c956e7a226f2bcbf641b137d5c637f860",
+    "jpg/task-topology-light-1024.jpg": "75d6d49003d0ce72990f1b28011f92302884b130981d6a2abf413e23eca5829c",
+    "jpg/task-topology-dark-512.jpg": "b349f86b4ec83848b4c564696b6d7aa14e82fe8b60effd3ed319bb756924ea4f",
+    "jpg/task-topology-dark-1024.jpg": "a76025f7bf63b2a5cb777ef3812373489430e89ef0f773cb0c6b7e4c2619ee01",
+    "favicon/favicon.ico": "31d6990e90bbea06c8362f28c0b33a130100ed52c741e45bc0d4d382c9eb234d",
+    "qa/contact-sheet.png": "f8517f2258f409060716366aff63106040a1b324d447234e759147250fb4c1ae",
+    "qa/favicon-native.png": "aa68712f4a694d443864c12084ea02eb10e0b520336baca3f0542bb5ae70128b",
+    "qa/contact-sheet.html": "0b6bd05685507f24d0de1670ac28db26f90d91f268923bdb684bd7e0d928beb3",
+    "qa/adaptive-theme.html": "d352e3b553e0009336febb531ed63c41becec80b784ad225847da7080d85b23c"
+  }
+}
