@@ -44,8 +44,9 @@ The repository has no existing application theme tokens. These are the task's de
 palettes. The wide, shallow reference determines the vertical extent. Equal horizontal
 and vertical coverage would distort its proportions.
 
-Paths, control points, viewBox, stroke width, positioning, and padding are identical
-across themes and formats. No size has alternate geometry or an optical correction.
+Paths, control points, and stroke width are identical across themes and formats.
+Standard assets also share the same viewBox, positioning, and padding. The T3 icon
+uses the documented framing exception below. No asset has alternate path geometry.
 The fixed theme variants add only explicit colors and an opaque background rectangle.
 The adaptive variant adds only CSS to select the foreground color. Its background is transparent.
 
@@ -79,7 +80,7 @@ background keeps the dark stroke visible against browser chrome in either theme.
 
 ## T3 project icon
 
-The root `t3.json` points to `public/brand/task-topology-glyph-adaptive.svg`.
+The root `t3.json` points to `public/brand/task-topology-glyph-t3.svg`.
 Leave the T3 project icon on **Automatic** to use this repository configuration.
 An explicit image, emoji, or icon override takes precedence.
 
@@ -87,6 +88,16 @@ The generated adaptive SVG selects `#111827` for light mode and `#F8FAFC` for da
 mode through `prefers-color-scheme`. T3 0.0.42 sets the embedding page's `color-scheme`
 when its theme changes. The image follows that scheme without changing its geometry.
 This applies wherever T3 displays the project's icon. No per-thread setup is needed.
+
+The T3 variant uses `viewBox="36 36 440 440"`, trimming 36 units of empty canvas
+from each edge. Dan approved this T3-specific padding exception on 2026-09-18.
+It makes the complete glyph 16.4% larger inside T3's 14px square, about 13.5 × 7.1px
+instead of 11.6 × 6.1px. The remaining horizontal clearance is about 8.5 SVG units
+on each side, including the stroke. The glyph stays centered and unclipped.
+
+Only the T3 variant uses this framing, at every size T3 displays it. Its paths and
+4.5-unit stroke match the canonical SVG exactly. The canonical source, standard
+adaptive SVG, fixed palettes, PNGs, JPGs, and ICO retain their original framing.
 
 The configuration and asset must exist in the project checkout T3 reads. Merge and
 update the canonical checkout to make them available beyond the implementation worktree.
@@ -99,9 +110,10 @@ Open [`qa/contact-sheet.html`](qa/contact-sheet.html) locally at 100% zoom, or i
 the reference beside the vector render. Comparison alignment changes only the QA
 display of the reference. The original file stays byte-for-byte unchanged.
 
-[`qa/adaptive-theme.html`](qa/adaptive-theme.html) loads the same adaptive SVG in light
-and dark containers, including T3's 14px icon size. Its button swaps both container
-themes to check that existing images respond without reloading.
+[`qa/adaptive-theme.html`](qa/adaptive-theme.html) loads the same T3 SVG in light
+and dark containers. Native-size rows compare standard and tight framing at 14, 16,
+24, 32, and 48px. Its button swaps both container themes to check that existing
+images respond without reloading.
 
 [`qa/favicon-native.png`](qa/favicon-native.png) isolates the 16, 24, 32, and 48px
 outputs at native resolution. At 16px, antialiasing softens the thin strokes and
@@ -115,6 +127,8 @@ intentional padding, all ICO entries, and unchanged source hashes. It rejects em
 images, transforms, styles in the canonical source, unsupported SVG elements, and invalid path commands.
 The adaptive variant must reduce byte-for-byte to the canonical source after removing
 its generated palette CSS. Verification also checks the T3 icon path.
+The T3 variant must match that adaptive SVG after restoring the standard viewBox.
+An alpha-edge check at 1024px verifies that the tighter canvas does not clip strokes.
 `verify:brand` also detects changes to any generated file.
 
 Reference SHA-256:

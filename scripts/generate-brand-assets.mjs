@@ -67,8 +67,20 @@ const adaptiveStyle = `  <style>:root{color:${palettes.light.foreground}}@media(
 const adaptive = source.replace(geometry, adaptiveStyle + geometry);
 assert.equal(adaptive.replace(adaptiveStyle, ''), source, 'Adaptive geometry must match the canonical SVG');
 add(adaptivePath, adaptive);
+const t3Path = 'task-topology-glyph-t3.svg';
+const t3ViewBox = '36 36 440 440';
+const t3Icon = adaptive.replace('viewBox="0 0 512 512"', `viewBox="${t3ViewBox}"`);
+assert.equal(t3Icon.replace(`viewBox="${t3ViewBox}"`, 'viewBox="0 0 512 512"'), adaptive,
+  'T3 framing may change only the viewBox');
+add(t3Path, t3Icon);
+const t3Raster = await render(t3Icon, 1024).ensureAlpha().raw().toBuffer();
+for (let p = 0; p < 1024; p++) {
+  for (const pixel of [p, 1023 * 1024 + p, p * 1024, p * 1024 + 1023]) {
+    assert.equal(t3Raster[pixel * 4 + 3], 0, 'T3 framing clips the glyph');
+  }
+}
 const projectConfig = JSON.parse(await readFile(join(root, 't3.json'), 'utf8'));
-assert.equal(projectConfig.iconPath, `public/brand/${adaptivePath}`, 'T3 must use the generated adaptive SVG');
+assert.equal(projectConfig.iconPath, `public/brand/${t3Path}`, 'T3 must use the generated tight-canvas SVG');
 
 for (const theme of ['light', 'dark']) {
   const svg = variant(theme);
@@ -237,9 +249,9 @@ add('qa/adaptive-theme.html', `<!doctype html>
 <html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Task Topology Index adaptive icon QA</title>
 <style>body{margin:24px;font:16px system-ui;background:#e5e7eb;color:#111827}main{display:flex;gap:24px;flex-wrap:wrap}section{padding:24px;border-radius:12px}.light{color-scheme:light;background:${palettes.light.background};color:${palettes.light.foreground}}.dark{color-scheme:dark;background:${palettes.dark.background};color:${palettes.dark.foreground}}.sizes{display:flex;align-items:center;gap:20px}figure{margin:0}figcaption{margin-top:8px}button{margin-bottom:20px;padding:8px 16px}</style>
-<h1>Adaptive project icon</h1><p>Both panels load the same SVG as an image. The parent color scheme selects its stroke.</p>
+<h1>Adaptive project icon</h1><p>Both panels load the same T3 SVG as an image. The parent color scheme selects its stroke. Native-size rows compare standard and tight framing.</p>
 <button type="button" onclick="document.querySelectorAll('section').forEach(panel=>{panel.classList.toggle('light');panel.classList.toggle('dark')})">Swap panel themes</button>
-<main>${['light', 'dark'].map(theme => `<section class="${theme}" data-initial-theme="${theme}"><h2>Initially ${theme}</h2><img src="../${adaptivePath}" width="256" height="256" alt="Adaptive glyph"><div class="sizes">${[14, 16, 24, 32, 48].map(size => `<figure><img src="../${adaptivePath}" width="${size}" height="${size}" alt="Adaptive glyph at ${size} pixels"><figcaption>${size}px</figcaption></figure>`).join('')}</div></section>`).join('')}</main></html>
+<main>${['light', 'dark'].map(theme => `<section class="${theme}" data-initial-theme="${theme}"><h2>Initially ${theme}</h2><img src="../${t3Path}" width="256" height="256" alt="T3 glyph">${[[adaptivePath, 'Standard framing'], [t3Path, 'T3 tight framing']].map(([path, title]) => `<h3>${title}</h3><div class="sizes">${[14, 16, 24, 32, 48].map(size => `<figure><img src="../${path}" width="${size}" height="${size}" alt="${title} at ${size} pixels"><figcaption>${size}px</figcaption></figure>`).join('')}</div>`).join('')}</section>`).join('')}</main></html>
 `);
 
 for (const [path, data] of outputs) {
@@ -248,6 +260,7 @@ for (const [path, data] of outputs) {
 const manifest = {
   source: 'task-topology-glyph.svg', sourceSha256: sourceHash, referenceSha256: referenceHash,
   viewBox: '0 0 512 512', strokeWidth: 4.5, pathCount: paths.length, palettes, sizes, icoSizes,
+  t3: { file: t3Path, viewBox: t3ViewBox, scaleRelativeToCanonical: 512 / 440 },
   renderer: sharp.versions, alphaBounds: bounds,
   files: Object.fromEntries([...outputs].map(([path, data]) => [path, sha256(data)])),
 };
@@ -263,4 +276,4 @@ for (const [path, data] of outputs) {
 }
 assert.equal(sha256(await readFile(sourceFile)), sourceHash, 'Generation modified the canonical SVG');
 assert.equal(sha256(await readFile(join(root, 'tti-glyph-c-reference.png'))), referenceHash);
-console.log(`${check ? 'Verified' : 'Generated and verified'} 42 production assets, 4 QA files, T3 icon configuration, and the manifest. Geometry and reference unchanged.`);
+console.log(`${check ? 'Verified' : 'Generated and verified'} 43 production assets, 4 QA files, T3 icon configuration, and the manifest. Geometry and reference unchanged.`);
