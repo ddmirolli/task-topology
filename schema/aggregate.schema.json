@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tasktopology.com/schema/aggregate.schema.json",
+  "title": "TTI aggregate",
+  "description": "One dot on the chart. One per model per tier per task set version. Computed by the server from accepted runs.",
+  "type": "object",
+  "required": ["model_id", "tier", "set_version", "runs", "x", "y", "z", "tti"],
+  "properties": {
+    "model_id": { "type": "string" },
+    "display_name": { "type": "string" },
+    "vendor": { "type": "string" },
+    "tier": { "type": "integer", "enum": [1, 2, 3] },
+    "set_version": { "type": "string" },
+    "computed_at": { "type": "string", "format": "date-time" },
+    "runs": {
+      "type": "object",
+      "properties": {
+        "total": { "type": "integer" },
+        "successes": { "type": "integer" },
+        "by_trust_level": { "type": "object", "additionalProperties": { "type": "integer" } },
+        "reference_harness_only": { "type": "boolean" }
+      }
+    },
+    "x": {
+      "type": "object",
+      "description": "Trusted width",
+      "properties": {
+        "p_window": { "type": "number", "description": "Failure rate per 10 minute window" },
+        "hours_at_90": { "type": "number" },
+        "hours_at_95": { "type": "number" },
+        "ci_low": { "type": "number" },
+        "ci_high": { "type": "number" }
+      }
+    },
+    "y": {
+      "type": "object",
+      "description": "Intelligence",
+      "properties": {
+        "eci": { "type": "number" },
+        "source": { "type": "string", "enum": ["eci", "aaii_capped"] },
+        "as_of": { "type": "string", "format": "date" }
+      }
+    },
+    "z": {
+      "type": "object",
+      "description": "Cost efficiency",
+      "properties": {
+        "success_rate": { "type": "number" },
+        "mean_cost_per_attempt_usd": { "type": "number" },
+        "task_hours": { "type": "number" },
+        "successful_hours_per_usd": { "type": "number" }
+      }
+    },
+    "tti": { "type": "number", "description": "Cube root of x.hours_at_90 * y.eci * z.successful_hours_per_usd" }
+  }
+}

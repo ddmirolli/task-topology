@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tasktopology.com/schema/run.schema.json",
+  "title": "TTI run",
+  "description": "One benchmark run. Emitted by the harness, submitted to tasktopology.com, regraded on the server.",
+  "type": "object",
+  "required": ["schema_version", "run_id", "model", "harness", "task", "prices", "tokens", "timing", "transcript"],
+  "properties": {
+    "schema_version": { "const": "1" },
+    "run_id": { "type": "string", "description": "UUID v4 minted by the harness" },
+    "submitted_at": { "type": "string", "format": "date-time" },
+    "submitter": {
+      "type": "object",
+      "properties": {
+        "github": { "type": "string", "description": "GitHub login of the submitter, used for trust levels" }
+      }
+    },
+    "model": {
+      "type": "object",
+      "required": ["id", "vendor"],
+      "properties": {
+        "id": { "type": "string", "description": "Exact API model id, e.g. claude-fable-5-1" },
+        "vendor": { "type": "string" },
+        "display_name": { "type": "string" },
+        "reasoning_setting": { "type": "string", "description": "Effort or thinking setting if the API exposes one" }
+      }
+    },
+    "harness": {
+      "type": "object",
+      "required": ["name", "version", "reference"],
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "type": "string" },
+        "reference": { "type": "boolean", "description": "true only for the TTI reference harness" }
+      }
+    },
+    "task": {
+      "type": "object",
+      "required": ["tier", "set_version", "task_id", "fingerprint"],
+      "properties": {
+        "tier": { "type": "integer", "enum": [1, 2, 3] },
+        "set_version": { "type": "string", "description": "Published task set version, e.g. 2026.3" },
+        "task_id": { "type": "string" },
+        "fingerprint": { "type": "string", "description": "SHA-256 of the exact task text given to the model" },
+        "target_hours": { "type": "number" }
+      }
+    },
+    "prices": {
+      "type": "object",
+      "required": ["input_per_million_usd", "output_per_million_usd", "source_url", "as_of"],
+      "properties": {
+        "input_per_million_usd": { "type": "number" },
+        "output_per_million_usd": { "type": "number" },
+        "cached_input_per_million_usd": { "type": "number" },
+        "source_url": { "type": "string" },
+        "as_of": { "type": "string", "format": "date" }
+      }
+    },
+    "tokens": {
+      "type": "object",
+      "required": ["input", "output"],
+      "properties": {
+        "input": { "type": "integer" },
+        "output": { "type": "integer" },
+        "cached_input": { "type": "integer" },
+        "api_calls": { "type": "integer" }
+      }
+    },
+    "timing": {
+      "type": "object",
+      "required": ["started_at", "ended_at", "wall_seconds"],
+      "properties": {
+        "started_at": { "type": "string", "format": "date-time" },
+        "ended_at": { "type": "string", "format": "date-time" },
+        "wall_seconds": { "type": "number" },
+        "steps": { "type": "integer", "description": "Tool calls made" }
+      }
+    },
+    "transcript": {
+      "type": "object",
+      "required": ["sha256", "url"],
+      "properties": {
+        "sha256": { "type": "string" },
+        "url": { "type": "string", "description": "Where the full transcript is stored after upload" },
+        "provider_request_ids": { "type": "array", "items": { "type": "string" }, "description": "API request ids, used to verify a run was real" }
+      }
+    },
+    "grade": {
+      "type": "object",
+      "description": "Set by the server after regrading. Anything the submitter puts here is discarded.",
+      "properties": {
+        "graded_at": { "type": "string", "format": "date-time" },
+        "grader_version": { "type": "string" },
+        "success": { "type": "boolean" },
+        "failure": {
+          "type": ["object", "null"],
+          "properties": {
+            "rule": { "type": "integer", "minimum": 1, "maximum": 7 },
+            "at_seconds": { "type": "number" },
+            "evidence": { "type": "string" }
+          }
+        },
+        "tier_rubric": { "type": "object", "description": "Tier specific results, see GRADING.md" },
+        "trust_level": { "type": "string", "enum": ["held", "unverified", "verified", "official"] }
+      }
+    }
+  }
+}
