@@ -27,7 +27,7 @@ const referenceHash = 'b7e55e713d63d5701e7015c7e277bec87e7fe77b86968d77f2a4b357f
 assert.equal(sha256(reference), referenceHash, 'The immutable reference changed');
 
 // This deliberately narrow SVG grammar prevents hidden styling or a second image source.
-const sourcePattern = /^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="4\.5" stroke-linecap="round" stroke-linejoin="round">\n((?:  <path d="[MCZ0-9.\s-]+"\/>\n)+)<\/svg>\n$/;
+const sourcePattern = /^<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg" viewBox="0 0 512 512" fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">\n((?:  <path d="[MCZ0-9.\s-]+"\/>\n)+)<\/svg>\n$/;
 const match = source.match(sourcePattern);
 assert(match, 'Canonical SVG must contain only the approved root attributes and vector paths');
 const geometry = match[1];
@@ -38,7 +38,7 @@ for (const path of paths) {
   for (const segment of path.matchAll(/([MCZ])([^MCZ]*)/g)) {
     const values = segment[2].trim().split(/\s+/).filter(Boolean).map(Number);
     assert.equal(values.length, { M: 2, C: 6, Z: 0 }[segment[1]], 'Invalid path command');
-    assert(values.every(v => Number.isFinite(v) && v > 4.5 && v < 507.5), 'Control point risks clipping');
+    assert(values.every(v => Number.isFinite(v) && v > 9 && v < 503), 'Control point risks clipping');
   }
 }
 
@@ -54,6 +54,22 @@ function render(svg, size) {
     density: 72,
     failOn: 'warning',
   });
+}
+
+async function raster(palette, size) {
+  const { foreground, background } = palettes[palette];
+  // Apply palette colors to one vector coverage mask, with one rounding step per channel.
+  const alpha = await render(source, size).ensureAlpha().extractChannel(3).raw().toBuffer();
+  const rgb = hex => hex.match(/[0-9A-Fa-f]{2}/g).map(v => parseInt(v, 16));
+  const fg = rgb(foreground), bg = background && rgb(background);
+  const pixels = Buffer.alloc(size * size * 4);
+  for (let p = 0; p < alpha.length; p++) {
+    const coverage = alpha[p] / 255;
+    for (let c = 0; c < 3; c++) pixels[p * 4 + c] = bg
+      ? Math.round(fg[c] * coverage + bg[c] * (1 - coverage)) : fg[c];
+    pixels[p * 4 + 3] = bg ? 255 : alpha[p];
+  }
+  return sharp(pixels, { raw: { width: size, height: size, channels: 4 } });
 }
 
 const outputs = new Map();
@@ -86,20 +102,20 @@ for (const theme of ['light', 'dark']) {
   const svg = variant(theme);
   assert.equal([...svg.matchAll(/<path d="([^"]+)"\/>/g)].map(m => m[0]).join('\n'),
     [...source.matchAll(/<path d="([^"]+)"\/>/g)].map(m => m[0]).join('\n'));
-  assert(svg.includes('viewBox="0 0 512 512"') && svg.includes('stroke-width="4.5"'));
+  assert(svg.includes('viewBox="0 0 512 512"') && svg.includes('stroke-width="9"'));
   assert(!/transform=|<image|base64|<style/.test(svg));
   add(`task-topology-glyph-${theme}.svg`, svg);
 }
 
 for (const theme of Object.keys(palettes)) {
   for (const size of sizes) {
-    add(`png/${theme}/task-topology-${size}.png`, await render(variant(theme), size)
+    add(`png/${theme}/task-topology-${size}.png`, await (await raster(theme, size))
       .ensureAlpha().png(pngOptions).toBuffer());
   }
 }
 for (const theme of ['light', 'dark']) {
   for (const size of [512, 1024]) {
-    add(`jpg/task-topology-${theme}-${size}.jpg`, await render(variant(theme), size)
+    add(`jpg/task-topology-${theme}-${size}.jpg`, await (await raster(theme, size))
       .removeAlpha().jpeg({ quality: 96, chromaSubsampling: '4:4:4' }).toBuffer());
   }
 }
@@ -150,8 +166,8 @@ for (const size of sizes) {
     if (x === 0 || y === 0 || x === size - 1 || y === size - 1) assert.equal(a, 0, 'Clipped alpha');
   }
   assert(partial && maxX > minX, 'Empty glyph or missing antialiasing');
-  // The reference is wider than it is tall. These are intentional canvas margins.
-  for (const [actual, expected] of [[minX, 44.45], [maxX + 1, 467.55], [minY, 144.2], [maxY + 1, 367.8]]) {
+  // Approved geometry is 50% taller than the original, with a 9-unit stroke.
+  for (const [actual, expected] of [[minX, 42.2], [maxX + 1, 469.8], [minY, 87.175], [maxY + 1, 424.825]]) {
     assert(Math.abs(actual - expected * size / 512) <= 1.5, `Unexpected padding at ${size}px`);
   }
   bounds[size] = { minX, minY, maxX, maxY };
@@ -201,8 +217,8 @@ function label(text, width = 512) {
 }
 const layout = [];
 const place = (input, left, top) => layout.push({ input, left, top });
-place(label('Original reference, aligned for comparison'), 24, 20);
-place(label('Canonical production render'), 568, 20);
+place(label('Original reference before height revision'), 24, 20);
+place(label('Approved 50% taller, 9-unit stroke'), 568, 20);
 const alignedReference = await sharp(reference).resize(538, 359).extract({ left: 13, top: 0, width: 512, height: 359 }).png(pngOptions).toBuffer();
 const referencePanel = await sharp({ create: { width: 512, height: 512, channels: 3, background: '#FFFFFF' } })
   .composite([{ input: alignedReference, left: 0, top: 71 }]).png(pngOptions).toBuffer();
@@ -238,8 +254,8 @@ add('qa/contact-sheet.html', `<!doctype html>
 <style>body{margin:24px;font:16px system-ui;background:#e5e7eb;color:#111827}table{border-collapse:collapse}th,td{text-align:left;padding:12px;vertical-align:top}img{display:block}figure{margin:0}section{display:flex;gap:32px;flex-wrap:wrap}.reference{width:512px;height:512px;position:relative;overflow:hidden;background:white}.reference img{position:absolute;width:537.6px;height:358.4px;left:-12.1px;top:70.85px}figcaption{margin-bottom:12px}</style>
 <h1>Task Topology Index asset QA</h1>
 <p>All glyph previews use generated production assets. View at 100% zoom for native CSS pixel sizes.</p>
-<section><figure><figcaption>Original reference, aligned for comparison</figcaption><div class="reference"><img src="../../../tti-glyph-c-reference.png" alt="Original approved reference"></div></figure>
-<figure><figcaption>Canonical production render</figcaption><img src="../png/light/task-topology-512.png" width="512" height="512" alt="Canonical vector rendered at 512 pixels"></figure></section>
+<section><figure><figcaption>Original reference before height revision</figcaption><div class="reference"><img src="../../../tti-glyph-c-reference.png" alt="Original approved reference"></div></figure>
+<figure><figcaption>Approved 50% taller, 9-unit stroke</figcaption><img src="../png/light/task-topology-512.png" width="512" height="512" alt="Canonical vector rendered at 512 pixels"></figure></section>
 <table><thead><tr><th>Size</th><th>Light</th><th>Dark</th></tr></thead><tbody>
 ${qaSizes.map(size => `<tr><th>${size}px</th>${['light', 'dark'].map(theme => `<td><img src="../png/${theme}/task-topology-${size}.png" width="${size}" height="${size}" alt="${theme} glyph at ${size} pixels"></td>`).join('')}</tr>`).join('\n')}
 </tbody></table></html>
@@ -259,7 +275,7 @@ for (const [path, data] of outputs) {
 }
 const manifest = {
   source: 'task-topology-glyph.svg', sourceSha256: sourceHash, referenceSha256: referenceHash,
-  viewBox: '0 0 512 512', strokeWidth: 4.5, pathCount: paths.length, palettes, sizes, icoSizes,
+  viewBox: '0 0 512 512', strokeWidth: 9, pathCount: paths.length, palettes, sizes, icoSizes,
   t3: { file: t3Path, viewBox: t3ViewBox, scaleRelativeToCanonical: 512 / 440 },
   renderer: sharp.versions, alphaBounds: bounds,
   files: Object.fromEntries([...outputs].map(([path, data]) => [path, sha256(data)])),
@@ -276,4 +292,4 @@ for (const [path, data] of outputs) {
 }
 assert.equal(sha256(await readFile(sourceFile)), sourceHash, 'Generation modified the canonical SVG');
 assert.equal(sha256(await readFile(join(root, 'tti-glyph-c-reference.png'))), referenceHash);
-console.log(`${check ? 'Verified' : 'Generated and verified'} 43 production assets, 4 QA files, T3 icon configuration, and the manifest. Geometry and reference unchanged.`);
+console.log(`${check ? 'Verified' : 'Generated and verified'} 43 production assets, 4 QA files, T3 icon configuration, and the manifest. Canonical geometry preserved by generation; immutable reference unchanged.`);
