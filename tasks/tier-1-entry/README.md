@@ -10,7 +10,7 @@ Target width: 15 minutes per ticket. A run is one ticket.
 ## The sample app
 
 A small invoicing web app, built for this benchmark so the bugs are ours.
-It lives in `app/` once built. Shape:
+It lives in `app/`. The checked-in app contains the planted bugs. Shape:
 
 - Node, Express, SQLite, server rendered pages, a small CSS file with a
   dark mode toggle.
@@ -50,3 +50,59 @@ Ticket text is in `tickets/NN.md`. Gotchas and hidden test names are in
 
 All hidden tests for the ticket pass, the existing suite passes, and no
 failure rule fired.
+
+## Verify the fixtures
+
+From the repository root, run:
+
+```sh
+npm ci --prefix tasks/tier-1-entry/app
+npm run test:tier1
+```
+
+The verifier checks the exact failures in the planted app, applies each
+reference fix to a fresh temporary copy, and runs that ticket's hidden
+checks plus the visible tests. It also applies all ten fixes and checks
+the clean app. It makes no model calls and sends no email.
+
+The visible suite intentionally records two incorrect totals and the
+broken theme snapshot, as specified in tickets 01 and 02. Those tickets
+require updates to the assertions and snapshot. Other visible tests must
+keep passing.
+
+## Prepare an app copy
+
+```sh
+node tasks/tier-1-entry/scripts/prepare.mjs task
+node tasks/tier-1-entry/scripts/prepare.mjs clean
+```
+
+Each command prints a new temporary directory. `task` copies the planted
+app. `clean` also applies all reference fixes. In that directory, run
+`npm ci`, `npm test`, and `npm start`. The server binds to localhost.
+
+Only copy `app/` into a model's workspace. Give the model the session
+opening and one ticket. Keep `hidden/`, `answers/`, and `solutions/`
+outside that workspace. These directories are public maintainer material,
+not secret answers. The preparation script is a file copier, not a security
+sandbox. A future harness must prevent access to the surrounding repository
+and public answer files during scored runs.
+
+## Check one candidate
+
+Set `TTI_APP_DIR` to the absolute path of the candidate app, with its
+locked dependencies installed. For example, to check ticket 03:
+
+```sh
+TTI_APP_DIR=/absolute/path/to/candidate node --test tasks/tier-1-entry/hidden/03-*.test.js
+```
+
+The thirty checks cover the published gotchas. They are a local fixture
+verification suite, not the full transcript grader. CSS checks currently
+recognize the sample app's shared button class and dark override. They do
+not grade arbitrary CSS rewrites. Session checks verify cookie expiry;
+they do not wait for an hour or thirty days.
+
+Reference patches use zero context so independent fixes to the same file
+can combine. Apply them only to this fixture revision. The verifier checks
+both individual patches and their combined result.

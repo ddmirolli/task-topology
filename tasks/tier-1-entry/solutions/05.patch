@@ -1,0 +1,20 @@
+--- a/routes/invoices.js
++++ b/routes/invoices.js
+@@ -34,0 +35,13 @@
++
++function csvCell(value) {
++  return '"' + String(value).replaceAll('"', '""') + '"';
++}
++
++router.get('/invoices/export.csv', requireAuth, (req, res) => {
++  const rows = listInvoices(req.app.locals.db, { status: req.query.status || '', q: req.query.q || '' });
++  const lines = [['number', 'client', 'issued_on', 'due_on', 'status', 'total'], ...rows.map((row) => [
++    row.number, row.client_name, row.issued_on, row.due_on, row.status, row.total.toFixed(2),
++  ])];
++  res.type('text/csv').attachment('invoices.csv').send(lines.map((row) => row.map(csvCell).join(',')).join('\r\n') + '\r\n');
++});
++
+--- a/views/invoices/index.ejs
++++ b/views/invoices/index.ejs
+@@ -12,0 +13 @@
++<a href="/invoices/export.csv?status=<%= encodeURIComponent(filter.status) %>&amp;q=<%= encodeURIComponent(filter.q) %>">Export CSV</a>

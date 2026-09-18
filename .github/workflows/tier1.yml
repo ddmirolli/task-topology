@@ -1,0 +1,30 @@
+name: Tier 1 fixtures
+on:
+  pull_request:
+    paths:
+      - 'tasks/tier-1-entry/**'
+      - 'package.json'
+      - '.github/workflows/tier1.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'tasks/tier-1-entry/**'
+      - 'package.json'
+      - '.github/workflows/tier1.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: tasks/tier-1-entry/app/package-lock.json
+      - run: npm ci --prefix tasks/tier-1-entry/app
+      - run: npm run test:tier1

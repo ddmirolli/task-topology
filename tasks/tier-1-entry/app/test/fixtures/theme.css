@@ -1,0 +1,73 @@
+:root {
+  --bg: #ffffff;
+  --fg: #1a202c;
+  --accent: #2b6cb0;
+  --muted: #718096;
+}
+
+[data-theme="dark"] {
+  --bg: #1a202c;
+  --fg: #f7fafc;
+  --accent: #63b3ed;
+  --muted: #a0aec0;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--muted);
+}
+
+.topbar a, .btn-link {
+  margin-left: 0.75rem;
+  color: var(--accent);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.inline { display: inline; }
+
+main { max-width: 48rem; margin: 2rem auto; padding: 0 1rem; }
+
+.card label { display: block; margin-bottom: 0.75rem; }
+
+.card input[type="email"], .card input[type="password"] {
+  display: block;
+  width: 100%;
+  padding: 0.5rem;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #ffffff;
+  border: 0;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+[data-theme="dark"] .btn-primary {
+  background: var(--bg);
+  color: var(--bg);
+}
+
+.btn-danger {
+  background: #c53030;
+  color: #ffffff;
+  border: 0;
+  padding: 0.5rem 1rem;
+}
+
+.error { color: #c53030; }
+
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 0.5rem; border-bottom: 1px solid var(--muted); }
+tr.overdue td { color: #c53030; }

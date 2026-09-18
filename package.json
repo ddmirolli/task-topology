@@ -2,10 +2,13 @@
   "name": "task-topology-index",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "generate:brand": "node scripts/generate-brand-assets.mjs",
-    "verify:brand": "node scripts/generate-brand-assets.mjs --check"
+    "verify:brand": "node scripts/generate-brand-assets.mjs --check",
+    "test:tier1": "node tasks/tier-1-entry/scripts/verify.mjs"
   },
   "devDependencies": {
     "sharp": "0.35.4"

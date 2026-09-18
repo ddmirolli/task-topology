@@ -67,8 +67,10 @@ the task text was used word for word.
 
 ## Status
 
-Task sets, grading and data model are written. Sample app, harness,
-grader and site are next.
+Task sets, grading rules, and the data model are written. The Tier 1 sample
+app includes baseline tests, hidden checks, and verified reference fixes.
+Run `npm ci --prefix tasks/tier-1-entry/app`, then `npm run test:tier1`.
+The Tier 2 seed script, benchmark grader, harness, and site are next.
 
 ## Credit
 

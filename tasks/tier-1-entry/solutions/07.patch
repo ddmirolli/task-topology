@@ -1,0 +1,16 @@
+--- a/lib/overdue.js
++++ b/lib/overdue.js
+@@ -3 +3,5 @@
+-  return new Date(invoice.due_on) < now;
++  const timezone = client.timezone || 'UTC';
++  const parts = new Intl.DateTimeFormat('en-US', { timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(now);
++  const part = (name) => parts.find((p) => p.type === name).value;
++  const today = `${part('year')}-${part('month')}-${part('day')}`;
++  return invoice.due_on < today;
+--- a/jobs/remind-overdue.js
++++ b/jobs/remind-overdue.js
+@@ -1,0 +2 @@
++const { isOverdue } = require('../lib/overdue');
+@@ -14 +15 @@
+-    if (new Date(inv.due_on) < now) {
++    if (isOverdue(inv, now, { timezone: inv.timezone })) {

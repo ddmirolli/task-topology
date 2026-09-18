@@ -1,0 +1,28 @@
+<%- include('../partials/head', { title: 'Invoices' }) %>
+<h1>Invoices</h1>
+<form method="get" action="/invoices" class="filters">
+  <input type="search" name="q" placeholder="Search number or client" value="<%= filter.q %>">
+  <select name="status">
+    <option value="" <%= filter.status === '' ? 'selected' : '' %>>All</option>
+    <option value="unpaid" <%= filter.status === 'unpaid' ? 'selected' : '' %>>Unpaid</option>
+    <option value="overdue" <%= filter.status === 'overdue' ? 'selected' : '' %>>Overdue</option>
+    <option value="paid" <%= filter.status === 'paid' ? 'selected' : '' %>>Paid</option>
+  </select>
+  <button type="submit" class="btn-primary">Filter</button>
+</form>
+<table>
+  <thead><tr><th>Number</th><th>Client</th><th>Issued</th><th>Due</th><th>Status</th><th>Total</th></tr></thead>
+  <tbody>
+    <% invoices.forEach(function (inv) { %>
+      <tr class="<%= inv.overdue ? 'overdue' : '' %>">
+        <td><%= inv.number %></td>
+        <td><%= inv.client_name %></td>
+        <td><%= inv.issued_on %></td>
+        <td><%= inv.due_on %></td>
+        <td><%= inv.overdue ? 'overdue' : inv.status %></td>
+        <td><%= formatMoney(inv.total) %></td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+<%- include('../partials/foot') %>

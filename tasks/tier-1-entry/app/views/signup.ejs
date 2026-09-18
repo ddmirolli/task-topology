@@ -1,0 +1,19 @@
+<%- include('partials/head', { title: 'Sign up' }) %>
+<h1>Sign up</h1>
+<% if (error) { %><p class="error"><%= error %></p><% } %>
+<form method="post" action="/signup" class="card" id="signup-form">
+  <label>Email <input type="email" name="email" required></label>
+  <label>Password <input type="password" name="password" minlength="8" required></label>
+  <button type="submit" class="btn-primary">Create account</button>
+</form>
+<script src="/js/validate.js"></script>
+<script>
+  document.getElementById('signup-form').addEventListener('submit', function (e) {
+    var email = this.querySelector('[name=email]').value;
+    if (!window.validate.isValidEmail(email)) {
+      e.preventDefault();
+      alert('That email address does not look right.');
+    }
+  });
+</script>
+<%- include('partials/foot') %>

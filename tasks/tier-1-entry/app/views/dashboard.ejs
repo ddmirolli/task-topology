@@ -1,0 +1,15 @@
+<%- include('partials/head', { title: 'Dashboard' }) %>
+<h1>Dashboard</h1>
+<p class="stat">Unpaid invoices: <strong data-unpaid="<%= unpaid %>"><%= unpaid %></strong></p>
+<table>
+  <thead><tr><th>Client</th><th>Invoices</th></tr></thead>
+  <tbody>
+    <% rows.forEach(function (row) { %>
+      <tr>
+        <td><%= row.name %></td>
+        <td data-client="<%= row.id %>" data-count="<%= row.invoiceCount %>"><%= row.invoiceCount %></td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+<%- include('partials/foot') %>

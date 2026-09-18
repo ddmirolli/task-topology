@@ -1,0 +1,8 @@
+<%- include('../partials/head', { title: 'Delete client' }) %>
+<h1>Delete client</h1>
+<p>Delete <strong><%= clientRow.name %></strong> and all of their invoices? This cannot be undone.</p>
+<form method="post" action="/clients/<%= clientRow.id %>/delete" class="card">
+  <button type="submit" class="btn-danger">Delete client</button>
+  <a href="/clients">Cancel</a>
+</form>
+<%- include('../partials/foot') %>

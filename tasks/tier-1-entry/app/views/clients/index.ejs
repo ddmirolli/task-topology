@@ -1,0 +1,16 @@
+<%- include('../partials/head', { title: 'Clients' }) %>
+<h1>Clients</h1>
+<table>
+  <thead><tr><th>Client</th><th>Email</th><th>Timezone</th><th></th></tr></thead>
+  <tbody>
+    <% clients.forEach(function (c) { %>
+      <tr>
+        <td><%= c.name %></td>
+        <td><%= c.email || '' %></td>
+        <td><%= c.timezone || '' %></td>
+        <td><a href="/clients/<%= c.id %>/delete">Delete</a></td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+<%- include('../partials/foot') %>
