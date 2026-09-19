@@ -1,7 +1,7 @@
 # Data model status
 
 The version 0.9 scoring rulings supersede the original aggregate formulas.
-The runner, submission service, and aggregate calculator are not built.
+The public submission service and aggregate calculator are not built.
 No result has been published using these schemas.
 
 ## Run records
@@ -11,10 +11,11 @@ usage, timing, and transcript. Server grading must ignore submitter scores.
 The `task.target_hours` field is a legacy design estimate. It must not be
 used as measured runtime, credited work, or evidence of a trust boundary.
 
-The pilot also needs frozen task work units, provider and environment
-failure outcomes, exclusions with evidence, complete billable usage, and
-cost calculation provenance. Finalize a new run-schema version when those
-requirements are implemented in the runner. Do not infer missing costs.
+The local pilot uses a separate `tti-pilot-run/1` record, documented in
+[pilot/README.md](../pilot/README.md). It records fixed task fingerprints,
+provider IDs, usage, elapsed time, failure outcomes, and actual or unavailable
+cost. Its enclosing plan supplies dated prices. It is not a public submission
+schema and does not support automatic exclusions. Do not infer missing costs.
 
 ## Retired aggregate schema
 

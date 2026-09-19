@@ -1,0 +1,21 @@
+{
+  "source": "https://developers.openai.com/api/docs/pricing",
+  "date": "2026-09-18",
+  "retrievedAt": "2026-09-19T01:05:59.254966+00:00",
+  "serviceTier": "default",
+  "maximumInputTokens": 32000,
+  "rates": {
+    "gpt-5.6-luna": {
+      "input": 0.2,
+      "cached": 0.02,
+      "cacheWrite": 0.25,
+      "output": 1.2
+    },
+    "gpt-5.6-terra": {
+      "input": 2,
+      "cached": 0.2,
+      "cacheWrite": 2.5,
+      "output": 12
+    }
+  }
+}

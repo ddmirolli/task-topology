@@ -1,0 +1,44 @@
+{
+  "version": "tti-pilot-plan/1",
+  "approved": false,
+  "tickets": [
+    "01",
+    "04",
+    "07"
+  ],
+  "repetitions": 3,
+  "totalUsd": 40,
+  "limits": {
+    "attemptSeconds": 900,
+    "commandSeconds": 30,
+    "maxTurns": 30,
+    "maxInputTokens": 32000,
+    "maxOutputTokens": 4000,
+    "attemptUsd": 4
+  },
+  "priceSource": "https://developers.openai.com/api/docs/pricing",
+  "priceDate": "2026-09-18",
+  "models": [
+    {
+      "id": "gpt-5.6-luna",
+      "effort": "medium",
+      "rates": {
+        "input": 0.2,
+        "cached": 0.02,
+        "cacheWrite": 0.25,
+        "output": 1.2
+      }
+    },
+    {
+      "id": "gpt-5.6-terra",
+      "effort": "medium",
+      "rates": {
+        "input": 2,
+        "cached": 0.2,
+        "cacheWrite": 2.5,
+        "output": 12
+      }
+    }
+  ],
+  "priceEvidenceHash": "a73da0015b263f98f09aee94ea1d9ad94d055f36da3a1623f14db3e364cd3f61"
+}

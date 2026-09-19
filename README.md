@@ -4,7 +4,8 @@ Which model should I use here, and how wide a task can I hand it?
 
 TTI is being built to plot AI models in 3D, per task tier, with results
 at [tasktopology.com](https://tasktopology.com). This repo holds the
-benchmark design and test fixtures. The runner and results site are pending.
+benchmark design, test fixtures, and a small macOS validation runner.
+The public submission service and results site are pending.
 
 ## The three axes
 
@@ -55,16 +56,16 @@ Editing things outside the task. Full definitions in [SPEC.md](SPEC.md).
 
 ## Running it
 
-Coming with the harness. The plan: install, pick a model, run a tier,
-then `tti submit` sends the transcript and token counts to
-tasktopology.com. The site regrades every transcript itself and checks
-the task text was used word for word.
+The [validation runner](pilot/README.md) grades three Tier 1 tasks and records
+time and API cost. Its paid proposal needs model and budget approval. Local
+verification makes no benchmark model calls. Public submission is later work.
 
 ## Repo map
 
 - [SPEC.md](SPEC.md), the full design.
 - [GRADING.md](GRADING.md), the failure list and tier rubrics.
 - [PILOT.md](PILOT.md), the small validation pilot and its prerequisites.
+- [pilot/](pilot/README.md), the runner, public task contracts, and behavioral checks.
 - [tasks/](tasks/), the three tier task sets with answer keys the model
   never sees.
 - [schema/](schema/), the run and aggregate data model behind the chart.
@@ -75,9 +76,13 @@ the task text was used word for word.
 
 Task sets, grading rules, and the data model are written. The Tier 1 sample
 app includes baseline tests, hidden checks, and verified reference fixes.
-Its checks still need a fairness audit before grading arbitrary model fixes.
+The separate pilot grader accepts two distinct valid fixes for each selected
+task and rejects the original and partial defects. The original ten-ticket
+suite remains a maintainer fixture check, not the pilot scoring authority.
 Run `npm ci --prefix tasks/tier-1-entry/app`, then `npm run test:tier1`.
-The Tier 2 seed script, benchmark grader, harness, and site are next.
+Run `npm run test:pilot` and `npm run verify:pilot` for local pilot verification.
+Browser verification uses Browserbase. Live model calls, the full transcript
+rubric, Tier 2 execution, and the public site remain pending.
 
 ## Credit
 

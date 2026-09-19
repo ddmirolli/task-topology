@@ -3,6 +3,10 @@
 Draft v0.1, 2026-09-18. The three scoring rulings in SPEC.md are approved.
 The model choices, spending limit, and replacement TTI formula are not.
 
+Implementation: [pilot/README.md](pilot/README.md). The local runner and
+behavioral checks cover the three selected tickets. Its proposal is two
+models, 18 attempts, and a $40 API cap. Live model validation remains pending.
+
 ## Question
 
 Can TTI grade different valid solutions fairly and record correct work,
@@ -26,7 +30,8 @@ and Tier 3 runs deferred.
    selectors, internal names, and migration approaches that satisfy the task.
 3. For each ticket, prove the checks accept two independently written valid
    solutions and reject fixes that leave a required behavior broken. The
-   current suite proves only the reference fixes; this work is pending.
+   pilot fixture suite now covers two valid implementations, the original
+   defect, and two partial fixes per selected ticket.
 4. Build the minimum runner: isolated app copies, the same tool interface,
    transcripts, timing, provider usage, and grading outside the model's
    workspace. Keep answers,

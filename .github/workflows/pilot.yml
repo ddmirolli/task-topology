@@ -1,0 +1,22 @@
+name: Validation pilot
+on:
+  pull_request:
+    paths: ['pilot/**', 'tasks/tier-1-entry/**', 'package.json', '.github/workflows/pilot.yml']
+  push:
+    branches: [main]
+    paths: ['pilot/**', 'tasks/tier-1-entry/**', 'package.json', '.github/workflows/pilot.yml']
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: macos-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci --prefix tasks/tier-1-entry/app
+      - run: npm ci --prefix pilot
+      - run: npm run test:pilot
+      - run: npm run verify:pilot

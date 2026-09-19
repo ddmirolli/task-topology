@@ -37,8 +37,11 @@ whether it matches a reference implementation.
 
 The current Tier 1 suite verifies the supplied fixtures and reference
 fixes. Some checks inspect source text or fixed selectors and routes.
-Those checks need the fairness audit in [PILOT.md](PILOT.md) before they
-can grade arbitrary model submissions. They are not yet a general grader.
+They remain maintainer checks. The separate [pilot grader](pilot/README.md)
+checks tickets 01, 04, and 07 through rendered forms, persisted data, HTTP
+responses, and reminder output. It accepts alternative implementations and
+snapshot assertions. Its requirements are supplied in the public task contract.
+It does not yet implement every transcript failure rule below.
 
 ## Layer 1, the failure list
 
