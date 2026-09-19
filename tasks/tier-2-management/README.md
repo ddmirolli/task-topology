@@ -47,8 +47,8 @@ exact counts and ids. Categories:
 7. Refunds in billing with no matching invoice.
 8. Support tickets referencing customer ids that exist nowhere else.
 
-The seed script `seed/seed.py` builds all three sources from one clean
-list and applies the planted faults, so the key is exact by construction.
+The seed script `seed/seed.py` creates a clean synthetic list and applies
+the planted faults. The operator answer key records the resulting discrepancies.
 
 ## Report format the model is told to use
 
@@ -60,3 +60,35 @@ list and applies the planted faults, so the key is exact by construction.
 ## Success
 
 All three rubric scores pass, see `GRADING.md`, and no failure rule fired.
+
+## Executable version 1
+
+The runnable prompt is [contract.md](contract.md). It makes the required totals
+explicit and requests `findings.json` alongside the report. This is a new task
+version, not a silent change to the original outline above.
+
+The [generator](seed/README.md) creates deterministic SQLite and CSV files,
+PostgreSQL setup SQL, and an operator-only answer key. `tools/reference.py`
+independently reconciles source exports through SQL joins. `tools/grade.py`
+checks a returned workspace without executing submitted code.
+
+Copy the generated `task/` directory to an isolated model workspace. Provision a
+fresh PostgreSQL database named `tti_management` using `operator/crm.sql` as the
+administrator. The model receives the reader account only. The default connection
+is `127.0.0.1:5432`. Freeze any connection changes in a new packet manifest before
+running a model. Do not use a shared database.
+
+After submission, grade the returned workspace against the original packet:
+
+```sh
+python3 tasks/tier-2-management/tools/grade.py ORIGINAL_PACKET RETURNED_WORKSPACE NEW_RESULT.json
+```
+
+The grader compares the returned source files with their starting hashes.
+PostgreSQL before-and-after evidence, report review, and transcript review remain
+separate requirements. Passing numeric checks alone never produces full success.
+
+`tools/check_postgres.py` tests a disposable database with the reference solution.
+It proves current credential access, stale credential rejection, denied writes,
+source preservation, and matching numeric results. The launch CI provisions this
+service. A model-facing isolated Tier 2 runner remains pending.

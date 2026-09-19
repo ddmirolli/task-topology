@@ -11,7 +11,8 @@
     "test:tier1": "node tasks/tier-1-entry/scripts/verify.mjs",
     "test:pilot": "node --test pilot/runner.test.mjs pilot/codex.test.mjs scripts/summarize-pilot.test.mjs scripts/subscription-cost.test.mjs",
     "verify:pilot": "node pilot/verify.mjs",
-    "verify:pilot:browser": "node pilot/verify.mjs --browser"
+    "verify:pilot:browser": "node pilot/verify.mjs --browser",
+    "test:launch": "node --test grading/*.test.mjs"
   },
   "devDependencies": {
     "sharp": "0.35.4"
