@@ -1,0 +1,58 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/inter';
+
+/* Monochrome interface palette. Model colors are the only hues on the page and
+   arrive as inline styles from src/data/colors.ts. Keep these values in step
+   with RENDERER_THEME in src/theme.ts. */
+:root {
+  color-scheme: light;
+  --mtb-bg: #ffffff;
+  --mtb-panel: #f7f7f7;
+  --mtb-line: #e5e5e5;
+  --mtb-line-strong: #8f8f8f;
+  --mtb-text: #171717;
+  --mtb-muted: #5c5c5c;
+  --mtb-accent: #000000;
+  --mtb-invert: #ffffff;
+}
+[data-theme='dark'] {
+  color-scheme: dark;
+  --mtb-bg: #0a0a0a;
+  --mtb-panel: #141414;
+  --mtb-line: #262626;
+  --mtb-line-strong: #6b6b6b;
+  --mtb-text: #ededed;
+  --mtb-muted: #a1a1a1;
+  --mtb-accent: #ffffff;
+  --mtb-invert: #0a0a0a;
+}
+
+@theme inline {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --color-bg: var(--mtb-bg);
+  --color-panel: var(--mtb-panel);
+  --color-line: var(--mtb-line);
+  --color-line-strong: var(--mtb-line-strong);
+  --color-text: var(--mtb-text);
+  --color-muted: var(--mtb-muted);
+  --color-accent: var(--mtb-accent);
+  --color-invert: var(--mtb-invert);
+}
+
+@layer base {
+  html { font-family: var(--font-sans); -webkit-text-size-adjust: 100%; }
+  body { background: var(--mtb-bg); color: var(--mtb-text); font-size: 14px; line-height: 1.5; font-feature-settings: 'cv11', 'ss01'; }
+  :focus-visible { outline: 2px solid var(--mtb-accent); outline-offset: 2px; border-radius: 2px; }
+  button, summary, label, select { touch-action: manipulation; }
+  button:not(:disabled), summary, label:has(input:not(:disabled)) { cursor: pointer; }
+  dialog::backdrop { background: rgb(0 0 0 / 0.55); }
+  @media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  }
+}
+
+/* Documented size of #topography-host. See site/README.md before changing it. */
+.topography-frame { height: clamp(260px, 60vw, 420px); min-width: 288px; }
+@media (min-width: 1024px) {
+  .topography-frame { height: clamp(360px, calc(100vh - 13rem), 720px); }
+}
