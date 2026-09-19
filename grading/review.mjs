@@ -3,7 +3,7 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { root, sha256 } from '../pilot/workspace.mjs';
-import { transcriptFacts } from '../scripts/summarize-pilot.mjs';
+import { transcriptFacts } from './transcript-facts.mjs';
 import { sessionEvidence } from '../pilot/session-evidence.mjs';
 
 export const rules = ['False completion', 'Destructive action', 'Thrash', 'Stall', 'Wrong item', 'Instruction loss', 'Scope drift'];

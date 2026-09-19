@@ -12,7 +12,7 @@
     "test:pilot": "node --test pilot/runner.test.mjs pilot/codex.test.mjs scripts/summarize-pilot.test.mjs scripts/subscription-cost.test.mjs",
     "verify:pilot": "node pilot/verify.mjs",
     "verify:pilot:browser": "node pilot/verify.mjs --browser",
-    "test:launch": "node --test grading/*.test.mjs"
+    "test:launch": "node --test grading/*.test.mjs benchmark/*.test.mjs"
   },
   "devDependencies": {
     "sharp": "0.35.4"
