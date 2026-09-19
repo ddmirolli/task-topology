@@ -10,41 +10,41 @@ function fixture() {
   return { plan, attempts };
 }
 const compute = ({ plan, attempts }) => executionEfficiency(plan, attempts);
-test('speed and cost improve candidate Z independently; publication stays unavailable', () => {
+test('speed and cost improve candidate efficiency independently; publication stays unavailable', () => {
   const f = fixture(), fast = compute(f);
   assert.equal(fast.workPerHour, 8); assert.equal(fast.workPerDollar, 2);
-  assert.ok(Math.abs(fast.candidateZ - 4) < 1e-12);
+  assert.ok(Math.abs(fast.candidateEfficiency - 4) < 1e-12);
   const slow = executionEfficiency(f.plan, f.attempts.map(a => ({ ...a, elapsedSeconds: 720 })));
   const costly = executionEfficiency(f.plan, f.attempts.map(a => ({ ...a, costUsd: 0.8 })));
-  assert.ok(fast.candidateZ > slow.candidateZ); assert.ok(fast.candidateZ > costly.candidateZ);
-  assert.equal(fast.publishedZ, null); assert.equal(fast.comparisonEligible, false);
+  assert.ok(fast.candidateEfficiency > slow.candidateEfficiency); assert.ok(fast.candidateEfficiency > costly.candidateEfficiency);
+  assert.equal(fast.publishedEfficiency, null); assert.equal(fast.comparisonEligible, false);
 });
 test('more reasoning can peak then decline; no effort label grants score credit', () => {
   const f = fixture();
   const values = [
     [2, 360, 0.4], [4, 360, 0.4], [5, 720, 0.8], [5, 1440, 1.6], [5, 2880, 3.2],
   ].map(([passes, seconds, dollars]) => executionEfficiency(f.plan, f.attempts.map((a, i) => ({ ...a,
-    verdict: i < passes ? 'pass' : 'fail', elapsedSeconds: seconds, costUsd: dollars }))).candidateZ);
+    verdict: i < passes ? 'pass' : 'fail', elapsedSeconds: seconds, costUsd: dollars }))).candidateEfficiency);
   assert.ok(values[1] > values[0] && values[1] > values[2] && values[2] > values[3] && values[3] > values[4]);
 });
 test('failed attempts count and duplicating a matched cohort does not inflate efficiency', () => {
   const f = fixture(), initial = compute(f);
   f.attempts[4].costUsd = 4;
   f.attempts[4].elapsedSeconds = 3600;
-  assert.ok(compute(f).candidateZ < initial.candidateZ);
+  assert.ok(compute(f).candidateEfficiency < initial.candidateEfficiency);
   const doubled = fixture();
   doubled.plan.slots.push(...doubled.plan.slots.map(s => ({ ...s, attemptId: s.attemptId + '-repeat' })));
   doubled.attempts.push(...doubled.attempts.map(a => ({ ...a, attemptId: a.attemptId + '-repeat' })));
-  assert.ok(Math.abs(compute(doubled).candidateZ - initial.candidateZ) < 1e-12);
+  assert.ok(Math.abs(compute(doubled).candidateEfficiency - initial.candidateEfficiency) < 1e-12);
 });
 test('unknown data and unreviewed environments cannot become free or successful work', () => {
   for (const change of [{ costUsd: null }, { elapsedSeconds: null }, { verdict: 'pending' }, { verdict: 'environment_failure' }]) {
     const f = fixture(); Object.assign(f.attempts[0], change);
-    assert.equal(compute(f).candidateZ, null);
+    assert.equal(compute(f).candidateEfficiency, null);
   }
   const f = fixture();
-  assert.equal(executionEfficiency(f.plan, f.attempts.map(a => ({ ...a, costUsd: 0 }))).candidateZ, null);
-  assert.equal(executionEfficiency(f.plan, f.attempts.map(a => ({ ...a, verdict: 'fail' }))).candidateZ, 0);
+  assert.equal(executionEfficiency(f.plan, f.attempts.map(a => ({ ...a, costUsd: 0 }))).candidateEfficiency, null);
+  assert.equal(executionEfficiency(f.plan, f.attempts.map(a => ({ ...a, verdict: 'fail' }))).candidateEfficiency, 0);
 });
 test('rejects omitted, duplicated, mixed, or invalid records', () => {
   for (const mutate of [

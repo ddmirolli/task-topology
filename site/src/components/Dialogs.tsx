@@ -34,12 +34,14 @@ export function MethodologyDialog({ open, onClose }: { open: boolean; onClose():
       <dl>
         <dt className={term}>Tiers</dt>
         <dd className={definition}>One benchmark has three tiers: entry level, middle management and senior executive. Every compared configuration gets the same tasks, starting state, tools, limits and grading within a tier.</dd>
+        <dt className={term}>The map</dt>
+        <dd className={definition}>Height is intelligence. The floor is trusted workload against execution efficiency. A tier change moves a point across the floor and keeps its height.</dd>
         <dt className={term}>X, trusted workload</dt>
-        <dd className={definition}>The amount of coherent work a configuration completes in one session without help, at a 90 percent success bar. The workload scale is not calibrated yet, so no X is published.</dd>
-        <dt className={term}>Y, external intelligence</dt>
+        <dd className={definition}>The amount of coherent work a configuration completes in one session without help, at a 90 percent success bar. The workload scale is not calibrated yet, so no workload score is published.</dd>
+        <dt className={term}>Y, execution efficiency</dt>
+        <dd className={definition}>Correct work against cost and elapsed time. The current geometric-mean formula is an unvalidated candidate, so no efficiency score is published.</dd>
+        <dt className={term}>Z, external intelligence</dt>
         <dd className={definition}>The Epoch Capabilities Index for the same model. A snapshot is imported, but no tested configuration has a verified identity match yet. Names are never fuzzy matched.</dd>
-        <dt className={term}>Z, execution efficiency</dt>
-        <dd className={definition}>Correct work against cost and elapsed time. The current geometric-mean formula is an unvalidated candidate, so no Z is published.</dd>
         <dt className={term}>Current data</dt>
         <dd className={definition}>The table holds a diagnostic cohort. It records app-check outcomes, elapsed time and cost estimates. An app that passes its checks has not passed full grading. These results do not rank models.</dd>
         <dt className={term}>Cost</dt>
@@ -51,7 +53,7 @@ export function MethodologyDialog({ open, onClose }: { open: boolean; onClose():
         <dt className={term}>Connecting surface</dt>
         <dd className={definition}>The surface between points is visual interpolation. It does not claim performance for an untested model or setting.</dd>
         <dt className={term}>Reasoning settings</dt>
-        <dd className={definition}>Each setting is a separately measured configuration. Provider labels have no shared scale, and scores can rise or fall as effort grows.</dd>
+        <dd className={definition}>Each setting is a separately measured configuration. The reasoning slider runs from each model's lowest measured setting to its highest. Provider labels have no shared scale, no setting is ever estimated, and scores can rise or fall as effort grows.</dd>
       </dl>
       <p className="mt-5 border-t border-line pt-4">
         <a className="font-medium underline underline-offset-2" href="https://github.com/ddmirolli/model-topography/blob/main/SPEC.md" target="_blank" rel="noreferrer">Full specification ↗</a>

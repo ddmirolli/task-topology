@@ -1,14 +1,9 @@
 import type { ReactNode } from 'react';
 import type { AxisMeasurement } from '../../../core/topography.ts';
+import { CHART_AXES } from '../axes.ts';
 import type { ConfigurationRecord } from '../data/records.ts';
 import { costBasisLabel, recorded, seconds, TIER_NAMES, usd } from '../format.ts';
 import { ModelMark } from './ModelMark.tsx';
-
-const AXES = [
-  { key: 'x', name: 'Trusted workload' },
-  { key: 'y', name: 'External intelligence' },
-  { key: 'z', name: 'Execution efficiency' },
-] as const;
 
 // A validated coordinate reads as a large numeral. A missing one takes one quiet
 // line with its reason, so an unscored configuration does not shout.
@@ -50,7 +45,7 @@ export function Reading({ record, color }: { record: ConfigurationRecord; color:
       <p className="mt-1 text-muted">{configuration.reasoning.label} reasoning, {TIER_NAMES[point.tier].toLowerCase()}</p>
 
       <dl className="my-5 space-y-3">
-        {AXES.map(axis => <Axis key={axis.key} letter={axis.key} name={axis.name} axis={point.axes[axis.key]} />)}
+        {CHART_AXES.map(entry => <Axis key={entry.axis} letter={entry.letter} name={entry.name} axis={point.axes[entry.axis]} />)}
       </dl>
 
       <dl className="border-t border-line pt-3 text-[14px]">
@@ -81,8 +76,9 @@ export function Reading({ record, color }: { record: ConfigurationRecord; color:
         )}
         <dl>
           <Row label="Requested model ID">{configuration.modelId}</Row>
-          <Row label="Vendor">{recorded(configuration.vendor)}</Row>
-          <Row label="Client">{configuration.client} {configuration.clientVersion}</Row>
+          <Row label="Registry identity">{configuration.identity ? `${configuration.identity.provider}/${configuration.identity.model} (${configuration.identity.scheme})` : recorded(null)}</Row>
+          <Row label="Access method">{recorded(configuration.accessMethod)}</Row>
+          <Row label="Client">{configuration.client} {configuration.clientVersion ?? ''}</Row>
           <Row label="Provider value">{recorded(configuration.reasoning.providerValue)}</Row>
           <Row label="Profile hash">{configuration.profileHash ? `${configuration.profileHash.slice(0, 16)}…` : recorded(null)}</Row>
           <Row label="Task set version">{recorded(point.taskSetVersion)}</Row>

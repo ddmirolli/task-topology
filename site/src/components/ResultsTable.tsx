@@ -1,5 +1,6 @@
 import { useMemo, useState, type ReactNode } from 'react';
-import type { AxisMeasurement } from '../../../core/topography.ts';
+import { isComplete, type AxisMeasurement } from '../../../core/topography.ts';
+import { CHART_AXES } from '../axes.ts';
 import type { ConfigurationRecord } from '../data/records.ts';
 import { seconds, usd } from '../format.ts';
 import { ModelMark } from './ModelMark.tsx';
@@ -48,7 +49,7 @@ export function ResultsTable({ records, selected, colors, focusedPointId, pinned
   const [sort, setSort] = useState<{ key: SortKey; ascending: boolean }>({ key: 'model', ascending: true });
   const hasTasks = records.some(record => record.tasks.length > 0);
   // Until a coordinate is validated, one column says so once per row instead of three times.
-  const scored = records.some(({ point }) => [point.axes.x, point.axes.y, point.axes.z].some(axis => axis.status === 'validated'));
+  const scored = records.some(({ point }) => CHART_AXES.some(entry => point.axes[entry.axis].status === 'validated'));
 
   const rows = useMemo(() => {
     const built: TableRow[] = view === 'tasks'
@@ -105,7 +106,7 @@ export function ResultsTable({ records, selected, colors, focusedPointId, pinned
                 {header('checks', 'App checks', 'text-right')}
                 {header('elapsed', 'Elapsed', 'text-right')}
                 {header('cost', 'API-equivalent cost', 'text-right')}
-                {scored ? <>{plain('X', 'hidden text-right sm:table-cell')}{plain('Y', 'hidden text-right sm:table-cell')}{plain('Z', 'hidden text-right sm:table-cell')}</>
+                {scored ? CHART_AXES.map(entry => <th key={entry.axis} scope="col" className="hidden px-3 text-right font-normal sm:table-cell"><span className="uppercase">{entry.letter}</span> {entry.axis}</th>)
                   : plain('X, Y, Z coordinates', 'hidden text-right sm:table-cell')}
                 {plain('On map', 'hidden text-right md:table-cell')}
               </tr>
@@ -114,7 +115,7 @@ export function ResultsTable({ records, selected, colors, focusedPointId, pinned
               {rows.map(row => {
                 const { point } = row.record, { configuration } = point;
                 const pinned = pinnedPointId === point.id, focused = focusedPointId === point.id;
-                const complete = [point.axes.x, point.axes.y, point.axes.z].every(axis => axis.status === 'validated');
+                const complete = isComplete(point);
                 return (
                   <tr key={row.key} data-point={point.id} onMouseEnter={() => onHover(point.id)} onMouseLeave={() => onHover(null)} onClick={() => onPin(point.id)}
                     className={`cursor-pointer border-t border-line ${pinned ? 'bg-face shadow-[inset_3px_0_0_var(--mtb-text)]' : focused ? 'bg-face' : ''}`}>
@@ -127,15 +128,12 @@ export function ResultsTable({ records, selected, colors, focusedPointId, pinned
                     </th>
                     {view === 'tasks' && <td className="px-3">{row.taskName}</td>}
                     <td className="px-3">{configuration.reasoning.label}</td>
-                    <td className="hidden px-3 md:table-cell">{configuration.client} {configuration.clientVersion}</td>
+                    <td className="hidden px-3 md:table-cell">{configuration.client} {configuration.clientVersion ?? ''}</td>
                     <td className="px-3 text-right">{row.checks} / {row.attempts}</td>
                     <td className="px-3 text-right">{seconds(row.elapsed)}</td>
                     <td className="px-3 text-right">{usd(row.cost)}</td>
-                    {scored ? <>
-                      <td className="hidden px-3 text-right sm:table-cell">{axisCell(point.axes.x)}</td>
-                      <td className="hidden px-3 text-right sm:table-cell">{axisCell(point.axes.y)}</td>
-                      <td className="hidden px-3 text-right sm:table-cell">{axisCell(point.axes.z)}</td>
-                    </> : <td className="hidden px-3 text-right text-muted sm:table-cell">Unavailable</td>}
+                    {scored ? CHART_AXES.map(entry => <td key={entry.axis} className="hidden px-3 text-right sm:table-cell">{axisCell(point.axes[entry.axis])}</td>)
+                      : <td className="hidden px-3 text-right text-muted sm:table-cell">Unavailable</td>}
                     <td className="hidden px-3 text-right text-muted md:table-cell">{!selected.has(configuration.id) ? 'Not shown' : complete ? 'Plotted' : 'No coordinates'}</td>
                   </tr>
                 );

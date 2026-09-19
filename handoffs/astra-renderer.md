@@ -55,12 +55,19 @@ Develop against the synthetic fixture: `npm run dev`, then `/?fixture=synthetic`
 It has four models, several reasoning settings, a score that falls at the highest
 effort, and one configuration with a missing axis.
 
+## Axes
+
+Data uses axis names. Letters exist only on the chart, in `site/src/axes.ts`. Workload
+is X and efficiency is Y. They span the floor. Intelligence is Z and you draw it upward.
+Intelligence is fixed per model, so a tier change moves a point across the floor and
+keeps its height. Keep axis ranges fixed across tiers so that motion is readable.
+
 ## State you receive
 
 | Field | Meaning |
 | --- | --- |
 | `tier`, `comparisonKey` | The visitor's choices. Filter with `visiblePoints(state)` |
-| `points` | Every loaded point, all tiers. Never plot an `unavailable` axis at zero |
+| `points` | Every loaded point, all tiers. Axes are named `workload`, `efficiency`, `intelligence`. Never plot an `unavailable` axis at zero |
 | `selectedConfigurationIds` | One configuration per shown model: the reasoning setting in use. These build the surface. Sorted |
 | `focusedPointId` | The hovered or keyboard-focused point. If none, the pinned point. Else `null` |
 | `showSurface`, `showReasoningPaths` | The layer checkboxes |
@@ -91,12 +98,16 @@ points, reasoning paths, and legend marks only. Do not define colors in the rend
   the reading beside the map. Escape unpins it.
 
 Neither event changes `selectedConfigurationIds`. The model keys under the panel own
-that. A key shows or hides its model. Its arrows step through the model's measured
-reasoning settings, and the chosen setting becomes the model's selected configuration.
+that, with one reasoning slider. A key shows or hides its model. Each slider stop maps
+onto every model's own measured settings in recorded order, and that setting becomes
+the model's selected configuration. When the slider moves, `update()` brings new
+selected IDs. Move each dot from its old measured position to its new one. With
+`reducedMotion`, move it without a transition.
 
 `visiblePoints(state)` returns the selected configurations only. For reasoning paths,
-read a shown model's other measured settings from `state.points`, with the same tier
-and comparison key. Draw them as smaller marks. `site/mockups/Surface.tsx` illustrates
+read a model's other measured settings from `state.points`, with the same tier and
+comparison key. Draw them as smaller marks, and only for the model that owns
+`focusedPointId`. By default each model shows one dot. `site/mockups/Surface.tsx` illustrates
 the intended look with notional data. It is a static SVG, not a starting point for the engine.
 
 ## Rules from the specification
@@ -114,10 +125,12 @@ the intended look with notional data. It is a static SVG, not a starting point f
 
 ## Open interface issues
 
-Fable did not change `core/topography.ts`. These need a decision before real scores publish:
+Dan approved a contract change on 2026-09-19: named axes, registry identity, and access
+method. These remain open before real scores publish:
 
-1. `vendor`, `profileHash`, and `taskSetVersion` are required strings. The public
-   dataset records none of them. The site stores `''` and displays "Not recorded".
+1. Resolved on 2026-09-19: axes are named, and `identity`, `accessMethod`,
+   `profileHash`, and `taskSetVersion` accept `null`. The public dataset still records
+   none of them. The publishing pipeline must start recording identity and access method.
 2. `successCount` has no place for unadjudicated app checks. The site sets it to
    `null` and keeps app checks in its own `ConfigurationRecord`.
 3. `visiblePoints` drops a model's unselected reasoning settings, but reasoning paths

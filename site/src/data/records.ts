@@ -22,24 +22,20 @@ export interface ConfigurationRecord {
   datasetDate: string;
 }
 
-// Field values the public dataset does not record. The shared types require a
-// string, so the page stores an empty one and displays it as not recorded.
-export const NOT_RECORDED = '';
-
 // `mtb-public-diagnostic/1` holds entry-level tickets only and has no tier field.
 const DIAGNOSTIC_TIER: Tier = 1;
 
 const unavailable = (reason: string): AxisMeasurement => ({ status: 'unavailable', reason });
 export const AXIS_REASONS = {
-  x: 'Workload calibration is not validated. No X is published.',
-  y: 'No verified Epoch ECI identity match for this configuration.',
-  z: 'The efficiency formula is an unvalidated candidate. No Z is published.',
+  workload: 'Workload calibration is not validated. No workload score is published.',
+  efficiency: 'The efficiency formula is an unvalidated candidate. No efficiency score is published.',
+  intelligence: 'No verified Epoch ECI identity match for this configuration.',
 } as const;
 
 // "Codex CLI 0.155.1" carries the client and its version in one field.
-export function splitClient(label: string): { client: string; clientVersion: string } {
+export function splitClient(label: string): { client: string; clientVersion: string | null } {
   const match = /^(.*\S)\s+v?(\d+(?:\.\d+)+\S*)$/.exec(label.trim());
-  return match?.[1] && match[2] ? { client: match[1], clientVersion: match[2] } : { client: label.trim(), clientVersion: NOT_RECORDED };
+  return match?.[1] && match[2] ? { client: match[1], clientVersion: match[2] } : { client: label.trim(), clientVersion: null };
 }
 
 const total = (values: readonly (number | null)[]): number | null =>
@@ -58,7 +54,8 @@ export function buildRecords(dataset: DiagnosticDataset): ConfigurationRecord[] 
     if (!group) {
       group = {
         configuration: {
-          id, modelId: row.model, displayName: row.model, vendor: NOT_RECORDED, ...splitClient(row.client), profileHash: NOT_RECORDED,
+          // The public dataset records no registry identity, access method, or profile hash.
+          id, modelId: row.model, displayName: row.model, identity: null, accessMethod: null, ...splitClient(row.client), profileHash: null,
           // The dataset records the effort label only. Provider value and order are not published.
           reasoning: { label: row.effort, providerValue: null, order: null },
         },
@@ -76,8 +73,8 @@ export function buildRecords(dataset: DiagnosticDataset): ConfigurationRecord[] 
     return {
       point: {
         id: `${configuration.id}#tier-${DIAGNOSTIC_TIER}#${comparisonKey}`,
-        configuration, tier: DIAGNOSTIC_TIER, comparisonKey, taskSetVersion: NOT_RECORDED,
-        axes: { x: unavailable(AXIS_REASONS.x), y: unavailable(AXIS_REASONS.y), z: unavailable(AXIS_REASONS.z) },
+        configuration, tier: DIAGNOSTIC_TIER, comparisonKey, taskSetVersion: null,
+        axes: { workload: unavailable(AXIS_REASONS.workload), efficiency: unavailable(AXIS_REASONS.efficiency), intelligence: unavailable(AXIS_REASONS.intelligence) },
         elapsedSeconds: total(tasks.map(task => task.elapsedSeconds)),
         costUsd, costBasis: costUsd === null ? null : dataset.costBasis,
         attemptCount: tasks.reduce((sum, task) => sum + task.attempts, 0),

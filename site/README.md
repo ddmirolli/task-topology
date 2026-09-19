@@ -43,12 +43,15 @@ Epoch name to a tested configuration.
 `src/data/records.ts` groups the task rows into one `TopographyPoint` for each
 measured configuration. The rules:
 
-- All three axes are `unavailable`, each with its reason. No X, Y, or Z is published.
+- The axes are named `workload`, `efficiency`, and `intelligence`. All three are
+  `unavailable`, each with its reason. `src/axes.ts` holds the chart letters: workload
+  is X, efficiency is Y, and intelligence is the vertical Z.
 - `successCount` is `null`. App checks are not graded successes.
 - Elapsed time and cost are sums across the matched tasks. A missing part makes the
   total unavailable. A missing value never becomes zero.
-- `vendor`, `profileHash`, and `taskSetVersion` are empty strings, because the public
-  dataset does not record them. The page displays "Not recorded".
+- `identity`, `accessMethod`, `profileHash`, and `taskSetVersion` are `null`, because the
+  public dataset does not record them. The page displays "Not recorded". A registry
+  identity is never guessed from a model name.
 
 ## Synthetic fixture
 
@@ -86,7 +89,9 @@ Dan ruled on this structure on 2026-09-19, after reviewing the mockups in `mocku
 2. A short introduction. Dan writes it in `src/content/intro.ts`. While that string
    is empty, the page renders no introduction.
 3. The map panel. Tier tabs sit on its top edge. The panel holds the renderer host
-   and the reading for one configuration. The model keys sit under the panel.
+   and the reading for one configuration. The model keys and one reasoning slider sit
+   under the panel. The slider appears only when a model has more than one measured
+   setting. Each stop maps onto measured settings and nothing is estimated between them.
 4. The results table.
 
 ## Design rules
@@ -101,8 +106,9 @@ Dan ruled on this structure on 2026-09-19, after reviewing the mockups in `mocku
 
 ## Mockups
 
-`mockups/` holds the five design directions Dan reviewed, with notional data and a
-static map illustration. Run `npm run dev` and open `/mockups/`. They never ship: the
+`mockups/` holds the ruled design with notional data and a static map illustration,
+so the populated map can be reviewed before real scores exist. Run `npm run dev` and
+open `/mockups/`. The four rejected directions are in the git history at c8074f4. They never ship: the
 production build has one input, `index.html`, and `src/styles.css` excludes their classes.
 
 ## Deployment

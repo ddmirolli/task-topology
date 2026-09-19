@@ -67,7 +67,7 @@ Executive model runs remain deferred under Dan's earlier pilot ruling.
 ## Scoring and configuration identity
 
 `SPEC.md` defines the axes. `core/efficiency.ts` implements the unpublished
-`mtb-efficiency-geometric/1` candidate. It accepts a complete operator-supplied
+`mtb-efficiency-geometric/2` candidate. It accepts a complete operator-supplied
 plan and adjudicated attempt records. It checks IDs, configuration, cost basis,
 measurement validity, and completeness before calculating rates.
 
@@ -80,6 +80,39 @@ Reasoning settings identify different measured configurations. Keep exact provid
 values and the displayed labels. Low, medium, high, extra high, and ultra are
 examples, not a required provider catalog. Their ordering does not imply equal
 steps or shared semantics across providers. Never interpolate an untested setting.
+
+## Audience and the routing skill
+
+Dan rulings, 2026-09-19. Model Topography serves builders of software. It does not
+try to measure or route every kind of prompt. Task tiers, fixtures, and any tier
+rubric describe software work.
+
+The project has two products that share one published dataset:
+
+1. The open benchmark and its website.
+2. A callable `/modeltopo` skill. It classifies a software task as entry level,
+   middle management, or senior executive, then picks the best measured model
+   configuration that the user can reach. This skill is not built yet.
+
+The division of duty keeps the benchmark unbiased:
+
+- The benchmark publishes measurements and never a winner. Axes are named
+  `workload`, `efficiency`, and `intelligence`. Speed and cost stay published
+  separately, because a routing policy weighs them separately.
+- The skill owns the selection policy. Anyone who loads it can tune the weights,
+  like an equalizer: cost, speed, breadth of work, intelligence. Tuning changes the
+  pick. It never changes a published score.
+- Model identity follows an open external registry, recorded in
+  `ModelConfiguration.identity` as scheme, provider, and model. models.dev is the
+  first scheme. The benchmark does not mint IDs. The skill inherits the providers
+  its host client already has, such as T3 Code providers, and matches them to
+  registry IDs. `accessMethod` records how a run reached the model.
+- An identity is recorded only after it is verified against the registry. Runs
+  record identity and access method at execution time. They cannot be added later.
+
+Open work for the skill: a written tier rubric that a small model can apply to a raw
+task, with evidence that the assigned tier predicts success. A judge model must not
+also be a contestant in the cohort it grades.
 
 ## Website and renderer ownership
 

@@ -4,7 +4,8 @@ import type { MockState, Point } from './shared.tsx';
 
 const W = 800, H = 560, CX = 400, BASE = 236, HALF = 330, DEPTH = 150, RISE = 190, GRID = 12;
 const project = (u: number, v: number, n: number): [number, number] => [CX + (u - v) * HALF, BASE + (u + v) * DEPTH - n * RISE];
-const norm = (point: Point): [number, number, number] => [(point.x ?? 0) / 10, (point.y - 125) / 45, (point.z ?? 0) / 8];
+// Floor: workload by efficiency. Height: intelligence.
+const norm = (point: Point): [number, number, number] => [(point.workload ?? 0) / 10, (point.efficiency ?? 0) / 8, (point.intelligence - 120) / 50];
 
 // Inverse-distance weighting. It is visual interpolation and nothing more.
 function heightAt(u: number, v: number, anchors: readonly [number, number, number][]): number {
@@ -27,10 +28,13 @@ export function Surface({ state, surface = true, paths = true, labels = 'focus',
     lines.push('M' + path.join('L'));
   }
   const floor = [[0, 0], [1, 0], [1, 1], [0, 1]].map(([u, v]) => project(u ?? 0, v ?? 0, 0).join(',')).join(' ');
+  // A model's other measured settings appear only while that model is in focus.
+  const focusModel = state.focus?.model.id ?? null;
+  const drawn = state.plotted.filter(point => state.active[point.model.id] === point.setting || point.model.id === focusModel);
   const byModel = new Map<string, Point[]>();
-  for (const point of state.plotted) byModel.set(point.model.id, [...(byModel.get(point.model.id) ?? []), point]);
+  for (const point of drawn.filter(entry => entry.model.id === focusModel)) byModel.set(point.model.id, [...(byModel.get(point.model.id) ?? []), point]);
   // Far points first, so near points draw on top.
-  const ordered = [...state.plotted].sort((a, b) => (norm(a)[0] + norm(a)[1]) - (norm(b)[0] + norm(b)[1]));
+  const ordered = [...drawn].sort((a, b) => (norm(a)[0] + norm(a)[1]) - (norm(b)[0] + norm(b)[1]));
   const [zx, zy] = project(0, 1, 0), [xx, xy] = project(0.5, 1, 0), [yx, yy] = project(1, 0.5, 0);
 
   return (
@@ -45,8 +49,8 @@ export function Surface({ state, surface = true, paths = true, labels = 'focus',
       <line x1={zx} y1={zy} x2={zx} y2={zy - RISE} stroke="var(--ink)" strokeWidth="1" />
       <g fill="var(--muted)" fontSize="13" style={{ fontFamily: 'inherit' }}>
         <text x={xx - 40} y={xy + 34} textAnchor="middle"><tspan fill="var(--ink)" fontWeight="600">X</tspan> Trusted workload</text>
-        <text x={yx + 40} y={yy + 34} textAnchor="middle"><tspan fill="var(--ink)" fontWeight="600">Y</tspan> External intelligence</text>
-        <text x={zx - 10} y={zy - RISE - 10} textAnchor="start"><tspan fill="var(--ink)" fontWeight="600">Z</tspan> Execution efficiency</text>
+        <text x={yx + 40} y={yy + 34} textAnchor="middle"><tspan fill="var(--ink)" fontWeight="600">Y</tspan> Execution efficiency</text>
+        <text x={zx - 10} y={zy - RISE - 10} textAnchor="start"><tspan fill="var(--ink)" fontWeight="600">Z</tspan> External intelligence</text>
       </g>
       <path d={lines.join('')} fill="none" stroke="var(--ink)" strokeWidth={dense ? 0.45 : 0.6} opacity={dense ? 0.42 : 0.5} />
       {paths && [...byModel.values()].map(points => points.length > 1 && (
@@ -58,7 +62,7 @@ export function Surface({ state, surface = true, paths = true, labels = 'focus',
         const on = state.active[point.model.id] === point.setting, focused = state.focusId === point.id;
         return (
           <g key={point.id} tabIndex={0} role="button" aria-label={`${point.model.name}, ${point.setting} reasoning`} style={{ cursor: 'pointer', outline: 'none' }}
-            onClick={() => { state.setSetting(point.model.id, point.setting); }} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); state.setSetting(point.model.id, point.setting); } }}
+            onClick={() => state.setFocus(point.id)} onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); state.setFocus(point.id); } }}
             onFocus={() => state.setFocus(point.id)}>
             <line x1={px} y1={py} x2={px} y2={fy} stroke="var(--ink)" strokeWidth="0.75" strokeDasharray="2 3" opacity={on ? 0.6 : 0.25} />
             <circle cx={px} cy={fy} r="2" fill="var(--ink)" opacity={on ? 0.5 : 0.2} />

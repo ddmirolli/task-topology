@@ -7,10 +7,11 @@ export type Tier = 1 | 2 | 3;
 export const TIERS: readonly { id: Tier; name: string }[] = [
   { id: 1, name: 'Entry level' }, { id: 2, name: 'Middle management' }, { id: 3, name: 'Senior executive' },
 ];
+// Chart letters. Intelligence is vertical. Workload and efficiency span the floor.
 export const AXES = [
-  { key: 'x', name: 'Trusted workload', unit: 'work units' },
-  { key: 'y', name: 'External intelligence', unit: 'ECI' },
-  { key: 'z', name: 'Execution efficiency', unit: 'units per √USD·h' },
+  { letter: 'x', key: 'workload', name: 'Trusted workload' },
+  { letter: 'y', key: 'efficiency', name: 'Execution efficiency' },
+  { letter: 'z', key: 'intelligence', name: 'External intelligence' },
 ] as const;
 
 export interface Model { id: string; name: string; maker: string; hue: number; settings: readonly string[]; base: readonly [number, number, number] }
@@ -24,7 +25,7 @@ export const MODELS: readonly Model[] = [
 
 export interface Point {
   id: string; model: Model; setting: string; order: number; tier: Tier;
-  x: number | null; y: number; z: number | null;
+  workload: number | null; efficiency: number | null; intelligence: number;
   attempts: number; successes: number; elapsedMinutes: number; costUsd: number;
 }
 
@@ -40,7 +41,7 @@ export const POINTS: readonly Point[] = MODELS.flatMap(model => model.settings.f
     const successes = Math.round(30 * Math.min(0.98, 0.35 + x / 12));
     return {
       id: `${model.id}:${setting}:${tier}`, model, setting, order, tier,
-      x: missing ? null : Number(x.toFixed(1)), y: model.base[1], z: missing ? null : Number(z.toFixed(1)),
+      workload: missing ? null : Number(x.toFixed(1)), intelligence: model.base[1], efficiency: missing ? null : Number(z.toFixed(1)),
       attempts: 30, successes, elapsedMinutes: Math.round((14 + order * 11) * tier * (1 + model.base[0] / 10)),
       costUsd: Number(((0.4 + order * 0.9) * tier * (model.base[1] - 120) / 18).toFixed(2)),
     };
@@ -59,8 +60,9 @@ export const modelColor = (model: Model, dark: boolean): string => (dark ? oklch
 
 export interface MockState {
   tier: Tier; setTier(tier: Tier): void;
-  // One measured setting is active per model. A hidden model contributes nothing.
-  active: Readonly<Record<string, string>>; setSetting(modelId: string, setting: string): void;
+  // One reasoning slider drives every model. Each stop maps onto the model's own measured settings.
+  stops: number; stop: number; setStop(stop: number): void;
+  active: Readonly<Record<string, string>>;
   hidden: ReadonlySet<string>; toggleModel(modelId: string): void;
   focusId: string | null; setFocus(id: string | null): void;
   tierPoints: readonly Point[]; shown: readonly Point[]; plotted: readonly Point[]; focus: Point | null;
@@ -70,17 +72,20 @@ export interface MockState {
 export function useMockState(): MockState {
   const dark = useDark();
   const [tier, setTierRaw] = useState<Tier>(1);
-  const [active, setActive] = useState<Record<string, string>>(() => Object.fromEntries(MODELS.map(model => [model.id, model.settings[Math.min(1, model.settings.length - 1)] ?? ''])));
+  const stops = Math.max(...MODELS.map(model => model.settings.length));
+  const [stop, setStop] = useState(1);
+  const active = useMemo(() => Object.fromEntries(MODELS.map(model =>
+    [model.id, model.settings[model.settings.length <= 1 ? 0 : Math.round((stop / (stops - 1)) * (model.settings.length - 1))] ?? ''])), [stop, stops]);
   const [hidden, setHidden] = useState<ReadonlySet<string>>(new Set());
   const [focusId, setFocus] = useState<string | null>(null);
   const tierPoints = useMemo(() => POINTS.filter(point => point.tier === tier), [tier]);
   const shown = useMemo(() => tierPoints.filter(point => !hidden.has(point.model.id)), [tierPoints, hidden]);
-  const plotted = useMemo(() => shown.filter(point => point.x !== null && point.z !== null), [shown]);
+  const plotted = useMemo(() => shown.filter(point => point.workload !== null && point.efficiency !== null), [shown]);
   const focus = tierPoints.find(point => point.id === focusId) ?? null;
   useEffect(() => { document.documentElement.style.colorScheme = 'light dark'; }, []);
   return {
     tier, setTier: next => { setTierRaw(next); setFocus(current => (current ? current.replace(/:\d$/, `:${next}`) : null)); },
-    active, setSetting: (modelId, setting) => { setActive(current => ({ ...current, [modelId]: setting })); setFocus(`${modelId}:${setting}:${tier}`); },
+    stops, stop, setStop, active,
     hidden, toggleModel: modelId => setHidden(current => { const next = new Set(current); if (!next.delete(modelId)) next.add(modelId); return next; }),
     focusId, setFocus, tierPoints, shown, plotted, focus, dark, color: model => modelColor(model, dark),
   };

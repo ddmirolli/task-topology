@@ -17,12 +17,12 @@ try {
     });
     const page = await context.newPage();
     page.on('pageerror', error => console.error('page error', error.message));
-    for (const id of (process.argv[3] || 'a,b,c,d,e').split(',')) {
+    for (const id of ['e']) {
       await page.goto(`${origin}/mockups/index.html#${id}`);
       await page.reload();
       await page.locator('svg g[role=button]').first().waitFor();
       await page.evaluate(() => document.fonts.ready);
-      if (name !== 'mobile') await page.locator('svg g[role=button][aria-label^="Basalt 4, high"] circle').last().click();
+      if (name !== 'mobile') await page.locator('svg g[role=button][aria-label^="Basalt 4"] circle').last().click();
       await page.screenshot({ path: path.join(output, `${id}-${name}.png`) });
     }
     await context.close();

@@ -45,40 +45,49 @@ interface ModelStripProps {
   active: Readonly<Record<string, string>>;
   colors: Readonly<Record<string, string>>;
   onToggleModel(modelId: string): void;
-  onSetting(modelId: string, configurationId: string): void;
 }
 
-// One key per model measured in this tier. The name shows or hides the model.
-// The arrows step through its measured reasoning settings and nothing else.
-// Neither control changes a measurement.
-export function ModelStrip({ groups, hidden, active, colors, onToggleModel, onSetting }: ModelStripProps) {
+// One key per model measured in this tier. It shows or hides the model and names
+// the reasoning setting in use. It never changes a measurement.
+export function ModelStrip({ groups, hidden, active, colors, onToggleModel }: ModelStripProps) {
   if (groups.length === 0) return <p className="text-muted">No configurations measured for this tier.</p>;
   return (
     <ul aria-label="Models" className="flex flex-wrap gap-2">
       {groups.map(group => {
         const off = hidden.has(group.modelId);
-        const index = Math.max(0, group.records.findIndex(record => record.point.configuration.id === active[group.modelId]));
-        const current = group.records[index];
-        const step = (by: number) => {
-          const next = group.records[(index + by + group.records.length) % group.records.length];
-          if (next) onSetting(group.modelId, next.point.configuration.id);
-        };
+        const current = group.records.find(record => record.point.configuration.id === active[group.modelId]);
         return (
-          <li key={group.modelId} data-model={group.modelId} className={`flex min-h-11 items-center rounded-full bg-face pr-1.5 pl-1 ${off ? 'opacity-45' : ''}`}>
-            <button type="button" aria-pressed={!off} onClick={() => onToggleModel(group.modelId)} className="flex min-h-11 items-center gap-2 rounded-full px-3 font-medium">
+          <li key={group.modelId} data-model={group.modelId}>
+            <button type="button" aria-pressed={!off} onClick={() => onToggleModel(group.modelId)} className={`flex min-h-11 items-center gap-2 rounded-full bg-face px-4 font-medium ${off ? 'opacity-45' : ''}`}>
               <ModelMark color={colors[group.modelId]} /><span className="break-all">{group.displayName}</span>
+              <span className="text-[13px] font-normal text-muted" data-setting>{current?.point.configuration.reasoning.label}</span>
             </button>
-            {group.records.length > 1 ? (
-              <span className="flex items-center text-[13px] text-muted">
-                <button type="button" aria-label={`${group.displayName}: previous reasoning setting`} onClick={() => step(-1)} className="grid size-11 place-items-center rounded-full hover:bg-bg sm:size-8">‹</button>
-                <span className="min-w-14 text-center" aria-live="polite" data-setting>{current?.point.configuration.reasoning.label}</span>
-                <button type="button" aria-label={`${group.displayName}: next reasoning setting`} onClick={() => step(1)} className="grid size-11 place-items-center rounded-full hover:bg-bg sm:size-8">›</button>
-              </span>
-            ) : <span className="pr-3 text-[13px] text-muted" data-setting>{current?.point.configuration.reasoning.label}</span>}
           </li>
         );
       })}
     </ul>
+  );
+}
+
+// Which measured setting a model uses at a slider stop. Stops spread evenly over
+// the model's own settings, in recorded order. Nothing is estimated between them.
+export function settingAt(count: number, stop: number, stops: number): number {
+  return count <= 1 || stops <= 1 ? 0 : Math.round((stop / (stops - 1)) * (count - 1));
+}
+
+// One slider for every model. It appears only when some model has more than one
+// measured setting. Provider labels share no scale, so the ends are relative.
+export function ReasoningSlider({ stops, stop, onChange }: { stops: number; stop: number; onChange(stop: number): void }) {
+  if (stops <= 1) return null;
+  return (
+    <label className="flex min-h-11 items-center gap-3 rounded-full bg-face px-4">
+      <span className="font-medium">Reasoning</span>
+      <span className="text-[13px] text-muted">Lowest measured</span>
+      <input type="range" min={0} max={stops - 1} step={1} value={stop} onChange={event => onChange(Number(event.target.value))}
+        aria-valuetext={stop === 0 ? 'Lowest measured setting' : stop === stops - 1 ? 'Highest measured setting' : `Step ${stop + 1} of ${stops}`}
+        className="h-11 w-36 accent-(--mtb-text) sm:w-44" />
+      <span className="text-[13px] text-muted">Highest</span>
+    </label>
   );
 }
 

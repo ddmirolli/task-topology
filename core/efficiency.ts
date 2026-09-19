@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 
-export const efficiencyFormula = 'mtb-efficiency-geometric/1' as const;
+export const efficiencyFormula = 'mtb-efficiency-geometric/2' as const;
 export interface EfficiencyPlan {
   comparisonKey: string;
   configurationId: string;
@@ -21,8 +21,8 @@ export interface EfficiencyResult {
   formulaVersion: typeof efficiencyFormula;
   calibrationStatus: 'candidate';
   comparisonEligible: false;
-  publishedZ: null;
-  candidateZ: number | null;
+  publishedEfficiency: null;
+  candidateEfficiency: number | null;
   costBasis: string | null;
   completedWork: number | null;
   elapsedSeconds: number | null;
@@ -73,10 +73,10 @@ export function executionEfficiency(plan: EfficiencyPlan, attempts: readonly Eff
   let workPerDollar = graded && costKnown && dollars > 0 ? completedWork / dollars : null;
   if (workPerHour !== null && !Number.isFinite(workPerHour)) { workPerHour = null; reasons.add('numeric_range'); }
   if (workPerDollar !== null && !Number.isFinite(workPerDollar)) { workPerDollar = null; reasons.add('numeric_range'); }
-  let candidateZ = workPerHour !== null && workPerDollar !== null ? Math.sqrt(workPerHour) * Math.sqrt(workPerDollar) : null;
-  if (candidateZ !== null && !Number.isFinite(candidateZ)) { candidateZ = null; reasons.add('numeric_range'); }
+  let candidateEfficiency = workPerHour !== null && workPerDollar !== null ? Math.sqrt(workPerHour) * Math.sqrt(workPerDollar) : null;
+  if (candidateEfficiency !== null && !Number.isFinite(candidateEfficiency)) { candidateEfficiency = null; reasons.add('numeric_range'); }
   return { formulaVersion: efficiencyFormula, calibrationStatus: 'candidate', comparisonEligible: false,
-    publishedZ: null, candidateZ, costBasis: plan.costBasis, completedWork: graded ? completedWork : null,
+    publishedEfficiency: null, candidateEfficiency, costBasis: plan.costBasis, completedWork: graded ? completedWork : null,
     elapsedSeconds: timeKnown ? seconds : null, costUsd: costKnown ? dollars : null,
     workPerHour, workPerDollar, reasons: [...reasons].sort() };
 }

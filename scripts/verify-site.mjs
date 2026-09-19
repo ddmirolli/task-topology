@@ -113,7 +113,7 @@ try {
   assert.equal(await lunaKey.getAttribute('aria-pressed'), 'true');
   // Only measured settings appear. This cohort has one per model, so there is nothing to step through.
   assert.equal(await page.locator('[data-model="gpt-5.6-terra"] [data-setting]').innerText(), 'medium');
-  assert.equal(await page.locator('[data-model] button[aria-label*="reasoning setting"]').count(), 0);
+  assert.equal(await page.locator('input[type=range]').count(), 0, 'no reasoning slider while every model has one measured setting');
   await page.getByText('Layers', { exact: true }).click();
   await page.getByLabel('Connecting surface').uncheck();
   await page.getByLabel('Connecting surface').check();

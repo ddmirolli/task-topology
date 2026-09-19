@@ -28,14 +28,14 @@ export const syntheticRecords: readonly ConfigurationRecord[] = MODELS.flatMap((
       point: {
         id: `${id}#tier-${tier}#${COMPARISON}`,
         configuration: {
-          id, modelId: model.modelId, displayName: `Synthetic ${model.modelId.slice(10)}`, vendor: 'Synthetic', client: 'Synthetic client',
-          clientVersion: '0.0.0', profileHash: '0'.repeat(64), reasoning: { label: effort, providerValue: effort, order },
+          id, modelId: model.modelId, displayName: `Synthetic ${model.modelId.slice(10)}`, identity: { scheme: SYNTHETIC_MARKER, provider: 'synthetic', model: model.modelId },
+          accessMethod: 'local', client: 'Synthetic client', clientVersion: '0.0.0', profileHash: '0'.repeat(64), reasoning: { label: effort, providerValue: effort, order },
         },
         tier, comparisonKey: COMPARISON, taskSetVersion: SYNTHETIC_MARKER,
         axes: {
-          x: missing ? { status: 'unavailable', reason: 'Synthetic gap' } : axis(Math.max(0.5, 9 - tier * 2.2 + modelIndex + bend), 'synthetic work units'),
-          y: axis(model.y, 'synthetic index'),
-          z: axis(Math.max(0.2, 6 - modelIndex * 1.1 - order * 0.9 + (3 - tier) * 0.7), 'synthetic efficiency'),
+          workload: missing ? { status: 'unavailable', reason: 'Synthetic gap' } : axis(Math.max(0.5, 9 - tier * 2.2 + modelIndex + bend), 'synthetic work units'),
+          intelligence: axis(model.y, 'synthetic index'),
+          efficiency: axis(Math.max(0.2, 6 - modelIndex * 1.1 - order * 0.9 + (3 - tier) * 0.7), 'synthetic efficiency'),
         },
         elapsedSeconds: 240 * tier * (order + 1), costUsd: 0.05 * tier * (order + 1) * (modelIndex + 1),
         costBasis: 'synthetic', attemptCount: 9, successCount: Math.max(0, 9 - tier - modelIndex), evidenceUrl: 'about:blank',

@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { visiblePoints } from '../../../core/topography.ts';
+import { AXIS_NAMES, visiblePoints } from '../../../core/topography.ts';
 import { hueOf, modelColor, modelColors } from './colors.ts';
 import { buildRecords, comparisonKeyOf, splitClient } from './records.ts';
 import { parseDiagnosticDataset, parseIntelligenceSnapshot } from './schema.ts';
@@ -19,7 +19,9 @@ describe('diagnostic records', () => {
 
   it('publishes no coordinate and no adjudicated success count', () => {
     for (const { point } of records) {
-      expect([point.axes.x.status, point.axes.y.status, point.axes.z.status]).toEqual(['unavailable', 'unavailable', 'unavailable']);
+      expect(AXIS_NAMES.map(name => point.axes[name].status)).toEqual(['unavailable', 'unavailable', 'unavailable']);
+      expect(point.configuration.identity).toBeNull();
+      expect(point.configuration.accessMethod).toBeNull();
       expect(point.successCount).toBeNull();
     }
     const plotted = visiblePoints({
@@ -53,7 +55,7 @@ describe('diagnostic records', () => {
 
   it('splits the client label from its version', () => {
     expect(splitClient('Codex CLI 0.155.1')).toEqual({ client: 'Codex CLI', clientVersion: '0.155.1' });
-    expect(splitClient('Custom harness')).toEqual({ client: 'Custom harness', clientVersion: '' });
+    expect(splitClient('Custom harness')).toEqual({ client: 'Custom harness', clientVersion: null });
   });
 });
 
@@ -76,5 +78,15 @@ describe('model colors', () => {
     expect(light).toMatch(/^#[0-9a-f]{6}$/);
     expect(dark).toMatch(/^#[0-9a-f]{6}$/);
     expect(light).not.toBe(dark);
+  });
+});
+
+describe('reasoning slider', () => {
+  it('maps every stop onto a measured setting and never between two', async () => {
+    const { settingAt } = await import('../components/Controls.tsx');
+    expect([0, 1, 2].map(stop => settingAt(3, stop, 3))).toEqual([0, 1, 2]);
+    expect([0, 1, 2].map(stop => settingAt(2, stop, 3))).toEqual([0, 1, 1]);
+    expect([0, 1, 2, 3].map(stop => settingAt(1, stop, 4))).toEqual([0, 0, 0, 0]);
+    expect(settingAt(4, 0, 1)).toBe(0);
   });
 });

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { visiblePoints, type Tier, type TopographyEvents, type TopographyViewState } from '../../core/topography.ts';
-import { groupByModel, LayerControl, ModelStrip, TierTabs } from './components/Controls.tsx';
+import { groupByModel, LayerControl, ModelStrip, ReasoningSlider, settingAt, TierTabs } from './components/Controls.tsx';
 import { Reading } from './components/DetailsPanel.tsx';
 import { DataDialog, MethodologyDialog } from './components/Dialogs.tsx';
 import { Glyph } from './components/Glyph.tsx';
@@ -21,7 +21,7 @@ export function App() {
   const [tier, setTier] = useState<Tier>(1);
   const [comparisonChoice, setComparisonChoice] = useState<string | null>(null);
   const [hiddenModels, setHiddenModels] = useState<ReadonlySet<string>>(new Set());
-  const [settingChoice, setSettingChoice] = useState<Readonly<Record<string, string>>>({});
+  const [reasoningStop, setReasoningStop] = useState<number | null>(null);
   const [hoveredPointId, setHoveredPointId] = useState<string | null>(null);
   const [pinnedPointId, setPinnedPointId] = useState<string | null>(null);
   const [showSurface, setShowSurface] = useState(true);
@@ -34,12 +34,12 @@ export function App() {
   const tierRecords = useMemo(() => records.filter(record => record.point.comparisonKey === comparisonKey && record.point.tier === tier), [records, comparisonKey, tier]);
   const groups = useMemo(() => groupByModel(tierRecords), [tierRecords]);
 
-  // One measured configuration is in use per model: the visitor's choice when it
-  // was measured in this tier, otherwise the model's first measured setting.
-  const active = useMemo(() => Object.fromEntries(groups.map(group => {
-    const chosen = group.records.find(record => record.point.configuration.id === settingChoice[group.modelId]);
-    return [group.modelId, (chosen ?? group.records[0])?.point.configuration.id ?? ''];
-  })), [groups, settingChoice]);
+  // One measured configuration is in use per model. The reasoning slider picks it:
+  // each stop maps onto the model's own measured settings, in recorded order.
+  const stops = Math.max(1, ...groups.map(group => group.records.length));
+  const stop = Math.min(reasoningStop ?? Math.floor((stops - 1) / 2), stops - 1);
+  const active = useMemo(() => Object.fromEntries(groups.map(group =>
+    [group.modelId, group.records[settingAt(group.records.length, stop, stops)]?.point.configuration.id ?? ''])), [groups, stop, stops]);
 
   // The surface draws through the configuration in use for every model shown.
   const selectedIds = useMemo(() => groups.filter(group => !hiddenModels.has(group.modelId)).map(group => active[group.modelId] ?? '').sort(), [groups, hiddenModels, active]);
@@ -74,12 +74,6 @@ export function App() {
     if (!next.delete(modelId)) next.add(modelId);
     return next;
   }), []);
-  const chooseSetting = useCallback((modelId: string, configurationId: string) => {
-    setSettingChoice(current => ({ ...current, [modelId]: configurationId }));
-    const record = tierRecords.find(entry => entry.point.configuration.id === configurationId);
-    if (record) setPinnedPointId(record.point.id);
-  }, [tierRecords]);
-
   const dataset = data.status === 'ready' ? data.dataset : null;
   const navLink = 'inline-flex min-h-11 items-center text-muted hover:text-text';
 
@@ -117,8 +111,9 @@ export function App() {
         </section>
 
         <div className="mt-4 flex flex-wrap items-start justify-between gap-3">
-          <ModelStrip groups={groups} hidden={hiddenModels} active={active} colors={colors} onToggleModel={toggleModel} onSetting={chooseSetting} />
-          <div className="flex items-center gap-3">
+          <ModelStrip groups={groups} hidden={hiddenModels} active={active} colors={colors} onToggleModel={toggleModel} />
+          <div className="flex flex-wrap items-center gap-3">
+            <ReasoningSlider stops={stops} stop={stop} onChange={setReasoningStop} />
             <p className="text-[13px] text-muted" data-plotted-count>{plottedCount} of {tierRecords.length} plotted</p>
             {comparisons.length > 1 && (
               <select aria-label="Comparison" value={comparisonKey} onChange={event => { setComparisonChoice(event.target.value); setPinnedPointId(null); }} className="min-h-11 rounded-full bg-face px-4">
