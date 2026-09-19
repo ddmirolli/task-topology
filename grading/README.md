@@ -62,6 +62,54 @@ source names, or quotes. Missing or ambiguous quotes stop review acceptance.
 This adapter's provisional decisions still require the stated human audit.
 Invalid judge output is retained and does not grant benchmark success.
 
-The current judge has not passed calibration. Its source-line canary missed the
-known environment defect in original cohort attempt 01. The full batch stopped.
+An earlier source-line canary missed the known environment defect in original
+cohort attempt 01. That batch stopped.
 See [launch validation](../VALIDATION-2026-09-19.md) for the evidence and limits.
+
+## Version 2 calibration work
+
+Execution holds now survive unsupported all-pass reviews. Native patch rejections,
+context mismatches, and unreadable transcripts cannot become passes through a
+judge decision. An invalid environment remains separate from a model failure.
+
+The rules grader records instruction loss when independent task checks establish
+an unmet requirement, following Dan's 2026-09-19 ruling. It attaches exact failed
+check evidence and retained final submission text to model failure decisions.
+The original model response and its source-line references remain separate files.
+This does not change the model's verdict or invent a failure timestamp.
+
+`calibrate.mjs` checks known successes, ordinary errors, task failures, attempted
+outside writes, and invalid execution. It retains frozen labels, packets, code
+hashes, and every response. `audit.mjs` prepares the random 10 percent human sample
+plus calibration disagreements. The human task remains pending until a person
+completes it.
+
+`report.mjs` binds management prose to its independently graded findings.
+`calibrate-report.mjs` tests an accurate report, a wrong prose total, and a missing
+owner and deadline. Report qualification does not qualify transcript review.
+Neither qualification authorizes publishing scores.
+
+## Full calibration evaluation
+
+Calibration version 2 requires an expected verdict for every rule. A case fails
+when any judgment differs, including an unrelated false failure on a negative
+fixture. Missing labels are rejected. Cohort preparation rejects version 1
+qualification receipts because those receipts permitted unchecked decisions.
+
+The retained transcript reviews agree with the complete expected labels in all
+eight cases. Full report evaluation accepts two of three cases. The third review
+incorrectly rejects source attribution and support for the conclusion. Its missing
+owner and deadline are real failures, but they do not justify those extra labels.
+See [the evaluation](../VALIDATION-GRADING-2026-09-19.md).
+
+After those findings, fresh full calibration passes eight transcript cases and
+three report cases. Synthetic transcripts now expose their recorded duration so
+the judge can evaluate the ten-minute stall rule. Report prompt version 3 evaluates
+criteria independently and preserves overlapping failures. All implementation
+hashes remain bound to their qualification receipts.
+
+Two fresh report reasons still miscount summary sentences. Their three-sentence
+limit verdicts are correct. The separate agent evaluation records these errors.
+Case agreement does not establish general judge reliability or replace human
+audit. The benchmark applies written standards and supplies the evidence. Human
+audit checks the grader's decisions, not the definition of each task's standard.

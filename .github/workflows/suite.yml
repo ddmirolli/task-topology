@@ -1,0 +1,28 @@
+name: Three-tier benchmark fixtures
+on:
+  pull_request:
+    paths: ['core/**', 'grading/**', 'suite/**', 'tasks/**', 'package.json', 'package-lock.json', 'tsconfig.json', '.github/workflows/suite.yml']
+  push:
+    branches: [main]
+    paths: ['core/**', 'grading/**', 'suite/**', 'tasks/**', 'package.json', 'package-lock.json', 'tsconfig.json', '.github/workflows/suite.yml']
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: brew install go postgresql@17 python@3.12
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: '1'
+      - run: npm ci
+      - run: npm ci --prefix tasks/tier-1-entry/app
+      - run: npm ci --prefix pilot
+      - run: npm run test:suite
+      - run: npm run test:launch
+      - run: npm run verify:suite -- "$RUNNER_TEMP/suite-evidence"
+      - run: npm run verify:executive -- "$RUNNER_TEMP/executive-negative-evidence"

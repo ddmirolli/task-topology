@@ -1,0 +1,10 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Team tickets</title><body>
+<h1>Team tickets</h1><p id="message" role="status"></p>
+<form id="account"><label>Email<input name="email" type="email" required></label><label>Password<input name="password" type="password" required></label><button name="action" value="signup">Sign up</button><button name="action" value="login">Log in</button></form>
+<button id="logout" hidden>Log out</button><main id="workspace" hidden>
+<form id="create"><label>Title<input name="title" required></label><label>Description<textarea name="description"></textarea></label><button>Create ticket</button></form>
+<form id="search"><label>Search<input name="query"></label><button>Search tickets</button></form><ul id="tickets"></ul>
+<form id="edit" hidden><input name="id" type="hidden"><label>Edit title<input name="title" required></label><label for="assignee">Assignee</label><select id="assignee" name="assignee"></select><label for="status">Status</label><select id="status" name="status"><option>open</option><option>in_progress</option><option>done</option></select><button>Save ticket</button></form>
+<form id="comment" hidden><label>Comment<textarea name="body" required></textarea></label><button>Add comment</button></form><ul id="comments"></ul>
+<form id="import"><label>CSV import<textarea name="csv" required></textarea></label><button>Import tickets</button></form>
+</main><script type="module" src="/ui.js"></script></body></html>

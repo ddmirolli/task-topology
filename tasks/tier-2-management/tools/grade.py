@@ -19,7 +19,7 @@ def load(file):
 def grade(packet, submission):
     packet, submission = Path(packet), Path(submission)
     manifest, key = load(packet / 'manifest.json'), load(packet / 'operator/key.json')
-    if manifest['version'] != 'mtb-management/1':
+    if manifest['version'] not in ['mtb-management/1', 'mtb-management/2']:
         raise ValueError('Unsupported task version')
     if hashlib.sha256((packet / 'operator/key.json').read_bytes()).hexdigest() != manifest['keyHash']:
         raise ValueError('Answer key changed')
@@ -27,6 +27,12 @@ def grade(packet, submission):
     if expected_hash != manifest['taskHash']:
         raise ValueError('Task manifest changed')
     checks = []
+    if manifest['version'] == 'mtb-management/2':
+        for item in submission.rglob('*'):
+            relative = item.relative_to(submission).as_posix()
+            if item.is_file() or item.is_symlink():
+                allowed = relative in manifest['files'] or relative in ['REPORT.md', 'findings.json'] or relative.startswith(('work/', '.runner-home/'))
+                checks.append({'name': 'scope:' + relative, 'pass': allowed and not item.is_symlink()})
     for file, digest in manifest['files'].items():
         relative = Path(file)
         if relative.is_absolute() or '..' in relative.parts:
@@ -69,7 +75,7 @@ def grade(packet, submission):
     checks.append({'name': 'totals', 'pass': isinstance(totals, dict) and set(totals) == set(key['totals'])
         and all(type(v) is int for v in totals.values()) and totals == key['totals']})
     checks.append({'name': 'report-present', 'pass': bool(report_file.read_text().strip())})
-    return {'version': 'mtb-management-grade/1', 'taskHash': manifest['taskHash'],
+    return {'version': 'mtb-management-grade/' + manifest['version'].split('/')[-1], 'taskHash': manifest['taskHash'],
             'submissionHash': hashlib.sha256(finding_file.read_bytes() + b'\x00' + report_file.read_bytes()).hexdigest(),
             'dataChecksPass': all(c['pass'] for c in checks), 'checks': checks,
             'reportReview': 'pending', 'transcriptReview': 'pending',
