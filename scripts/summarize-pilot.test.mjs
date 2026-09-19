@@ -89,6 +89,8 @@ test('report binds frozen evidence, preserves malformed runs, and withholds unju
   write('02/result/run.json', { ...record, transcriptHash: sha256(broken) });
   assert.deepEqual(report().attempts[1].transcriptFacts.parseErrors, [1]);
   assert.equal(report().attempts[1].functionalPass, false);
+  assert.equal(report().executionReviewRequired, true);
+  assert.equal(report().groups[0].correctPerHour, null);
   write('02/receipt.json', receipt); write('02/result/run.json', record);
   write('prices.json', { ...prices, date: 'changed' });
   assert.throws(report, /Price evidence differs/); write('prices.json', prices);

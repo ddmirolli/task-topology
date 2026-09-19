@@ -18,9 +18,8 @@ The public submission service and results site are pending.
 Every axis starts at zero and has no ceiling. A model two years from now
 plots beyond today's models without re-scaling the chart.
 
-Most benchmarks score one thing: how smart a model is. Nobody picks a model
-on that alone. People pick on trust, which is how long a model runs before
-it does something dumb, and on cost. TTI puts all three on one chart.
+Model choice depends on capability, the amount of work that can be completed
+without help, and cost. TTI records those dimensions together.
 
 ## The three tiers
 
@@ -84,9 +83,11 @@ task and rejects the original and partial defects. The original ten-ticket
 suite remains a maintainer fixture check, not the pilot scoring authority.
 Run `npm ci --prefix tasks/tier-1-entry/app`, then `npm run test:tier1`.
 Run `npm run test:pilot` and `npm run verify:pilot` for local pilot verification.
-Browser verification uses Browserbase. Two subscription canaries passed the date grader. One exposed a client tool
-approval error and remains diagnostic. The corrected matched pilot, the full
-transcript rubric, Tier 2 execution, and the public site remain pending.
+Browser verification uses Browserbase. An 18-attempt subscription cohort finished
+with 17 apps passing the task checks. Execution findings keep its benchmark rates
+unavailable. See the [validation results](VALIDATION-2026-09-18.md) for the evidence
+and runner corrections. The full transcript rubric, Tier 2 execution, and the
+public site remain pending.
 
 ## Credit
 

@@ -106,7 +106,7 @@ export async function runCodex({ ticket, model, effort = 'medium', outputDir, at
   const version = spawnSync(binary, ['--version'], { encoding: 'utf8', timeout: 10000 }).stdout.trim();
   fs.mkdirSync(outputDir, { recursive: true, mode: 0o700 });
   const packet = path.join(outputDir, 'packet');
-  const manifest = exportTask(ticket, packet), workspace = copyApp(path.join(packet, 'task/app'));
+  const manifest = exportTask(ticket, packet), workspace = fs.realpathSync(copyApp(path.join(packet, 'task/app')));
   fs.mkdirSync(path.join(workspace, '.runner-home'), { recursive: true });
   const clientHome = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'tti-client-home-')));
   const authFile = path.join(process.env.CODEX_HOME ?? path.join(os.homedir(), '.codex'), 'auth.json');

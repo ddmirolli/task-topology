@@ -5,7 +5,7 @@ import { subscriptionTokenCost } from './subscription-cost.mjs';
 import { summarize } from '../pilot/accounting.mjs';
 import { schedule } from '../pilot/cli.mjs';
 import { sessionEvidence } from '../pilot/session-evidence.mjs';
-import { sha256 } from '../pilot/workspace.mjs';
+import { root, sha256 } from '../pilot/workspace.mjs';
 
 export function transcriptFacts(transcript) {
   const events = [], parseErrors = [];
@@ -89,6 +89,13 @@ export function pilotReport(directory, evidenceFile) {
       : facts.nativeCalls === 0;
     const sourceClean = !receipt.execution.settings?.fullSessionRecord || sourceEvidence?.contextMatches && sourceEvidence.rejectedNativePatches.length === 0;
     const cleanExecution = sourceClean && !receipt.sourceCaptureError && facts.parseErrors.length === 0 && nativeClean && facts.failedMcpCalls === 0 && facts.terminalUsage !== null;
+    const executionIssues = [
+      !sourceClean && 'Full-session checks require review',
+      receipt.sourceCaptureError && 'Full-session capture failed',
+      facts.parseErrors.length > 0 && 'Malformed transcript events',
+      !nativeClean && 'Native tool evidence violates the declared protocol',
+      facts.failedMcpCalls > 0 && 'MCP transport failed',
+    ].filter(Boolean);
     return { index: index + 1, ticket: entry.ticket, model: entry.model.id, repetition: entry.repetition,
       status: receipt.status, appGradePass: record?.grade?.pass ?? null, functionalPass: receipt.status === 'submitted' && record?.grade?.pass === true && cleanExecution,
       elapsedSeconds: receipt.elapsedSeconds, timingBasis: record?.timingBasis ?? receipt.timingSource,
@@ -96,9 +103,9 @@ export function pilotReport(directory, evidenceFile) {
       client: receipt.execution, runnerHash, taskHash: receipt.taskHash,
       changedFiles, transcriptFacts: facts, gradingError: record?.gradingError ?? (record ? null : 'No grading record'),
       failedChecks: record?.grade?.checks?.filter(c => !c.pass) ?? [],
-      sourceEvidence, fullRubricStatus: 'pending_evidence_review', comparisonEligible: false };
+      sourceEvidence, executionIssues, fullRubricStatus: 'pending_evidence_review', comparisonEligible: false };
   });
-  const completeTrial = progress.completed === true && attempts.every(r => !['pending', 'not_run', 'incomplete', 'runner_error', 'evidence_missing'].includes(r.status) && !r.gradingError);
+  const completeTrial = progress.completed === true && attempts.every(r => !['pending', 'not_run', 'incomplete', 'runner_error', 'evidence_missing', 'invalid_execution', 'provider_error'].includes(r.status) && !r.gradingError && !r.executionIssues?.length);
   const group = (model, ticket = null) => {
     const records = attempts.filter(r => r.model === model.id && (ticket === null || r.ticket === ticket) && !['pending', 'not_run'].includes(r.status));
     const metrics = summarize(records.map(r => ({ status: r.status, grade: { pass: r.functionalPass },
@@ -112,18 +119,20 @@ export function pilotReport(directory, evidenceFile) {
   const groups = plan.models.map(model => group(model));
   const ticketGroups = plan.tickets.flatMap(ticket => plan.models.map(model => group(model, ticket)));
   return { stopped: progress.stopped ?? null, completed: progress.completed === true, generatedAt: new Date().toISOString(), planHash: sha256(planBytes),
+    analysisFiles: Object.fromEntries(['scripts/summarize-pilot.mjs', 'scripts/subscription-cost.mjs', 'pilot/accounting.mjs', 'pilot/session-evidence.mjs', 'pilot/cli.mjs', 'pilot/workspace.mjs']
+      .map(file => [file, sha256(fs.readFileSync(path.join(root, file)))])),
     priceEvidenceHash: sha256(evidenceBytes), priceSource: prices.source, priceDate: prices.date,
-    interpretation: 'Pipeline validation only. Requested model IDs; full transcript rubric pending. Token-cost estimates require complete per-request records reconciled to the terminal totals and dated prices. Missing evidence leaves cost unavailable. Estimates are not subscription charges. Canaries excluded.',
-    attempts, ticketGroups, groups, X: null, TTI: null };
+    interpretation: 'Pipeline validation only. Requested model IDs; full transcript rubric pending. Source checks use the recorded analysis files; original receipts remain unchanged. Token-cost estimates require complete per-request records reconciled to the terminal totals and dated prices. Missing evidence leaves cost unavailable. Estimates are not subscription charges. Canaries excluded.',
+    executionReviewRequired: attempts.some(r => r.executionIssues?.length), attempts, ticketGroups, groups, X: null, TTI: null };
 }
 export function markdownReport(report) {
   const number = (n, decimals = 2) => n == null ? 'unavailable' : n.toFixed(decimals);
-  return `# Subscription pilot results\n\n${report.interpretation}\n${report.stopped ? `\nTrial stopped at attempt ${report.stopped.attempt}: ${report.stopped.message}. Unstarted slots will not be resumed in this trial.\n` : ''}\n| Ticket | Requested model | Started / planned | App checks passed | Seconds | Valid candidate apps / hour | API-equivalent cost |\n|---|---|---:|---:|---:|---:|---:|\n`
+  return `# Subscription pilot results\n\n${report.interpretation}\n${report.executionReviewRequired ? '\nExecution evidence requires review. Cohort throughput and cost-efficiency rates are withheld.\n' : ''}${report.stopped ? `\nTrial stopped at attempt ${report.stopped.attempt}: ${report.stopped.message}. Unstarted slots will not be resumed in this trial.\n` : ''}\n| Ticket | Requested model | Started / planned | App checks passed | Seconds | Valid candidate apps / hour | API-equivalent cost |\n|---|---|---:|---:|---:|---:|---:|\n`
     + report.ticketGroups.map(g => `| ${g.ticket} | ${g.model} | ${g.attempts} / ${g.planned} | ${g.appChecksPassed} | ${number(g.elapsedSeconds)} | ${number(g.correctPerHour)} | ${number(g.costUsd, 4)} USD |`).join('\n')
     + '\n\nAcross the full task mix:\n\n| Requested model | Started / planned | App checks passed | Seconds | Valid candidate apps / hour | API-equivalent cost |\n|---|---:|---:|---:|---:|---:|\n'
     + report.groups.map(g => `| ${g.model} | ${g.attempts} / ${g.planned} | ${g.appChecksPassed} | ${number(g.elapsedSeconds)} | ${number(g.correctPerHour)} | ${number(g.costUsd, 4)} USD |`).join('\n')
     + '\n\n| Attempt | Model | Ticket | Repeat | Outcome | Seconds | API-equivalent USD | Changed files |\n|---:|---|---|---:|---|---:|---:|---|\n'
-    + report.attempts.map(r => `| ${r.index} | ${r.model} | ${r.ticket} | ${r.repetition} | ${r.status !== 'submitted' ? r.status : r.functionalPass ? 'functional pass' : r.gradingError ? 'ungraded' : 'task failure'} | ${number(r.elapsedSeconds)} | ${number(r.apiEquivalentUsd, 4)} | ${(r.changedFiles ?? []).join(', ')} |`).join('\n')
+    + report.attempts.map(r => `| ${r.index} | ${r.model} | ${r.ticket} | ${r.repetition} | ${r.status !== 'submitted' ? r.status : r.executionIssues?.length ? 'execution review required' : r.functionalPass ? 'functional pass' : r.gradingError ? 'ungraded' : 'task failure'} | ${number(r.elapsedSeconds)} | ${number(r.apiEquivalentUsd, 4)} | ${(r.changedFiles ?? []).join(', ')} |`).join('\n')
     + `\n\nPrices: [dated API price source](${report.priceSource}), ${report.priceDate}.\nAll attempts count toward time. Token costs use per-call pricing evidence when complete; actual subscription charges remain unmeasured. Rates are withheld until every planned attempt has finished and grading records exist.\nRaw transcripts and grading records remain local. X and TTI are unavailable.\n`;
 }
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

@@ -16,7 +16,11 @@ declares native workspace edits and isolates the client's home and skill inputs.
 A second trial stopped after four attempts because a grader bug treated a
 malformed workspace patch as a permission rejection. The corrected classifier
 was checked against all four records. Original records remain unchanged, and
-a fresh trial uses the correction. Ordinary patch errors count toward time.
+a fresh trial used the correction. Ordinary patch errors count toward time.
+That third cohort completed all 18 attempts, with 17 apps passing the task checks.
+Transcript findings keep its benchmark rates unavailable. The
+[validation results](VALIDATION-2026-09-18.md) record those findings and the
+canonical-path correction verified after collection.
 
 ## Question
 

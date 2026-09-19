@@ -247,6 +247,7 @@ probes, and post-submission grading remain outside the measured interval.
 Backend snapshot identity remains unverified when the CLI does not expose it.
 
 A restrictive Codex permission profile protects host files and dependencies.
+The client and tools receive the same canonical workspace path.
 The four TTI MCP tools use the existing sandbox for app work and HTTP tests.
 Only that local MCP server has pre-approved tools. Native patch edits are also
 allowed inside the app workspace and recorded with their paths. Native shell execution,
@@ -292,6 +293,9 @@ and client settings to the retained evidence. It keeps missing, invalid, and
 unstarted attempts visible. The report distinguishes app-check outcomes from execution validity. Rates
 remain unavailable when a planned batch stops early. All failed attempts retain their time and usage.
 No output from this script establishes full-rubric success, X, or TTI.
+Execution evidence that fails review also withholds cohort throughput and
+cost-efficiency rates. Analysis file hashes distinguish corrected source checks
+from the original frozen runner. Original receipts are not overwritten.
 
 The first matched subscription trial stopped at attempt 12 because the CLI
 exposed its native patch tool despite the intended MCP-only contract. The app
