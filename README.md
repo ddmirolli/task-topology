@@ -57,8 +57,11 @@ Editing things outside the task. Full definitions in [SPEC.md](SPEC.md).
 ## Running it
 
 The [validation runner](pilot/README.md) grades three Tier 1 tasks and records
-time and API cost. Its paid proposal needs model and budget approval. Local
-verification makes no benchmark model calls. Public submission is later work.
+correctness and available timing and cost evidence. Export a task for any
+subscription client, API runner, or local model, then grade the returned app.
+There is no model or access-method allowlist. The optional API runner has its
+own spending controls. Local verification makes no benchmark model calls.
+Public submission is later work.
 
 ## Repo map
 

@@ -9,11 +9,17 @@ export function priceUsage(usage, rates) {
   return ((input - cached - written) * rates.input + cached * rates.cached + written * rates.cacheWrite + output * rates.output) / 1e6;
 }
 export function summarize(records) {
-  const elapsed = records.reduce((s, r) => s + r.elapsedSeconds, 0);
+  const configurations = new Set(records.map(r => JSON.stringify(r.execution ?? null)));
+  assert.ok(configurations.size <= 1, 'Compare execution configurations separately');
+  const bases = new Set(records.map(r => r.costBasis ?? 'api_list_price'));
+  const timings = new Set(records.map(r => r.timingBasis ?? 'runner'));
+  const completeTime = timings.size <= 1 && records.every(r => Number.isFinite(r.elapsedSeconds) && r.elapsedSeconds >= 0);
+  const elapsed = completeTime ? records.reduce((s, r) => s + r.elapsedSeconds, 0) : null;
   const success = records.filter(r => r.status === 'submitted' && r.grade?.pass).length;
-  const completeCost = records.every(r => Number.isFinite(r.costUsd));
+  const completeCost = bases.size <= 1 && records.every(r => Number.isFinite(r.costUsd) && r.costUsd >= 0);
   const cost = completeCost ? records.reduce((s, r) => s + r.costUsd, 0) : null;
-  return { attempts: records.length, successes: success, elapsedSeconds: elapsed, costUsd: cost,
+  return { attempts: records.length, successes: success, elapsedSeconds: elapsed, costUsd: cost, costBasis: completeCost ? [...bases][0] ?? null : null,
+    timingBasis: timings.size === 1 ? [...timings][0] : 'mixed',
     correctPerHour: elapsed > 0 ? success * 3600 / elapsed : null,
     correctPerDollar: cost > 0 ? success / cost : null, X: null, TTI: null };
 }

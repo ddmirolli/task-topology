@@ -1,6 +1,6 @@
 # Task Topology Index (TTI) spec
 
-Version 0.9, 2026-09-18. Owner: Dan.
+Version 0.10, 2026-09-18. Owner: Dan.
 
 Scoring design under validation. No published TTI scores yet.
 
@@ -83,6 +83,19 @@ estimates, not required model runtimes or points awarded for time spent.
 
 The pilot plan is in [PILOT.md](PILOT.md). It separates these approved
 rules from the formulas and grader changes that still need validation.
+
+## Access ruling, 2026-09-18
+
+Any model can enter through any execution client or payment method.
+Subscription access, API access, and local execution are examples, not an
+allowlist. Entry never depends on a model appearing in a provider catalog,
+a billing mode, an API key, a public price, or token telemetry.
+
+Record the model identity, execution client and version, settings, tools,
+and access method. Mark unavailable evidence explicitly. Apply the same task
+and grading requirements to every entry. Missing cost prevents a cost score;
+it does not reject the work or its supported correctness and timing evidence.
+Keep different execution configurations separate in comparisons.
 
 ## What counts as a failure
 
@@ -171,7 +184,13 @@ Z = completed_work / sum of attempt costs in USD
 - Include costs from failed attempts and retries. Include all billable
   token categories and use the public API prices in effect on the run date.
   Record cache and reasoning usage when the provider bills them separately.
-- Never use subscription prices or treat missing usage as zero cost.
+- Access and cost accounting are separate. Use complete usage and dated API
+  prices to report an API-equivalent estimate when those data exist, regardless
+  of how the run was paid for. Label estimates separately from actual charges.
+- Keep actual charges and any documented allocation of subscription or local
+  compute costs in separate fields. Never pool different cost bases.
+- Missing usage or prices leave Z unavailable. An included subscription run
+  does not imply zero normalized cost or infinite cost efficiency.
 - If no attempt succeeds, completed work, speed, and Z are zero, provided
   their denominators are known and positive. Missing or nonpositive
   denominators make the corresponding metric unavailable.
@@ -218,18 +237,18 @@ local and does not upload or publish transcripts. Provider credentials and
 authorization headers must never enter published records.
 
 - The harness ends every run with `tti submit`. It packs the transcript,
-  token counts, prices, model name, harness name and a fingerprint of the
+  available usage and cost evidence, model name, execution client and a fingerprint of the
   exact task text, and sends it to the site.
-- The site accepts a run only if all three checks pass:
+- The site checks task integrity and independently grades each run:
   1. The task text fingerprint matches a published task set version. One
      changed word is a rejection. Verbatim is the standard.
   2. The site regrades the transcript itself. Submitter scores are never
      used.
-  3. The prices match the public price list for that model on the run
-     date.
-- Accepted runs join the aggregate. The chart shows all accepted runs by
-  default with a filter for reference harness only. Every dot links to its
-  transcripts.
+- Verify supplied prices and usage before computing a cost score. Missing
+  cost evidence leaves that score unavailable without rejecting the run.
+- Keep accepted runs grouped by task version, execution configuration, limits,
+  evidence status, and cost basis. Do not silently pool clients by model name.
+  Every published result links to its supporting evidence.
 
 ### Trust levels
 
@@ -251,8 +270,9 @@ authorization headers must never enter published records.
 - Twenty runs per model per tier is the planned minimum for official
   results, not proof of a 90 percent success boundary. The analysis must
   report uncertainty and the workloads actually tested.
-- Every run stores the full transcript, token counts, prices, wall clock
-  and the failure time so anyone can recompute the score.
+- Every run stores the full transcript and available identity, usage, price,
+  timing, and failure evidence. Mark missing fields as unavailable. Publish
+  only metrics supported by the evidence.
 
 ## Pilot
 

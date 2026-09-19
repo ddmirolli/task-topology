@@ -1,9 +1,10 @@
+import { exportTask, gradeExternal } from './external.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { copyApp, dependencyPath, root } from './workspace.mjs';
+import { copyApp, dependencyPath, root, appSource, sha256, inventory } from './workspace.mjs';
 import { execute, probeSandbox } from './sandbox.mjs';
 import { runAttempt, performTool } from './run.mjs';
 import { priceUsage, requestReserve, summarize } from './accounting.mjs';
@@ -102,4 +103,57 @@ test('a different returned model cannot score under the requested model', { skip
   const record = await runAttempt({ ticket: '07', model, limits: plan.limits, adapter, outputDir: path.join(dir, 'mismatch'), budget: { remainingUsd: 4 }, kind: 'synthetic' });
   assert.equal(record.status, 'model_mismatch'); assert.equal(record.costUsd, null);
   assert.equal(record.calls[0].model, 'another-model');
+});
+
+test('API scheduling accepts new model IDs, effort settings, and repetition counts with dated prices', t => {
+  const dir = temporary(t), evidence = JSON.parse(fs.readFileSync(new URL('./price-evidence.json', import.meta.url)));
+  const custom = structuredClone(plan);
+  custom.models = [{ ...custom.models[0], id: 'future-model', effort: 'high' }];
+  custom.repetitions = 2;
+  evidence.rates = { 'future-model': custom.models[0].rates };
+  const bytes = JSON.stringify(evidence), file = path.join(dir, 'prices.json');
+  fs.writeFileSync(file, bytes);
+  custom.priceEvidenceHash = sha256(bytes);
+  assert.equal(validatePlan(custom, { evidenceFile: file }).attempts, 6);
+  assert.equal(schedule(custom).length, 6);
+});
+
+test('external task packets contain only public task material and detect changes', async t => {
+  const dir = temporary(t), packet = path.join(dir, 'packet');
+  const manifest = exportTask('07', packet);
+  assert.ok(!Object.keys(manifest.taskFiles).some(f => /hidden|solutions|node_modules|runner/.test(f)));
+  assert.throws(() => exportTask('07', packet), /new task directory/);
+  fs.appendFileSync(path.join(packet, 'task/ticket.md'), '\nDifferent task');
+  await assert.rejects(() => gradeExternal({ packet, submission: appSource, receipt: {}, outputDir: path.join(dir, 'out') }), /packet unchanged/);
+  manifest.taskFiles = inventory(path.join(packet, 'task'));
+  fs.writeFileSync(path.join(packet, 'manifest.json'), JSON.stringify(manifest));
+  await assert.rejects(() => gradeExternal({ packet, submission: appSource, receipt: {}, outputDir: path.join(dir, 'out') }), /Task prompt changed/);
+});
+
+test('any execution method can submit without prices, usage, or API credentials', { skip: process.platform !== 'darwin' }, async t => {
+  const dir = temporary(t), good = fixture('07', 'alternative');
+  t.after(() => fs.rmSync(good, { recursive: true, force: true }));
+  const packet = path.join(dir, 'packet'), manifest = exportTask('07', packet);
+  for (const [index, method] of ['subscription', 'api', 'local', 'future-access-method'].entries()) {
+    const receipt = { version: 'tti-external-receipt/1', runId: manifest.runId, taskHash: manifest.taskHash,
+      model: { id: `unknown-model-${index}`, vendor: 'unknown-vendor' },
+      execution: { method, client: 'custom-client', version: 'test-1', billing: method },
+      status: 'submitted', elapsedSeconds: 60, transcript: 'Synthetic fixture, no model call.',
+      grade: { pass: false }, cost: { basis: 'subscription', usd: 0 } };
+    const record = await gradeExternal({ packet, submission: good, receipt, outputDir: path.join(dir, `out-${index}`) });
+    assert.equal(record.grade.pass, true); assert.equal(record.costUsd, null);
+    assert.equal(record.metrics.correctPerHour, 60); assert.equal(record.metrics.correctPerDollar, null);
+    assert.equal(record.evidenceStatus, 'unverified'); assert.equal(record.comparisonEligible, false);
+    assert.equal(record.timingBasis, 'submitter_reported');
+  }
+  const receipt = { version: 'tti-external-receipt/1', runId: manifest.runId, taskHash: 'wrong' };
+  await assert.rejects(() => gradeExternal({ packet, submission: good, receipt, outputDir: path.join(dir, 'bad') }));
+});
+
+test('missing time and mixed cost bases cannot fabricate metrics or pool different clients', () => {
+  const record = { status: 'submitted', grade: { pass: true }, costUsd: 1, elapsedSeconds: 60 };
+  assert.equal(summarize([{ ...record, elapsedSeconds: null }]).correctPerHour, null);
+  assert.equal(summarize([{ ...record, timingBasis: 'runner' }, { ...record, timingBasis: 'submitter_reported' }]).correctPerHour, null);
+  assert.equal(summarize([{ ...record, costBasis: 'actual' }, { ...record, costBasis: 'estimated' }]).correctPerDollar, null);
+  assert.throws(() => summarize([{ ...record, execution: { client: 'a' } }, { ...record, execution: { client: 'b' } }]), /separately/);
 });

@@ -1,19 +1,28 @@
 # Data model status
 
-The version 0.9 scoring rulings supersede the original aggregate formulas.
+The version 0.10 scoring and access rulings supersede the original aggregate formulas.
 The public submission service and aggregate calculator are not built.
 No result has been published using these schemas.
 
 ## Run records
 
-`run.schema.json` is a draft record of the model, harness, exact task,
+`run.schema.json` version 2 is a draft record of the model, harness, exact task,
 usage, timing, and transcript. Server grading must ignore submitter scores.
 The `task.target_hours` field is a legacy design estimate. It must not be
 used as measured runtime, credited work, or evidence of a trust boundary.
 
-The local pilot uses a separate `tti-pilot-run/1` record, documented in
+Version 2 adds free-form execution provenance. Prices and tokens are optional
+and nullable. Timing can be unavailable. Access method and model identifiers
+have no allowlist. Missing telemetry limits metrics, not benchmark entry.
+Actual charges and normalized estimates are different cost bases.
+
+External local runs use `tti-external-run/1`. The grader recomputes task success
+from the returned app. Receipt identity, timing, usage, and cost remain
+unverified. Reported speed is diagnostic until its evidence is checked.
+
+The API pilot uses a separate `tti-pilot-run/1` record, documented in
 [pilot/README.md](../pilot/README.md). It records fixed task fingerprints,
-provider IDs, usage, elapsed time, failure outcomes, and actual or unavailable
+provider IDs, usage, elapsed time, failure outcomes, and API-list-price or unavailable
 cost. Its enclosing plan supplies dated prices. It is not a public submission
 schema and does not support automatic exclusions. Do not infer missing costs.
 

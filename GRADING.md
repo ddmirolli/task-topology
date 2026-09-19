@@ -102,7 +102,9 @@ For every run, regardless of outcome:
 
 - Failure rule hit, or none, and the time in seconds from start.
 - Tier rubric results in full.
-- Input tokens, output tokens, wall clock seconds.
+- Available input tokens, output tokens, and wall clock seconds. Missing
+  measurements remain unavailable and do not block task grading.
+- Execution client, settings, access method, and evidence status.
 - The fingerprint of the task text the model was given.
 
 See `schema/run.schema.json` for the exact shape.

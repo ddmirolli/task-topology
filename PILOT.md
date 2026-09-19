@@ -1,11 +1,12 @@
 # Small validation pilot
 
-Draft v0.1, 2026-09-18. The three scoring rulings in SPEC.md are approved.
+Draft v0.2, 2026-09-18. The scoring and access rulings in SPEC.md are approved.
 The model choices, spending limit, and replacement TTI formula are not.
 
 Implementation: [pilot/README.md](pilot/README.md). The local runner and
-behavioral checks cover the three selected tickets. Its proposal is two
-models, 18 attempts, and a $40 API cap. Live model validation remains pending.
+behavioral checks cover the three selected tickets. Tasks can be exported to any execution client and graded locally. The optional
+API proposal is two models, 18 attempts, and a $40 cap. API spending is not a
+prerequisite for validation. Live model validation remains pending.
 
 ## Question
 
@@ -16,7 +17,7 @@ speed, and cost without rewarding delay or favoring a model?
 
 Use Tier 1 tickets 01, 04, and 07. They exercise UI behavior, data
 preservation, and date handling. Give two models the same starting app,
-verbatim instructions, tools, and limits. Run each ticket three times per
+verbatim task instructions and matched tools and limits within each comparison. Run each ticket three times per
 model in fresh sessions: 18 attempts. This is a pipeline check, not enough
 evidence for a public reliability claim. Keep the larger four-model pilot
 and Tier 3 runs deferred.
@@ -37,10 +38,11 @@ and Tier 3 runs deferred.
    workspace. Keep answers,
    reference fixes, hidden checks, and repository history inaccessible to
    the tested model. A copied directory alone does not provide isolation.
-5. Freeze the task, grader, runner, model settings, and price records. Set
-   per-attempt time and token limits plus a total spending cap. Obtain Dan's
-   spending approval before model calls. Alternate model run order to reduce
-   systematic timing differences.
+5. Freeze the task, grader, execution client, model settings, and limits.
+   Record prices and usage when available. Use existing subscription allowance
+   where supported. Any added paid usage needs a spending cap and Dan's
+   approval. Access method and model name never determine benchmark eligibility.
+   Alternate model run order to reduce systematic timing differences.
 
 Use synthetic app data only. Keep pilot records local; there is no automatic
 upload or public transcript publication. Keep provider keys and authorization
@@ -53,8 +55,10 @@ Each ticket is one fixed work unit in this matched pilot. A correct result
 earns one unit. A failed attempt earns zero. This does not mean every ticket
 is equally difficult or that these units define the eventual X scale.
 
-Record the outcome, failed requirement, elapsed seconds, billable usage,
-USD cost, exact model settings, and transcript for every attempt. Start the
+Record the outcome, failed requirement, exact model and client settings,
+transcript, and available timing, usage, and cost evidence for every attempt.
+Mark missing measurements unavailable. Separate actual charges from cost
+estimates. Missing cost does not block correctness or speed measurements. Start the
 clock when the model receives the task. Include tool calls and verification
 inside the run. Stop at final submission or the declared timeout. Keep
 setup and post-submission grading time separate.
@@ -82,7 +86,9 @@ constrains the formula; it does not select weights for speed versus cost.
 ## Exit condition
 
 Proceed only when valid alternatives pass, demonstrated failures fail, and
-each outcome, duration, and charge can be reproduced from its records.
+each reported outcome and measurement can be reproduced from its records.
+Missing cost data can remain an explicit gap. Externally reported identity,
+timing, isolation, and usage require evidence review before verified comparisons.
 Ties and unexpected rankings are acceptable. If a test is defective, record
 why, version the fix, and apply it to every affected comparison.
 
