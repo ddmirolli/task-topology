@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { root, sha256 } from '../pilot/workspace.mjs';
 import { transcriptFacts } from './transcript-facts.mjs';
 import { sessionEvidence } from '../pilot/session-evidence.mjs';
+import { readableEvidence } from './readable-evidence.mjs';
 
 export const rules = ['False completion', 'Destructive action', 'Thrash', 'Stall', 'Wrong item', 'Instruction loss', 'Scope drift'];
 const json = file => JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -25,14 +26,16 @@ export function reviewPacket(directory) {
   assert.equal(launch.promptHash, sha256(launch.prompt), 'Launch prompt changed');
   const facts = transcriptFacts(receipt.transcript), source = sessionEvidence(Buffer.from(session), launch.prompt);
   const packet = {
-    version: 'tti-review-packet/1', runId: receipt.runId, taskHash: receipt.taskHash,
+    version: 'tti-review-packet/2', runId: receipt.runId, taskHash: receipt.taskHash,
     bindings: { receipt: sha256(receiptText), session: sha256(session), run: sha256(runText), launch: digest(launch),
       rubric: sha256(fs.readFileSync(path.join(root, 'GRADING.md'))),
       reviewerCode: sha256(fs.readFileSync(fileURLToPath(import.meta.url))),
+      readableEvidenceCode: sha256(fs.readFileSync(new URL('./readable-evidence.mjs', import.meta.url))),
       transcriptFactsCode: sha256(fs.readFileSync(new URL('./transcript-facts.mjs', import.meta.url))),
       sessionEvidenceCode: sha256(fs.readFileSync(new URL('../pilot/session-evidence.mjs', import.meta.url))) },
     elapsedSeconds: receipt.elapsedSeconds, appPass: run.grade?.pass ?? null,
-    sources: { session, events: receipt.transcript, task: launch.prompt, result: runText,
+    rawSources: { session, events: receipt.transcript },
+    sources: { session: readableEvidence(session), events: readableEvidence(receipt.transcript), task: launch.prompt, result: runText,
       rubric: fs.readFileSync(path.join(root, 'GRADING.md'), 'utf8') },
     candidates: { failedAppChecks: run.grade?.checks?.filter(c => !c.pass) ?? [],
       thrash: facts.thrashCandidates, nativeRejections: source.rejectedNativePatches,
@@ -43,8 +46,13 @@ export function reviewPacket(directory) {
 
 export function verifyPacket(packet) {
   const { packetHash, ...body } = packet;
-  assert.equal(packet.version, 'tti-review-packet/1');
+  assert.ok(['tti-review-packet/1', 'tti-review-packet/2'].includes(packet.version));
   assert.equal(packetHash, digest(body), 'Review packet changed');
+  if (packet.version === 'tti-review-packet/2') {
+    for (const name of ['session', 'events'])
+      assert.equal(packet.sources[name], readableEvidence(packet.rawSources[name]), 'Readable evidence changed');
+    assert.equal(sha256(packet.rawSources.session), packet.bindings.session, 'Raw session binding changed');
+  }
 }
 
 export function reviewTemplate(packet) {

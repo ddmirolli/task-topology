@@ -5,6 +5,11 @@ for an operator review. It validates seven rule decisions against exact source
 lines and quotes. It does not interpret arbitrary shell code or establish that a
 reviewer's verdict is true.
 
+Version 2 packets retain the original JSONL and provide readable source lines.
+Each displayed field identifies its original record and JSON path. Validation
+rebuilds that view from the retained source and rejects a changed view. Version 1
+packets remain readable without rewriting earlier evidence.
+
 Create a private packet from a retained subscription attempt:
 
 ```sh
@@ -45,11 +50,18 @@ The caller supplies the model identifier. No paid API fallback exists.
 node grading/judge-codex.mjs PACKET_JSON NEW_OUTPUT_DIRECTORY MODEL_ID
 ```
 
-The response must satisfy the JSON schema and source-evidence checks. If an exact
-quote appears on one source line, `citations.mjs` can correct an off-by-one line
-reference. It retains the original response and records every correction. It
-never changes verdicts, reasons, source names, or quotes. Missing or ambiguous
-quotes stop review acceptance.
+The current judge selects `source` and `line` references. The runner attaches the
+exact source text and retains both records. It rejects unknown sources, missing
+lines, blank lines, and judge-supplied quotes. A real line can still be irrelevant
+to a verdict. This check establishes a citation target, not semantic support.
+
+For earlier reviews with quotes, `alignCitations` corrects a line number only when
+the exact quote appears on one source line. It never changes verdicts, reasons,
+source names, or quotes. Missing or ambiguous quotes stop review acceptance.
 
 This adapter's provisional decisions still require the stated human audit.
 Invalid judge output is retained and does not grant benchmark success.
+
+The current judge has not passed calibration. Its source-line canary missed the
+known environment defect in original cohort attempt 01. The full batch stopped.
+See [launch validation](../VALIDATION-2026-09-19.md) for the evidence and limits.

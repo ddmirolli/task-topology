@@ -5,7 +5,7 @@ Dan authorized this route to launch. Partial implementations below do not establ
 | Step | Outcome | Current evidence | Remaining work |
 |---|---|---|---|
 | 1 | Local task runner | Completed diagnostic cohort, 18 attempts | Broader execution coverage |
-| 2 | Transcript grading | Evidence-bound packets, schema validation, provisional judge adapter | Cohort review and human audit |
+| 2 | Transcript grading | Evidence-bound packets and provisional judge adapter; canary failed calibration | Qualified judge, cohort review, and human audit |
 | 3 | Execution standard | Validated profiles distinguish clients, settings, tools, and limits | Verified comparisons through distinct clients |
 | 4 | Middle management | Deterministic sources, numeric grader, PostgreSQL integration checks | Isolated model runner, prose grading, model trials |
 | 5 | Submission pipeline | Private intake and sandboxed independent grading pass end to end | Hosted intake, authentication, durable workers, publication review |
@@ -19,6 +19,7 @@ Dan authorized this route to launch. Partial implementations below do not establ
 
 The cohort remains diagnostic. App success does not establish full benchmark success.
 Model reviews remain provisional. Human audit remains a human task.
+The latest judge canary missed a known environment defect. Batch judging stopped.
 Subscription access stays open. Missing cost evidence leaves cost unavailable.
 The earlier no-merge boundary remains in force. PR 4 is open.
 Senior-executive model runs remain deferred under the existing pilot ruling.
@@ -32,6 +33,7 @@ No public upload endpoint is open. Raw sessions and receipts remain local.
 ## Evidence locations
 
 - `VALIDATION-2026-09-18.md`: the original cohort and its execution findings.
+- `VALIDATION-2026-09-19.md`: launch checks and failed judge calibration.
 - `grading/README.md`: review records and provisional judge behavior.
 - `tasks/tier-2-management/README.md`: task generation and independent numeric checks.
 - `benchmark/README.md`: private submission and external intelligence imports.
