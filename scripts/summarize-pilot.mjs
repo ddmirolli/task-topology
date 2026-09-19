@@ -98,24 +98,29 @@ export function pilotReport(directory, evidenceFile) {
       failedChecks: record?.grade?.checks?.filter(c => !c.pass) ?? [],
       sourceEvidence, fullRubricStatus: 'pending_evidence_review', comparisonEligible: false };
   });
-  const groups = plan.models.map(model => {
-    const records = attempts.filter(r => r.model === model.id && !['pending', 'not_run'].includes(r.status));
+  const completeTrial = progress.completed === true && attempts.every(r => !['pending', 'not_run', 'incomplete', 'runner_error', 'evidence_missing'].includes(r.status) && !r.gradingError);
+  const group = (model, ticket = null) => {
+    const records = attempts.filter(r => r.model === model.id && (ticket === null || r.ticket === ticket) && !['pending', 'not_run'].includes(r.status));
     const metrics = summarize(records.map(r => ({ status: r.status, grade: { pass: r.functionalPass },
       elapsedSeconds: r.elapsedSeconds, costUsd: r.apiEquivalentUsd, costBasis: 'api_equivalent_token_estimate',
       timingBasis: r.timingBasis, execution: r.client ?? records.find(x => x.client)?.client })));
-    const planned = plan.tickets.length * plan.repetitions;
-    const complete = records.length === planned && records.every(r => !['pending', 'incomplete', 'runner_error', 'evidence_missing'].includes(r.status) && !r.gradingError);
-    return { model: model.id, planned, appChecksPassed: records.filter(r => r.appGradePass).length, ...metrics,
+    const planned = (ticket === null ? plan.tickets.length : 1) * plan.repetitions;
+    const complete = completeTrial && records.length === planned;
+    return { model: model.id, ...(ticket === null ? {} : { ticket }), planned, appChecksPassed: records.filter(r => r.appGradePass).length, ...metrics,
       correctPerHour: complete ? metrics.correctPerHour : null, correctPerDollar: complete ? metrics.correctPerDollar : null }; 
-  });
+  };
+  const groups = plan.models.map(model => group(model));
+  const ticketGroups = plan.tickets.flatMap(ticket => plan.models.map(model => group(model, ticket)));
   return { stopped: progress.stopped ?? null, completed: progress.completed === true, generatedAt: new Date().toISOString(), planHash: sha256(planBytes),
     priceEvidenceHash: sha256(evidenceBytes), priceSource: prices.source, priceDate: prices.date,
     interpretation: 'Pipeline validation only. Requested model IDs; full transcript rubric pending. Token-cost estimates require complete per-request records reconciled to the terminal totals and dated prices. Missing evidence leaves cost unavailable. Estimates are not subscription charges. Canaries excluded.',
-    attempts, groups, X: null, TTI: null };
+    attempts, ticketGroups, groups, X: null, TTI: null };
 }
 export function markdownReport(report) {
   const number = (n, decimals = 2) => n == null ? 'unavailable' : n.toFixed(decimals);
-  return `# Subscription pilot results\n\n${report.interpretation}\n${report.stopped ? `\nTrial stopped at attempt ${report.stopped.attempt}: ${report.stopped.message}. Unstarted slots will not be resumed in this trial.\n` : ''}\n| Requested model | Started / planned | App checks passed | Seconds | Valid candidate apps / hour | API-equivalent cost |\n|---|---:|---:|---:|---:|---:|\n`
+  return `# Subscription pilot results\n\n${report.interpretation}\n${report.stopped ? `\nTrial stopped at attempt ${report.stopped.attempt}: ${report.stopped.message}. Unstarted slots will not be resumed in this trial.\n` : ''}\n| Ticket | Requested model | Started / planned | App checks passed | Seconds | Valid candidate apps / hour | API-equivalent cost |\n|---|---|---:|---:|---:|---:|---:|\n`
+    + report.ticketGroups.map(g => `| ${g.ticket} | ${g.model} | ${g.attempts} / ${g.planned} | ${g.appChecksPassed} | ${number(g.elapsedSeconds)} | ${number(g.correctPerHour)} | ${number(g.costUsd, 4)} USD |`).join('\n')
+    + '\n\nAcross the full task mix:\n\n| Requested model | Started / planned | App checks passed | Seconds | Valid candidate apps / hour | API-equivalent cost |\n|---|---:|---:|---:|---:|---:|\n'
     + report.groups.map(g => `| ${g.model} | ${g.attempts} / ${g.planned} | ${g.appChecksPassed} | ${number(g.elapsedSeconds)} | ${number(g.correctPerHour)} | ${number(g.costUsd, 4)} USD |`).join('\n')
     + '\n\n| Attempt | Model | Ticket | Repeat | Outcome | Seconds | API-equivalent USD | Changed files |\n|---:|---|---|---:|---|---:|---:|---|\n'
     + report.attempts.map(r => `| ${r.index} | ${r.model} | ${r.ticket} | ${r.repetition} | ${r.status !== 'submitted' ? r.status : r.functionalPass ? 'functional pass' : r.gradingError ? 'ungraded' : 'task failure'} | ${number(r.elapsedSeconds)} | ${number(r.apiEquivalentUsd, 4)} | ${(r.changedFiles ?? []).join(', ')} |`).join('\n')

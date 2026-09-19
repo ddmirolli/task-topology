@@ -9,7 +9,7 @@ export function subscriptionTokenCost(bytes, receipt, evidence) {
   for (const key of ['input', 'cached', 'cacheWrite', 'output']) assert.ok(Number.isFinite(rates?.[key]) && rates[key] >= 0, 'Complete dated prices are required');
   const records = bytes.toString().trim().split('\n').map(JSON.parse).filter(e => e.type === 'token_usage_record').map(e => e.payload);
   assert.ok(records.length, 'Per-request usage records are missing');
-  const responses = new Set(), totals = { input_tokens: 0, output_tokens: 0, cached_input_tokens: 0, cache_write_input_tokens: 0 };
+  const responses = new Set(), totals = { input_tokens: 0, output_tokens: 0, cached_input_tokens: 0, cache_write_input_tokens: 0, reasoning_output_tokens: 0 };
   let costUsd = 0, maximumInputTokens = 0;
   for (const record of records) {
     assert.equal(record.thread_id, receipt.sourceThreadId, 'Usage belongs to another thread');
@@ -20,6 +20,8 @@ export function subscriptionTokenCost(bytes, receipt, evidence) {
       assert.ok(Number.isSafeInteger(usage?.[key]) && usage[key] >= 0, 'Complete token categories are required');
       totals[key] += usage[key];
     }
+    assert.ok(usage.reasoning_output_tokens <= usage.output_tokens, 'Reasoning tokens must be included in output tokens');
+    assert.ok(Number.isSafeInteger(usage.total_tokens) && usage.total_tokens === usage.input_tokens + usage.output_tokens, 'Total tokens must equal input plus output tokens');
     assert.ok(usage.input_tokens <= limit, 'Long-context pricing is not implemented by this estimator');
     maximumInputTokens = Math.max(maximumInputTokens, usage.input_tokens);
     costUsd += priceUsage({ input_tokens: usage.input_tokens, output_tokens: usage.output_tokens,

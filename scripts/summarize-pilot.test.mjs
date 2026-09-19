@@ -54,7 +54,7 @@ test('report binds frozen evidence, preserves malformed runs, and withholds unju
   const prices = { source: 'https://example.invalid/prices', date: '2026-09-18', rates: { model: { input: 2, cached: .2, cacheWrite: 2.5, output: 12 } } };
   write('prices.json', prices);
   const runnerFiles = { 'price-evidence.json': sha256(JSON.stringify(prices)), 'codex.mjs': 'frozen' };
-  const progress = { planHash: sha256(JSON.stringify(plan)), frozenRunnerHash: sha256(JSON.stringify(runnerFiles)), records: [] };
+  const progress = { completed: true, planHash: sha256(JSON.stringify(plan)), frozenRunnerHash: sha256(JSON.stringify(runnerFiles)), records: [] };
   write('results.json', progress);
   const usage = { input_tokens: 1000, output_tokens: 100, cached_input_tokens: 400, cache_write_input_tokens: 0 };
   const execution = { client: 'codex-cli', settings: { model: 'model', effort: 'medium' } };
@@ -71,8 +71,15 @@ test('report binds frozen evidence, preserves malformed runs, and withholds unju
   receipt.runId = '02'; record.runId = '02';
   const report = () => pilotReport(dir, path.join(dir, 'prices.json'));
   assert.equal(report().groups[0].correctPerHour, 360);
+  assert.equal(report().ticketGroups[0].ticket, '07');
+  assert.equal(report().ticketGroups[0].planned, 2);
+  assert.equal(report().ticketGroups[0].correctPerHour, 360);
   assert.equal(report().groups[0].costUsd, null);
   assert.equal(report().groups[0].correctPerDollar, null);
+  write('results.json', { ...progress, completed: false });
+  assert.equal(report().groups[0].correctPerHour, null);
+  assert.equal(report().ticketGroups[0].correctPerHour, null);
+  write('results.json', progress);
   fs.unlinkSync(path.join(dir, '02/result/run.json'));
   assert.equal(report().attempts[1].gradingError, 'No grading record');
   assert.equal(report().groups[0].correctPerHour, null);
