@@ -3,7 +3,7 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { root, tool, command } from '../.build/core/runtime.js';
-import { reportPacket } from './report.mjs';
+import { reportPacket, reportJudgeVersion } from './report.mjs';
 import { judge } from './judge-codex.mjs';
 import { sha256 } from '../pilot/workspace.mjs';
 import { reportExpectedVerdicts, checkReportCase } from './report-calibration.mjs';
@@ -20,8 +20,12 @@ export async function calibrateReports(output, model) {
     { id: 'missing-owner-deadline', report: good.replace(/The operations lead will[\s\S]+$/, 'Somebody should look at this soon.\n') },
   ].map(c => ({ ...c, expected: reportExpectedVerdicts[c.id] }));
   fs.writeFileSync(path.join(output, 'cases.json'), JSON.stringify(cases, null, 2), { mode: 0o600 });
+  const codeFiles = ['judge-codex.mjs', 'review.mjs', 'citations.mjs', 'report.mjs', 'report-calibration.mjs', 'calibrate-report.mjs'];
+  const snapshot = () => Object.fromEntries(codeFiles.map(file => [file, sha256(fs.readFileSync(new URL(file, import.meta.url)))]));
+  const frozen = snapshot(); fs.writeFileSync(path.join(output, 'code.json'), JSON.stringify(frozen, null, 2), { mode: 0o600 });
   const results = [];
   for (const c of cases) {
+    assert.deepEqual(snapshot(), frozen, 'Report calibration implementation changed during execution');
     const report = path.join(output, c.id + '.md'); fs.writeFileSync(report, c.report);
     const numeric = { dataChecksPass: true, taskHash: JSON.parse(fs.readFileSync(path.join(output, 'packet/manifest.json'))).taskHash,
       submissionHash: sha256(fs.readFileSync(findings) + '\x00' + c.report), provenance: 'operator-generated reference reconciled against seed key' };
@@ -34,7 +38,8 @@ export async function calibrateReports(output, model) {
     const review = JSON.parse(fs.readFileSync(path.join(directory, 'review-with-source-lines.json')));
     results.push({ id: c.id, ...checkReportCase(c.expected, review) });
   }
-  const result = { version: 'mtb-report-calibration/2', model, casesHash: sha256(JSON.stringify(cases)), calibrated: results.every(r => r.pass), results, humanAuditStatus: 'pending', comparisonEligible: false };
+  assert.deepEqual(snapshot(), frozen, 'Report calibration implementation changed during execution');
+  const result = { version: 'mtb-report-calibration/2', model, judgeVersion: reportJudgeVersion, codeHash: sha256(JSON.stringify(frozen)), casesHash: sha256(JSON.stringify(cases)), calibrated: results.every(r => r.pass), results, humanAuditStatus: 'pending', comparisonEligible: false };
   fs.writeFileSync(path.join(output, 'calibration.json'), JSON.stringify(result, null, 2)); return result;
 }
 if (process.argv[1] === fileURLToPath(import.meta.url)) console.log(JSON.stringify(await calibrateReports(...process.argv.slice(2))));

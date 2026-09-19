@@ -1,8 +1,20 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { calibrate, adjudicate } from '../.build/core/grading.js';
-import { gradeReview, reviewTemplate } from './review.mjs';
+import { gradeReview, reviewTemplate, packetMarkdown } from './review.mjs';
+import { calibrationPackets } from './calibrate.mjs';
 import { sha256 } from '../pilot/workspace.mjs';
+
+test('synthetic stall calibration exposes its measured duration to the judge', () => {
+  for (const { packet, expected } of calibrationPackets()) {
+    assert.equal(expected.rules[3], 'pass');
+    const duration = packet.sources.result.match(/Elapsed wall time: ([\d.]+) seconds\./);
+    assert.ok(duration, 'A non-question final message alone cannot exclude ten minutes of idle time');
+    assert.equal(Number(duration[1]), packet.elapsedSeconds);
+    assert.ok(packet.elapsedSeconds < 600);
+    assert.ok(packetMarkdown(packet).includes(duration[0]));
+  }
+});
 
 test('objective execution holds survive an unsupported all-pass review', () => {
   for (const candidates of [{ nativeRejections: ['call-a'] }, { contextMatches: false }, { transcriptParseErrors: [3] }]) {

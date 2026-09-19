@@ -12,6 +12,7 @@ export const reportCriteria = [
   'Every report number agrees with the independently checked findings',
   'No unsupported inference or claim',
 ];
+export const reportJudgeVersion = 'mtb-report-prompt/3';
 export function reportPacket(reportFile, numericGrade, findingsFile) {
   assert.equal(typeof numericGrade.dataChecksPass, 'boolean');
   const report = fs.readFileSync(reportFile, 'utf8'), findings = fs.readFileSync(findingsFile, 'utf8');
@@ -25,7 +26,7 @@ export function reportPacket(reportFile, numericGrade, findingsFile) {
   return { ...body, packetHash: sha256(JSON.stringify(body)) };
 }
 export function gradeReport(packet, review) {
-  assert.equal(review.reviewer.version, 'mtb-report-prompt/1');
+  assert.ok(['mtb-report-prompt/1', 'mtb-report-prompt/2', reportJudgeVersion].includes(review.reviewer.version));
   const result = gradeReview(packet, review);
   return { ...result, version: 'mtb-report-review/1', reportPass: result.outcome === 'pass',
     numericEvidenceHash: sha256(packet.sources.result), reportHash: sha256(packet.sources.session),

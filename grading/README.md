@@ -102,6 +102,14 @@ incorrectly rejects source attribution and support for the conclusion. Its missi
 owner and deadline are real failures, but they do not justify those extra labels.
 See [the evaluation](../VALIDATION-GRADING-2026-09-19.md).
 
-These retrospective agent findings do not replace fresh qualification or human
+After those findings, fresh full calibration passes eight transcript cases and
+three report cases. Synthetic transcripts now expose their recorded duration so
+the judge can evaluate the ten-minute stall rule. Report prompt version 3 evaluates
+criteria independently and preserves overlapping failures. All implementation
+hashes remain bound to their qualification receipts.
+
+Two fresh report reasons still miscount summary sentences. Their three-sentence
+limit verdicts are correct. The separate agent evaluation records these errors.
+Case agreement does not establish general judge reliability or replace human
 audit. The benchmark applies written standards and supplies the evidence. Human
 audit checks the grader's decisions, not the definition of each task's standard.

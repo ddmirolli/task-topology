@@ -18,7 +18,7 @@ export function calibrationPackets() {
   return records.map(([id, appPass, environment, failure, session]) => {
     const body = { version: 'mtb-review-packet/1', runId: `calibration-${id}`, appPass, elapsedSeconds: 30,
       sources: { task: 'Fix login and signup dark-theme button contrast to at least 4.5:1. Work only inside the supplied workspace, including temporary files. Do not ask questions. Say DONE when finished. No ticket tracker exists. The full session below lists every action.',
-        session, result: `Independent acceptance: ${appPass ? 'all checks passed' : 'signup contrast failed'}.`,
+        session, result: `Independent acceptance: ${appPass ? 'all checks passed' : 'signup contrast failed'}.\nElapsed wall time: 30 seconds.`,
         rubric: fs.readFileSync(new URL('../GRADING.md', import.meta.url), 'utf8') },
       candidates: { nativeRejections: id === 'invalid-workspace' ? ['synthetic-patch'] : [], contextMatches: true, transcriptParseErrors: [] } };
     const packet = { ...body, packetHash: sha256(JSON.stringify(body)) };

@@ -5,9 +5,9 @@ Dan authorized this route to launch. Partial implementations below do not establ
 | Step | Outcome | Current evidence | Remaining work |
 |---|---|---|---|
 | 1 | Local task runner | Completed diagnostic cohort, 18 attempts | Broader execution coverage |
-| 2 | Transcript grading | Eight retained reviews agree with all expected verdicts; deterministic execution holds and failure evidence | Fresh qualification with complete labels and human audit |
+| 2 | Transcript grading | Fresh eight-case calibration passes with every expected verdict checked | Human audit and qualification review |
 | 3 | Execution standard | Validated profiles distinguish clients, settings, tools, and limits | Verified comparisons through distinct clients |
-| 4 | Middle management | Isolated runner and numeric checks pass; full report evaluation finds two incorrect judgments | Correct report judge, repeat qualification, human audit, and matched model trials |
+| 4 | Middle management | Isolated runner and numeric checks pass; corrected report prompt passes all 21 expected criterion verdicts | Human audit, qualification review, and matched model trials |
 | 5 | Submission pipeline | Private intake and sandboxed independent grading pass end to end | Hosted intake, authentication, durable workers, publication review |
 | 6 | External intelligence | Dated Epoch import, raw source retained, 266 observations | Verified identity mapping and update operations |
 | 7 | Validated scores | Raw measurements retained, unsupported scores unavailable | Workload calibration, uncertainty, and validation of the speed-and-cost Z candidate |
@@ -19,15 +19,15 @@ Dan authorized this route to launch. Partial implementations below do not establ
 
 The cohort remains diagnostic. App success does not establish full benchmark success.
 Model reviews remain provisional. Human audit remains a human task.
-The retained transcript reviews agree with all eight expected case outcomes.
-The earlier report calibration checked only selected labels. Full evaluation
-accepts two of three report cases and rejects two judgments in the third.
-Version 2 calibration requires every expected verdict. Fresh qualification and
-human audit remain pending. Earlier records are retained.
+Version 2 calibration requires every expected verdict. Fresh transcript calibration
+passes eight cases. Report prompt version 3 passes all three report cases after
+the full evaluation rejected earlier results. Two report reasons still miscount
+summary sentences without changing their correct limit verdicts. These errors are
+recorded separately. Human audit remains pending. Earlier records are retained.
 Subscription access stays open. Missing cost evidence leaves cost unavailable.
 PR 4 merged before this build at `bd5cfc1`. The current benchmark work does not
 authorize another merge. The prepared 24-attempt cohort remains held for judge
-qualification, human audit, and a fresh allowance preflight.
+qualification review, human audit, and a fresh allowance preflight.
 Senior-executive model runs remain deferred under the existing pilot ruling.
 
 Vercel hosts the diagnostic explorer at https://modeltopography.com.

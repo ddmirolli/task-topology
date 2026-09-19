@@ -58,6 +58,9 @@ export function prepareCohort(output, transcriptCalibration, reportCalibration) 
     assert.equal(transcript.calibrated, true); assert.equal(report.calibrated, true);
     const code = JSON.parse(fs.readFileSync(path.join(transcriptCalibration, 'code.json')));
     for (const [file, hash] of Object.entries(code)) assert.equal(sha256(fs.readFileSync(path.join(root, 'grading', file))), hash, 'Judge code changed since calibration');
+    const reportCode = JSON.parse(fs.readFileSync(path.join(reportCalibration, 'code.json')));
+    assert.equal(sha256(JSON.stringify(reportCode)), report.codeHash, 'Report calibration code binding changed');
+    for (const [file, hash] of Object.entries(reportCode)) assert.equal(sha256(fs.readFileSync(path.join(root, 'grading', file))), hash, 'Report calibration code changed');
     const reportCases = JSON.parse(fs.readFileSync(path.join(reportCalibration, 'cases.json')));
     for (const c of reportCases) {
       const launch = JSON.parse(fs.readFileSync(path.join(reportCalibration, c.id, 'launch.json')));

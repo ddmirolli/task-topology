@@ -1,8 +1,9 @@
 # Full calibration evaluation, 2026-09-19
 
 The eight retained transcript reviews agree with all expected verdicts. The
-report grader has two incorrect judgments in one of its three cases. Its earlier
-3-of-3 calibration result is insufficient for qualification.
+original report grader had two incorrect judgments in one of its three cases.
+Its earlier 3-of-3 calibration result was insufficient for qualification.
+After the correction below, a fresh report run matches all 21 expected verdicts.
 
 This evaluation applies the existing `GRADING.md` rules and Dan's instruction-loss
 ruling. It is an agent evaluation, not a human audit or a fresh blinded judge run.
@@ -91,23 +92,70 @@ preparation rejects the old partial-calibration receipt versions.
 
 The retained transcript replay agrees in all eight cases. The retained report
 replay rejects the missing-owner case on criteria 5 and 7. These are retrospective
-checks. No new judge calls or model trials ran during this evaluation. A corrected
-report judge still needs fresh qualification before the matched cohort can run.
+checks. No new calls were needed to establish the original errors. Fresh judge
+calls after that evaluation are recorded separately below.
+
+## Fresh report qualification
+
+The report prompt now applies each criterion independently and checks the cited
+text against its reason. A false numeric claim fails both numerical agreement
+and unsupported claims. The benchmark criteria and expected labels are unchanged.
+
+Prompt version 2 corrected the original mistakes but missed the unsupported-claim
+label for the false dollar total. Full calibration rejected that run. Prompt
+version 3 matches all seven expected verdicts in all three cases. Both runs used
+the same report text and full expected-label hash
+`aab9aa714f76e011f61a206626cef40d6a61c0b64961f483bd8a966cc6377709`.
+
+Two version 3 reasons still call the two-sentence summary one sentence. The
+three-sentence-limit verdict is correct in each case. Separate agent notes retain
+these reasoning errors without rewriting the raw reviews. Correct case labels
+do not establish error-free explanations or general judge reliability.
+
+Report calibration now freezes the grader implementation before calls and checks
+it throughout the run. Cohort preparation verifies that code binding as well as
+the transcript binding. Historical report prompt versions remain readable.
+
+These calls use existing included subscription allowance. They are grader checks,
+not executive trials or matched-cohort attempts. Human audit remains pending.
+
+## Transcript evidence correction
+
+The first fresh transcript run matched seven cases. In the false-completion
+case, the judge returned unknown for stall because its evidence did not exclude
+a ten-minute wait. The synthetic packet recorded 30 elapsed seconds in metadata,
+but the judge's numbered input omitted that field. The unknown was justified
+from the evidence the judge actually received.
+
+Synthetic results now include the recorded elapsed duration as a numbered source
+line. A regression test checks that the rendered judge input contains that value
+and that it matches the packet's measurement. No failure rule or expected verdict
+changed. The incomplete-input run remains in the archive.
+
+Fresh full transcript calibration then passes all eight cases with prompt version
+7 and expected-label hash
+`cf862283a67c1f028e06cc8da483d5117fda7de91779115afdd32545073630d0`.
+All 64 environment and rule verdicts match. The report run remains bound to prompt
+version 3. These are machine qualification results, not a completed human audit.
 
 ## Verification and evidence
 
-- `npm run test:launch`: 28 tests pass.
+- `npm run test:launch`: 29 tests pass.
 - `npm run test:suite`: 3 tests pass.
 - Full retained-packet replay: 8 transcript cases agree, 2 of 3 report cases agree.
 - Independent numeric replay: all 3 structured submissions pass with matching hashes.
 - Preservation check: 148 original calibration, audit, and cohort files unchanged.
+- Fresh full calibration: 8 transcript cases and 3 report cases pass.
 
 Private evidence is under
 `~/Documents/Codex/model-topography/benchmark-2026-09-19-beb188a6/agent-evaluation-2026-09-19/`.
 It contains full expected labels, packet-bound evaluations, action sequences,
 numeric replay results, and preservation hashes. Raw sessions remain private.
 
-The superseding `cohort-after-evaluation` plan preserves the 24 matched slots and
-holds execution for fresh qualification, human audit, and allowance preflight.
+The superseding `cohort-after-full-qualification` plan preserves the 24 matched
+slots and binds the new qualification receipts. It holds execution for human audit,
+qualification review, and allowance preflight. `cohort-after-evaluation` remains
+as the earlier held plan. `human-audit-full-v3` contains a fresh sample bound to
+the final transcript qualification. Every human field remains pending.
 No scores are published. Executive trials remain deferred. Website files and
 the two original validation reports are unchanged.

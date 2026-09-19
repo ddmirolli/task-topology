@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { sha256 } from '../pilot/workspace.mjs';
-import { reportPacket, gradeReport } from './report.mjs';
+import { reportPacket, gradeReport, reportJudgeVersion } from './report.mjs';
 import { reviewTemplate } from './review.mjs';
 
 test('report review is tied to the exact numeric submission and cannot grant full success', () => {
@@ -18,6 +18,13 @@ test('report review is tied to the exact numeric submission and cannot grant ful
     const proof = { reason: 'Fixture review', evidence: [{ source: 'session', line: 1, quote: packet.sources.session }] };
     review.environment = { verdict: 'valid', ...proof }; review.decisions.forEach(d => Object.assign(d, proof, { verdict: 'pass' }));
     assert.equal(gradeReport(packet, review).fullPass, null);
+    for (const version of ['mtb-report-prompt/2', reportJudgeVersion]) {
+      review.reviewer.version = version;
+      assert.equal(gradeReport(packet, review).fullPass, null);
+    }
+    review.reviewer.version = 'unrecognized-report-prompt';
+    assert.throws(() => gradeReport(packet, review));
+    review.reviewer.version = reportJudgeVersion;
     review.decisions[5].verdict = 'fail'; assert.equal(gradeReport(packet, review).reportPass, false);
     fs.appendFileSync(report, ' Billing has 999 customers.'); assert.throws(() => reportPacket(report, numeric, findings));
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
