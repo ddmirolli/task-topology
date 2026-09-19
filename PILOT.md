@@ -9,7 +9,10 @@ behavioral checks cover the three selected tickets. Tasks can be exported to any
 API proposal is two models, 18 attempts, and a $40 cap. API spending is not a
 prerequisite for validation. Two date-task subscription canaries passed the
 grader. The first had a tool approval error and remains diagnostic.
-The corrected matched trial is the next validation step.
+The first matched subscription trial stopped after 12 attempts when the client
+used a native edit tool outside the declared tool protocol. Its records remain
+diagnostic, with no pooled speed or cost ranking. The next configuration
+declares and verifies the client's native workspace edits before a new trial.
 
 ## Question
 

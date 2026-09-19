@@ -17,5 +17,13 @@
       "cacheWrite": 2.5,
       "output": 12
     }
+  },
+  "contextEvidence": {
+    "maximumShortContextInputTokens": 272000,
+    "sources": [
+      "https://developers.openai.com/api/docs/models/gpt-5.6-luna",
+      "https://developers.openai.com/api/docs/models/gpt-5.6-terra"
+    ],
+    "retrievedAt": "2026-09-19T02:27:31.847066+00:00"
   }
 }

@@ -4,8 +4,11 @@ import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { runCodex } from './codex.mjs';
 import { schedule } from './cli.mjs';
-import { root, inventory, sha256 } from './workspace.mjs';
+import { root, appSource, inventory, sha256 } from './workspace.mjs';
 
+export function trialInputs() {
+  return { runner: inventory(path.join(root, 'pilot')), app: inventory(appSource), tickets: inventory(path.join(root, 'tasks/tier-1-entry/tickets')) };
+}
 export async function subscriptionTrial(planFile, destination) {
   const planBytes = fs.readFileSync(planFile), plan = JSON.parse(planBytes);
   assert.equal(plan.version, 'tti-subscription-plan/1');
@@ -25,13 +28,15 @@ export async function subscriptionTrial(planFile, destination) {
   }
   fs.mkdirSync(destination, { recursive: true, mode: 0o700 });
   fs.writeFileSync(path.join(destination, 'plan.json'), planBytes);
-  const frozen = inventory(path.join(root, 'pilot')), attempts = schedule(plan), records = [];
-  const summary = { planHash: sha256(planBytes), frozenRunnerHash: sha256(JSON.stringify(frozen)), plannedAttempts: attempts.length, records };
+  fs.copyFileSync(path.join(root, 'pilot/price-evidence.json'), path.join(destination, 'price-evidence.json'));
+
+  const frozen = trialInputs(), attempts = schedule(plan), records = [];
+  const summary = { planHash: sha256(planBytes), frozenRunnerHash: sha256(JSON.stringify(frozen.runner)), frozenInputsHash: sha256(JSON.stringify(frozen)), plannedAttempts: attempts.length, records };
   const save = () => fs.writeFileSync(path.join(destination, 'results.json'), JSON.stringify(summary, null, 2) + '\n', { mode: 0o600 });
   save();
   for (const [index, entry] of attempts.entries()) {
-    assert.deepEqual(inventory(path.join(root, 'pilot')), frozen, 'Runner changed; trial stopped');
     try {
+      assert.deepEqual(trialInputs(), frozen, 'Trial inputs changed; trial stopped');
       const result = await runCodex({ ticket: entry.ticket, model: entry.model.id, effort: entry.model.effort,
         ...plan.limits, outputDir: path.join(destination, String(index + 1).padStart(2, '0')) });
       records.push({ index: index + 1, ticket: entry.ticket, model: entry.model.id, repetition: entry.repetition,

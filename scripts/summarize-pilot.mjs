@@ -1,8 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { subscriptionTokenCost } from './subscription-cost.mjs';
 import { summarize } from '../pilot/accounting.mjs';
 import { schedule } from '../pilot/cli.mjs';
+import { sessionEvidence } from '../pilot/session-evidence.mjs';
 import { sha256 } from '../pilot/workspace.mjs';
 
 export function transcriptFacts(transcript) {
@@ -15,7 +17,8 @@ export function transcriptFacts(transcript) {
   const calls = completed.filter(i => i.type === 'mcp_tool_call');
   const native = completed.filter(i => ['command_execution', 'file_change', 'web_search'].includes(i.type));
   const repetitions = []; let previous, count = 0;
-  for (const call of calls) {
+  for (const call of completed.filter(i => ['mcp_tool_call', 'file_change'].includes(i.type))) {
+    if (call.type === 'file_change') { previous = null; count = 0; continue; }
     let body;
     try { body = JSON.parse(call.result?.content?.find(c => c.type === 'text')?.text ?? 'null'); } catch {}
     const qualifies = call.tool === 'read_file' || ['run_command', 'run_tests'].includes(call.tool) && body?.code !== undefined && body.code !== 0;
@@ -24,7 +27,7 @@ export function transcriptFacts(transcript) {
     if (key && count === 6) repetitions.push({ tool: call.tool, arguments: call.arguments, itemId: call.id });
   }
   return { parseErrors, calls: calls.length, failedMcpCalls: calls.filter(c => c.error).length,
-    nativeCalls: native.length, thrashCandidates: repetitions,
+    nativeCalls: native.length, nativeEditCalls: native.filter(i => i.type === 'file_change').length, thrashCandidates: repetitions,
     finalMessages: completed.filter(i => i.type === 'agent_message').map(i => i.text),
     terminalUsage: events.filter(e => e.type === 'turn.completed').at(-1)?.usage ?? null };
 }
@@ -41,7 +44,7 @@ export function pilotReport(directory, evidenceFile) {
       const stoppedHere = progress.stopped?.attempt === index + 1;
       const recorded = progress.records.find(r => r.index === index + 1);
       return { index: index + 1, model: entry.model.id, ticket: entry.ticket, repetition: entry.repetition,
-        status: recorded ? 'evidence_missing' : stoppedHere ? 'runner_error' : started ? 'incomplete' : 'pending', recordedOutcome: recorded ?? null,
+        status: recorded ? 'evidence_missing' : stoppedHere ? 'runner_error' : started ? 'incomplete' : progress.stopped ? 'not_run' : 'pending', recordedOutcome: recorded ?? null,
         elapsedSeconds: null, apiEquivalentUsd: null, gradingError: recorded ? 'Recorded attempt has no receipt' : stoppedHere ? progress.stopped.message : null,
         evidence: fs.existsSync(dir) ? dir : null };
     }
@@ -50,6 +53,12 @@ export function pilotReport(directory, evidenceFile) {
     const record = fs.existsSync(recordFile) ? JSON.parse(fs.readFileSync(recordFile)) : null;
     const launch = JSON.parse(fs.readFileSync(path.join(dir, 'launch.json')));
     const facts = transcriptFacts(receipt.transcript);
+    let sourceEvidence, fullSession;
+    if (receipt.execution.settings?.fullSessionRecord && !receipt.sourceCaptureError) {
+      const full = fs.readFileSync(path.join(dir, 'session.jsonl')); fullSession = full;
+      if (sha256(full) !== receipt.sourceTranscriptHash) throw new Error('Full session record changed');
+      sourceEvidence = sessionEvidence(full, launch.prompt);
+    }
     if (typeof receipt.runId !== 'string' || !receipt.runId || runIds.has(receipt.runId)) throw new Error('Missing or duplicate run ID');
     runIds.add(receipt.runId);
     if (record && record.runId !== receipt.runId) throw new Error('Grading record belongs to another run');
@@ -68,45 +77,54 @@ export function pilotReport(directory, evidenceFile) {
       if (taskBaselines.has(entry.ticket) && taskBaselines.get(entry.ticket) !== baseline) throw new Error('Task baseline changed between attempts');
       taskBaselines.set(entry.ticket, baseline);
     }
+    let tokenCost = null, costUnavailableReason = null;
+    try { tokenCost = subscriptionTokenCost(fullSession, receipt, prices); } catch (error) { costUnavailableReason = error.message; }
     const changedFiles = record ? [...new Set([...Object.keys(record.appFiles), ...Object.keys(record.submittedFiles)])]
       .filter(f => record.appFiles[f] !== record.submittedFiles[f]) : [];
-    const cleanExecution = facts.parseErrors.length === 0 && facts.nativeCalls === 0 && facts.failedMcpCalls === 0 && facts.terminalUsage !== null;
+    const allowsNativeEdits = receipt.execution.settings?.nativeWorkspaceWrites === true;
+    const edits = record?.executionEvidence?.nativeEdits;
+    const nativeClean = allowsNativeEdits
+      ? facts.nativeCalls === facts.nativeEditCalls && Array.isArray(edits) && edits.length === facts.nativeEditCalls && edits.every(e => e.withinWorkspace === true)
+        && record.executionEvidence.nativeToolUsed === false
+      : facts.nativeCalls === 0;
+    const sourceClean = !receipt.execution.settings?.fullSessionRecord || sourceEvidence?.contextMatches && sourceEvidence.rejectedNativePatches.length === 0;
+    const cleanExecution = sourceClean && !receipt.sourceCaptureError && facts.parseErrors.length === 0 && nativeClean && facts.failedMcpCalls === 0 && facts.terminalUsage !== null;
     return { index: index + 1, ticket: entry.ticket, model: entry.model.id, repetition: entry.repetition,
-      status: receipt.status, functionalPass: receipt.status === 'submitted' && record?.grade?.pass === true && cleanExecution,
+      status: receipt.status, appGradePass: record?.grade?.pass ?? null, functionalPass: receipt.status === 'submitted' && record?.grade?.pass === true && cleanExecution,
       elapsedSeconds: receipt.elapsedSeconds, timingBasis: record?.timingBasis ?? receipt.timingSource,
-      apiEquivalentUsd: null, costUnavailableReason: 'Per-call context sizes needed to select API price bands are absent from CLI telemetry', usage: receipt.usage, evidence: dir,
+      apiEquivalentUsd: tokenCost?.costUsd ?? null, tokenCost, costUnavailableReason, usage: receipt.usage, evidence: dir,
       client: receipt.execution, runnerHash, taskHash: receipt.taskHash,
       changedFiles, transcriptFacts: facts, gradingError: record?.gradingError ?? (record ? null : 'No grading record'),
       failedChecks: record?.grade?.checks?.filter(c => !c.pass) ?? [],
-      fullRubricStatus: 'pending_evidence_review', comparisonEligible: false };
+      sourceEvidence, fullRubricStatus: 'pending_evidence_review', comparisonEligible: false };
   });
   const groups = plan.models.map(model => {
-    const records = attempts.filter(r => r.model === model.id && r.status !== 'pending');
+    const records = attempts.filter(r => r.model === model.id && !['pending', 'not_run'].includes(r.status));
     const metrics = summarize(records.map(r => ({ status: r.status, grade: { pass: r.functionalPass },
-      elapsedSeconds: r.elapsedSeconds, costUsd: r.apiEquivalentUsd, costBasis: 'unavailable',
+      elapsedSeconds: r.elapsedSeconds, costUsd: r.apiEquivalentUsd, costBasis: 'api_equivalent_token_estimate',
       timingBasis: r.timingBasis, execution: r.client ?? records.find(x => x.client)?.client })));
     const planned = plan.tickets.length * plan.repetitions;
     const complete = records.length === planned && records.every(r => !['pending', 'incomplete', 'runner_error', 'evidence_missing'].includes(r.status) && !r.gradingError);
-    return { model: model.id, planned, ...metrics,
+    return { model: model.id, planned, appChecksPassed: records.filter(r => r.appGradePass).length, ...metrics,
       correctPerHour: complete ? metrics.correctPerHour : null, correctPerDollar: complete ? metrics.correctPerDollar : null }; 
   });
-  return { generatedAt: new Date().toISOString(), planHash: sha256(planBytes),
+  return { stopped: progress.stopped ?? null, completed: progress.completed === true, generatedAt: new Date().toISOString(), planHash: sha256(planBytes),
     priceEvidenceHash: sha256(evidenceBytes), priceSource: prices.source, priceDate: prices.date,
-    interpretation: 'Pipeline validation only. Requested model IDs; full transcript rubric pending. Cost scores are unavailable: CLI aggregate token counts do not establish per-call API price bands. Subscription use is not treated as zero cost. Canaries excluded.',
+    interpretation: 'Pipeline validation only. Requested model IDs; full transcript rubric pending. Token-cost estimates require complete per-request records reconciled to the terminal totals and dated prices. Missing evidence leaves cost unavailable. Estimates are not subscription charges. Canaries excluded.',
     attempts, groups, X: null, TTI: null };
 }
 export function markdownReport(report) {
   const number = (n, decimals = 2) => n == null ? 'unavailable' : n.toFixed(decimals);
-  return `# Subscription pilot results\n\n${report.interpretation}\n\n| Requested model | Started / planned | Functional passes | Seconds | Functional passes / hour | API-equivalent cost |\n|---|---:|---:|---:|---:|---:|\n`
-    + report.groups.map(g => `| ${g.model} | ${g.attempts} / ${g.planned} | ${g.successes} | ${number(g.elapsedSeconds)} | ${number(g.correctPerHour)} | ${number(g.costUsd, 4)} USD |`).join('\n')
+  return `# Subscription pilot results\n\n${report.interpretation}\n${report.stopped ? `\nTrial stopped at attempt ${report.stopped.attempt}: ${report.stopped.message}. Unstarted slots will not be resumed in this trial.\n` : ''}\n| Requested model | Started / planned | App checks passed | Seconds | Valid candidate apps / hour | API-equivalent cost |\n|---|---:|---:|---:|---:|---:|\n`
+    + report.groups.map(g => `| ${g.model} | ${g.attempts} / ${g.planned} | ${g.appChecksPassed} | ${number(g.elapsedSeconds)} | ${number(g.correctPerHour)} | ${number(g.costUsd, 4)} USD |`).join('\n')
     + '\n\n| Attempt | Model | Ticket | Repeat | Outcome | Seconds | API-equivalent USD | Changed files |\n|---:|---|---|---:|---|---:|---:|---|\n'
-    + report.attempts.map(r => `| ${r.index} | ${r.model} | ${r.ticket} | ${r.repetition} | ${['pending', 'incomplete', 'runner_error', 'evidence_missing'].includes(r.status) ? r.status : r.functionalPass ? 'functional pass' : 'fail or ungraded'} | ${number(r.elapsedSeconds)} | ${number(r.apiEquivalentUsd, 4)} | ${(r.changedFiles ?? []).join(', ')} |`).join('\n')
-    + `\n\nPrices: [dated API price source](${report.priceSource}), ${report.priceDate}.\nAll attempts count toward time. Cost remains unavailable without per-call pricing evidence. Rates are withheld until every planned attempt has finished and grading records exist.\nRaw transcripts and grading records remain local. X and TTI are unavailable.\n`;
+    + report.attempts.map(r => `| ${r.index} | ${r.model} | ${r.ticket} | ${r.repetition} | ${r.status !== 'submitted' ? r.status : r.functionalPass ? 'functional pass' : r.gradingError ? 'ungraded' : 'task failure'} | ${number(r.elapsedSeconds)} | ${number(r.apiEquivalentUsd, 4)} | ${(r.changedFiles ?? []).join(', ')} |`).join('\n')
+    + `\n\nPrices: [dated API price source](${report.priceSource}), ${report.priceDate}.\nAll attempts count toward time. Token costs use per-call pricing evidence when complete; actual subscription charges remain unmeasured. Rates are withheld until every planned attempt has finished and grading records exist.\nRaw transcripts and grading records remain local. X and TTI are unavailable.\n`;
 }
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [directory, evidenceFile, outputPrefix] = process.argv.slice(2);
   const report = pilotReport(directory, evidenceFile);
   fs.writeFileSync(outputPrefix + '.json', JSON.stringify(report, null, 2) + '\n', { mode: 0o600 });
   fs.writeFileSync(outputPrefix + '.md', markdownReport(report), { mode: 0o600 });
-  console.log(JSON.stringify({ attempts: report.attempts.filter(r => r.status !== 'pending').length, groups: report.groups }, null, 2));
+  console.log(JSON.stringify({ attempts: report.attempts.filter(r => !['pending', 'not_run'].includes(r.status)).length, groups: report.groups }, null, 2));
 }

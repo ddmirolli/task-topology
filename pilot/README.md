@@ -230,21 +230,31 @@ node pilot/codex.mjs 07 MODEL_ID /private/path/new-attempt
 ```
 
 The adapter uses the existing ChatGPT login. It refuses API-key authentication,
-unknown allowance, and general usage at or above 90 percent. It does not buy
+unknown allowance, available or unknown purchased credits, and general usage at or above 90 percent. It does not buy
 credits, consume reset credits, or fall back to the API. The model catalog is
 recorded for diagnosis, not used as a benchmark allowlist.
 
 Each attempt records its launch configuration, prompt, CLI JSON events,
-terminal usage, and elapsed time from the parent monotonic clock. The clock
+terminal usage, the full timestamped session record, and elapsed time from the
+parent monotonic clock. Full session records include rejected calls omitted
+from the CLI event stream. Each run has isolated HOME and CODEX_HOME directories. An auth-file symlink
+reuses the existing login without copying credentials into the app. Memory
+input and generation are disabled. The adapter copies the client session log
+into private attempt evidence, verifies its thread identity, and removes the
+temporary client directory. Bundled skill catalogs are disabled explicitly. The clock
 includes client startup and tools. Account checks, dependency setup, sandbox
 probes, and post-submission grading remain outside the measured interval.
 Backend snapshot identity remains unverified when the CLI does not expose it.
 
 A restrictive Codex permission profile protects host files and dependencies.
 The four TTI MCP tools use the existing sandbox for app work and HTTP tests.
-Only that local MCP server has pre-approved tools. Native shell execution,
-plugins, desktop automation, browsing, and host skill discovery are disabled
-for the tested client. Failed MCP transport, unexpected native tools, and an
+Only that local MCP server has pre-approved tools. Native patch edits are also
+allowed inside the app workspace and recorded with their paths. Native shell execution,
+plugins, memories, desktop automation, browsing, and host skill discovery are disabled
+for the tested client. Full-session checks reject extra user instructions,
+skill catalogs, and recognized rejected native patch calls. Native edits
+without a completed event also invalidate the run. Arbitrary JavaScript tool
+orchestration still needs transcript review; these checks are not the full rubric. Failed MCP transport, native shell or web tools, edits outside the app, and an
 absent terminal event prevent a successful runner outcome. This adapter is
 still a private macOS pilot, not containment for hostile public submissions.
 
@@ -256,12 +266,41 @@ node pilot/subscription-trial.mjs pilot/subscription-plan.json /private/path/new
 ```
 
 The example plan selects two models and 18 attempts. The runner freezes its
-files, alternates model order, checks allowance before each attempt, preserves
+files, task text, and starting app, alternates model order, checks allowance before each attempt, preserves
 all outcomes, and stops on client or grading errors. It has no automatic
 retry or model substitution. Diagnostic canaries are separate from this plan.
 
-Subscription receipts retain cost as unavailable. Complete usage can support
-a separately labeled API-equivalent estimate at dated list prices. That is
-not a charge to the subscription. External submissions remain unverified;
+Subscription receipts retain cost as unavailable. CLI aggregate usage alone does not
+establish per-call context sizes needed to select API price bands. Full session
+records can supply per-request usage. The report estimates API-equivalent token
+cost only when those records have unique response IDs, match the source thread,
+reconcile to every terminal token category, and fit the captured short-context
+price band. Missing evidence or long-context requests leave cost unavailable.
+These estimates are not subscription charges. External submissions remain unverified;
 this controlled adapter adds its own timing evidence without promoting model
 identity or the unfinished transcript rubric into verified rankings.
+
+## Inspect a retained subscription trial
+
+```sh
+node scripts/summarize-pilot.mjs /private/path/trial pilot/price-evidence.json /private/path/report
+```
+
+The report binds the plan, frozen runner, price file, run IDs, task baselines,
+and client settings to the retained evidence. It keeps missing, invalid, and
+unstarted attempts visible. The report distinguishes app-check outcomes from execution validity. Rates
+remain unavailable when a planned batch stops early. All failed attempts retain their time and usage.
+No output from this script establishes full-rubric success, X, or TTI.
+
+The first matched subscription trial stopped at attempt 12 because the CLI
+exposed its native patch tool despite the intended MCP-only contract. The app
+passed, but the attempt remains invalid under that frozen contract. This
+revision declares native workspace patching explicitly and removes injected
+personal instructions through an isolated client home. Start a new matched
+trial when changing that setting. Never resume or reinterpret the old trial.
+
+The installed-client sandbox check is optional and makes no inference call:
+
+```sh
+TTI_TEST_CODEX=1 npm run test:pilot
+```

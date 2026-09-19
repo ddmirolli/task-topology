@@ -1,10 +1,10 @@
 name: Validation pilot
 on:
   pull_request:
-    paths: ['pilot/**', 'tasks/tier-1-entry/**', 'package.json', '.github/workflows/pilot.yml']
+    paths: ['pilot/**', 'scripts/summarize-pilot*', 'scripts/subscription-cost*', 'tasks/tier-1-entry/**', 'package.json', '.github/workflows/pilot.yml']
   push:
     branches: [main]
-    paths: ['pilot/**', 'tasks/tier-1-entry/**', 'package.json', '.github/workflows/pilot.yml']
+    paths: ['pilot/**', 'scripts/summarize-pilot*', 'scripts/subscription-cost*', 'tasks/tier-1-entry/**', 'package.json', '.github/workflows/pilot.yml']
 permissions:
   contents: read
 jobs:

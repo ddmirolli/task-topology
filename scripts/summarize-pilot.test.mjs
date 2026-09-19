@@ -38,6 +38,7 @@ test('started and stopped attempts cannot disappear as unstarted schedule slots'
   fs.writeFileSync(path.join(dir, 'results.json'), JSON.stringify({ records: [], stopped: { attempt: 1, message: 'runner failed' } }));
   report = pilotReport(dir, prices);
   assert.equal(report.attempts[0].status, 'runner_error');
+  assert.equal(report.attempts[1].status, 'not_run');
   assert.equal(report.attempts[0].gradingError, 'runner failed'); assert.equal(report.groups[0].costUsd, null);
 });
 
@@ -99,4 +100,11 @@ test('report binds frozen evidence, preserves malformed runs, and withholds unju
   assert.equal(report().attempts[1].status, 'evidence_missing');
   assert.equal(report().attempts[1].recordedOutcome.pass, true);
   assert.equal(report().groups[0].correctPerHour, null);
+});
+
+test('native edits reset consecutive-read candidates', () => {
+  const repeated = () => Array.from({ length: 5 }, () => call('read_file', { path: 'same.js' }));
+  const facts = transcriptFacts(log([...repeated(), { type: 'item.completed', item: { type: 'file_change' } }, ...repeated()]));
+  assert.equal(facts.nativeEditCalls, 1);
+  assert.deepEqual(facts.thrashCandidates, []);
 });

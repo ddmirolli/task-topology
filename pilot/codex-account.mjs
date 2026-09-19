@@ -3,7 +3,7 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 export async function codexAccount(binary = 'codex') {
-  const child = spawn(binary, ['app-server', '--stdio'], { stdio: ['pipe', 'pipe', 'ignore'] });
+  const child = spawn(binary, ['app-server', '--stdio'], { stdio: ['pipe', 'pipe', 'ignore'], env: Object.fromEntries(['PATH', 'HOME', 'CODEX_HOME', 'LANG'].filter(k => process.env[k] !== undefined).map(k => [k, process.env[k]])) });
   const pending = new Map(); let next = 0, buffer = '';
   const fail = error => { for (const item of pending.values()) item.reject(error); pending.clear(); };
   child.on('error', fail);
@@ -45,7 +45,7 @@ export function requireAllowance(account) {
   if (account.ordinaryUsageAllowed !== true) throw new Error('Included usage is unavailable or could not be confirmed');
   const general = account.windows.find(w => w.id === 'codex');
   const windows = [general?.primary, general?.secondary].filter(Boolean);
-  if (!general || !windows.length || general.spendControlReached || general.rateLimitReachedType
+  if (!general || general.hasCredits !== false || !windows.length || general.spendControlReached || general.rateLimitReachedType
     || windows.some(w => !Number.isFinite(w.usedPercent) || w.usedPercent < 0 || w.usedPercent >= 90)) {
     throw new Error('Subscription allowance is limited; no credit or API fallback');
   }
