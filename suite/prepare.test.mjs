@@ -15,5 +15,13 @@ test('prepared cohort is balanced, alternated, frozen, and cannot launch executi
     assert.ok(p.slots.every(s => s.tier !== 3)); assert.equal(p.apiSpendAuthorizedUsd, 0); assert.equal(p.readiness, 'held');
     for (let i = 0; i < p.slots.length; i += 2) assert.notEqual(p.slots[i].configuration, p.slots[i + 1].configuration);
     assert.throws(() => prepareCohort(output));
+    const priorPath = process.env.PATH;
+    try {
+      process.env.PATH = '';
+      prepareCohort(path.join(dir, 'without-client'));
+      const missing = JSON.parse(fs.readFileSync(path.join(dir, 'without-client/plan.json')));
+      assert.equal(missing.configurations[0].clientVersion, null);
+      assert.ok(missing.holds.includes('execution client version unavailable'));
+    } finally { process.env.PATH = priorPath; }
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });

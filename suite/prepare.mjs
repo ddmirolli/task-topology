@@ -29,7 +29,7 @@ export function prepareCohort(output, transcriptCalibration, reportCalibration) 
       assert.equal(result.status, 0); return [name, result.stdout.trim()];
     })) };
   const configurations = ['gpt-5.6-luna', 'gpt-5.6-terra'].map(model => ({ model, effort: 'medium', client: 'codex-cli',
-    clientVersion: spawnSync('codex', ['--version'], { encoding: 'utf8' }).stdout.trim(), access: 'included_allowance', costBasis: null }));
+    clientVersion: spawnSync('codex', ['--version'], { encoding: 'utf8' }).stdout?.trim() || null, access: 'included_allowance', costBasis: null }));
   const tasks = [
     ...['01', '04', '07'].map(ticket => ({ id: `entry-js-${ticket}`, tier: 1, runner: 'pilot/codex.mjs', attemptSeconds: 900 })),
     { id: 'entry-python', tier: 1, runner: 'suite/run-codex.mjs', attemptSeconds: 900 },
@@ -66,6 +66,7 @@ export function prepareCohort(output, transcriptCalibration, reportCalibration) 
     plan.holds = ['human audit and qualification review', 'fresh allowance preflight'];
     for (const [name, value] of [['transcript-calibration.json', transcript], ['report-calibration.json', report]]) fs.writeFileSync(path.join(output, name), JSON.stringify(value, null, 2), { flag: 'wx', mode: 0o600 });
   }
+  if (configurations.some(c => c.clientVersion === null)) plan.holds.push('execution client version unavailable');
   for (const [file, value] of Object.entries({ 'manifest.json': manifest, 'plan.json': plan })) fs.writeFileSync(path.join(output, file), JSON.stringify(value, null, 2) + '\n', { flag: 'wx', mode: 0o600 });
   return { suiteHash: manifest.suiteHash, attempts: slots.length, tiers: [1, 2], readiness: plan.readiness, output };
 }
