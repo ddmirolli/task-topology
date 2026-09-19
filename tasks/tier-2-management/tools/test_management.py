@@ -67,6 +67,12 @@ class ManagementTests(unittest.TestCase):
         (self.packet / 'operator/key.json').write_text('{}')
         with self.assertRaises(ValueError): grade(self.packet, self.submission)
 
+    def test_source_directory_symlink_is_rejected_even_when_bytes_match(self):
+        outside = self.root / 'outside-data'
+        shutil.move(str(self.submission / 'data'), outside)
+        (self.submission / 'data').symlink_to(outside, target_is_directory=True)
+        self.assertFalse(grade(self.packet, self.submission)['dataChecksPass'])
+
     def test_duplicate_json_keys_rejected(self):
         (self.submission / 'findings.json').write_text('{"totals": {}, "totals": {}}')
         with self.assertRaises(ValueError): grade(self.packet, self.submission)

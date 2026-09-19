@@ -1,10 +1,10 @@
 name: Validation pilot
 on:
   pull_request:
-    paths: ['pilot/**', 'scripts/summarize-pilot*', 'scripts/subscription-cost*', 'tasks/tier-1-entry/**', 'package.json', '.github/workflows/pilot.yml']
+    paths: ['pilot/**', 'benchmark/**', 'grading/**', 'scripts/summarize-pilot*', 'scripts/subscription-cost*', 'tasks/tier-1-entry/**', 'package.json', '.github/workflows/pilot.yml']
   push:
     branches: [main]
-    paths: ['pilot/**', 'scripts/summarize-pilot*', 'scripts/subscription-cost*', 'tasks/tier-1-entry/**', 'package.json', '.github/workflows/pilot.yml']
+    paths: ['pilot/**', 'benchmark/**', 'grading/**', 'scripts/summarize-pilot*', 'scripts/subscription-cost*', 'tasks/tier-1-entry/**', 'package.json', '.github/workflows/pilot.yml']
 permissions:
   contents: read
 jobs:
@@ -19,4 +19,5 @@ jobs:
       - run: npm ci --prefix tasks/tier-1-entry/app
       - run: npm ci --prefix pilot
       - run: npm run test:pilot
+      - run: npm run test:launch
       - run: npm run verify:pilot

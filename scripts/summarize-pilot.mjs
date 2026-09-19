@@ -118,7 +118,7 @@ export function pilotReport(directory, evidenceFile, reviewFile) {
   const ticketGroups = plan.tickets.flatMap(ticket => plan.models.map(model => group(model, ticket)));
   return { stopped: progress.stopped ?? null, completed: progress.completed === true, generatedAt: new Date().toISOString(), planHash: sha256(planBytes),
     reviewHoldsHash: reviewBytes ? sha256(reviewBytes) : null,
-    analysisFiles: Object.fromEntries(['scripts/summarize-pilot.mjs', 'scripts/subscription-cost.mjs', 'pilot/accounting.mjs', 'pilot/session-evidence.mjs', 'pilot/cli.mjs', 'pilot/workspace.mjs']
+    analysisFiles: Object.fromEntries(['scripts/summarize-pilot.mjs', 'scripts/subscription-cost.mjs', 'pilot/accounting.mjs', 'pilot/session-evidence.mjs', 'pilot/cli.mjs', 'pilot/workspace.mjs', 'grading/transcript-facts.mjs']
       .map(file => [file, sha256(fs.readFileSync(path.join(root, file)))])),
     priceEvidenceHash: sha256(evidenceBytes), priceSource: prices.source, priceDate: prices.date,
     interpretation: 'Pipeline validation only. Requested model IDs; full transcript rubric pending. Source checks use the recorded analysis files; original receipts remain unchanged. Token-cost estimates require complete per-request records reconciled to the terminal totals and dated prices. Missing evidence leaves cost unavailable. Estimates are not subscription charges. Canaries excluded.',

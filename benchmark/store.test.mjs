@@ -15,7 +15,7 @@ function fixture(t) {
   const store = fs.mkdtempSync(path.join(os.tmpdir(), 'tti-store-'));
   t.after(() => fs.rmSync(store, { recursive: true, force: true }));
   registerTask(store, { version: 'tti-task-export/1', taskHash: hash, ticket: '04', appFiles: {}, taskFiles: {} });
-  return { store, input: { version: 'tti-submission/1', attemptId: 'one', taskHash: hash,
+  return { store, input: { version: 'tti-submission/1', status: 'submitted', attemptId: 'one', taskHash: hash,
     model: { id: 'unlisted-model', vendor: 'unlisted-provider' }, profile,
     transcript: 'raw client evidence', files: { 'app.js': 'submitted code' }, elapsedSeconds: null,
     grade: { pass: true }, evidenceStatus: 'official' } };

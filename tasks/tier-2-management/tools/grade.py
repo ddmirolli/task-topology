@@ -23,17 +23,21 @@ def grade(packet, submission):
         raise ValueError('Unsupported task version')
     if hashlib.sha256((packet / 'operator/key.json').read_bytes()).hexdigest() != manifest['keyHash']:
         raise ValueError('Answer key changed')
+    expected_hash = hashlib.sha256(json.dumps(manifest['files'], sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+    if expected_hash != manifest['taskHash']:
+        raise ValueError('Task manifest changed')
     checks = []
     for file, digest in manifest['files'].items():
         relative = Path(file)
         if relative.is_absolute() or '..' in relative.parts:
             raise ValueError('Invalid manifest path')
         source = submission / relative
-        intact = source.is_file() and not source.is_symlink() and hashlib.sha256(source.read_bytes()).hexdigest() == digest
+        parents = [submission.joinpath(*relative.parts[:i]) for i in range(1, len(relative.parts) + 1)]
+        intact = not submission.is_symlink() and not any(p.is_symlink() for p in parents) and source.is_file() and source.stat().st_nlink == 1 and hashlib.sha256(source.read_bytes()).hexdigest() == digest
         checks.append({'name': 'source:' + file, 'pass': intact})
     finding_file, report_file = submission / 'findings.json', submission / 'REPORT.md'
     for file in (finding_file, report_file):
-        if file.is_symlink() or not file.is_file() or file.stat().st_size > 1_000_000:
+        if submission.is_symlink() or file.is_symlink() or not file.is_file() or file.stat().st_nlink != 1 or file.stat().st_size > 1_000_000:
             raise ValueError('Submit regular findings.json and REPORT.md files under 1 MB')
     found = load(finding_file)
     if not isinstance(found, dict):

@@ -33,3 +33,23 @@ These files are operator records, not trusted submitter input. Hashes detect
 changes relative to the recorded packet; they do not authenticate a submitter.
 Raw packets contain complete local sessions and must not be published without
 review and credential removal.
+
+## Subscription judge adapter
+
+`judge-codex.mjs` can request a provisional review through existing included
+subscription allowance. It uses an isolated client home, disables tools and
+personal instructions, and retains the raw response and full judge session.
+The caller supplies the model identifier. No paid API fallback exists.
+
+```sh
+node grading/judge-codex.mjs PACKET_JSON NEW_OUTPUT_DIRECTORY MODEL_ID
+```
+
+The response must satisfy the JSON schema and source-evidence checks. If an exact
+quote appears on one source line, `citations.mjs` can correct an off-by-one line
+reference. It retains the original response and records every correction. It
+never changes verdicts, reasons, source names, or quotes. Missing or ambiguous
+quotes stop review acceptance.
+
+This adapter's provisional decisions still require the stated human audit.
+Invalid judge output is retained and does not grant benchmark success.

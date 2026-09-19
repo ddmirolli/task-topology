@@ -5,7 +5,8 @@ Which model should I use here, and how wide a task can I hand it?
 TTI is being built to plot AI models in 3D, per task tier, with results
 at [tasktopology.com](https://tasktopology.com). This repo holds the
 benchmark design, test fixtures, and a small macOS validation runner.
-The public submission service and results site are pending.
+The [diagnostic results explorer](https://task-topology.vercel.app) is hosted.
+Public submission and the custom-domain connection remain pending.
 
 ## The three axes
 
@@ -86,8 +87,9 @@ Run `npm run test:pilot` and `npm run verify:pilot` for local pilot verification
 Browser verification uses Browserbase. An 18-attempt subscription cohort finished
 with 17 apps passing the task checks. Execution findings keep its benchmark rates
 unavailable. See the [validation results](VALIDATION-2026-09-18.md) for the evidence
-and runner corrections. The full transcript rubric, Tier 2 execution, and the
-public site remain pending.
+and runner corrections. Transcript review and human audit remain pending. The middle-management
+data generator and numeric checks now work, including PostgreSQL integration.
+Its isolated model runner remains pending. See [LAUNCH.md](LAUNCH.md) for current milestones.
 
 ## Credit
 

@@ -27,6 +27,7 @@ jobs:
         with:
           node-version: 24
       - run: npm run test:launch
+      - run: python3 -m unittest discover -s benchmark -p 'test_*.py'
       - run: python3 -m unittest discover -s tasks/tier-2-management/tools -p 'test_*.py'
       - run: python3 tasks/tier-2-management/tools/check_postgres.py
         env:

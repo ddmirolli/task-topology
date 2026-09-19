@@ -123,8 +123,10 @@ Reuse existing benchmarks. Do not build a new intelligence test.
   published benchmarks into one open ended scale using item response
   theory, so it does not saturate when individual benchmarks do. Reference
   code is open source at github.com/epoch-research/benchmark-stitching.
-- Fallback if a model has no ECI: the Artificial Analysis Intelligence
-  Index, marked as capped at 100 on the chart.
+- If a model has no verified ECI identity match, leave Y unavailable.
+  Artificial Analysis may appear as a separately labeled intelligence measure.
+  Keep the source and version visible. Its raw score does not substitute for
+  ECI on the same numerical axis. Any conversion needs validation.
 - Y is the same for a model at every tier. Treat it as separate evidence;
   a Tier 1 result does not have to match a published intelligence ranking.
 

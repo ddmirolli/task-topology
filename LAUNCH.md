@@ -1,28 +1,40 @@
 # Launch status
 
-This checklist tracks the route Dan authorized. Each step requires its evidence before completion.
+Dan authorized this route to launch. Partial implementations below do not establish a complete benchmark.
 
-| Step | Outcome | Status | Completion evidence |
+| Step | Outcome | Current evidence | Remaining work |
 |---|---|---|---|
-| 1 | Local task runner and independent app checks | Working | VALIDATION-2026-09-18.md |
-| 2 | Complete transcript review and audit | In progress | Seven decisions per run, evidence bindings, adjudicated holds, human audit |
-| 3 | Reproducible execution standard | Partial | Frozen profiles and verified runs through distinct clients |
-| 4 | Middle-management tasks and broader entry-level coverage | In progress | Deterministic sources, independent solution checks, isolated execution |
-| 5 | Task distribution and submission grading | Pending | Download, submit, independent grade, retained evidence |
-| 6 | External intelligence data | Pending | Dated source snapshots, exact identity mapping, attribution |
-| 7 | Validated scores | Pending | Fixed workload levels, uncertainty, speed-sensitive scoring |
-| 8 | Interactive results site | Pending | Real data, filters, evidence links, browser checks |
-| 9 | Hosted beta | Pending | Domain, HTTPS, full submission journey, monitored rollback |
-| 10 | Executive tier and maintenance | Deferred | Runnable acceptance suite and isolated deployment |
+| 1 | Local task runner | Completed diagnostic cohort, 18 attempts | Broader execution coverage |
+| 2 | Transcript grading | Evidence-bound packets, schema validation, provisional judge adapter | Cohort review and human audit |
+| 3 | Execution standard | Validated profiles distinguish clients, settings, tools, and limits | Verified comparisons through distinct clients |
+| 4 | Middle management | Deterministic sources, numeric grader, PostgreSQL integration checks | Isolated model runner, prose grading, model trials |
+| 5 | Submission pipeline | Private intake and sandboxed independent grading pass end to end | Hosted intake, authentication, durable workers, publication review |
+| 6 | External intelligence | Dated Epoch import, raw source retained, 266 observations | Verified identity mapping and update operations |
+| 7 | Validated scores | Raw measurements retained, unsupported scores unavailable | Workload calibration, uncertainty, speed-sensitive TTI formula |
+| 8 | Results explorer | Real diagnostic data, filters, sorting, evidence links, Browserbase checks | Approved scored comparisons and 3D view |
+| 9 | Hosted beta | Diagnostic explorer hosted at task-topology.vercel.app | Cloudflare DNS and complete submission journey |
+| 10 | Executive tier | Written prompt and acceptance checklist | Executable suite and isolated deployment; model runs deferred |
 
-## Current constraints
+## Current limits
 
-The existing cohort is diagnostic. App success does not establish full benchmark success.
-Human audit remains a human task. Model review cannot satisfy it.
+The cohort remains diagnostic. App success does not establish full benchmark success.
+Model reviews remain provisional. Human audit remains a human task.
 Subscription access stays open. Missing cost evidence leaves cost unavailable.
-The earlier no-merge boundary remains in force. Launch preparation can continue independently.
+The earlier no-merge boundary remains in force. PR 4 is open.
 Senior-executive model runs remain deferred under the existing pilot ruling.
 
-## Work record
+Vercel hosts the diagnostic explorer at https://task-topology.vercel.app.
+The initial deployment became production under Vercel's new-project behavior,
+despite a preview target argument. No previous site was replaced.
+The custom domain is attached to the Vercel project but Cloudflare DNS is pending.
+No public upload endpoint is open. Raw sessions and receipts remain local.
 
-The active decision trail is `/tmp/tti-launch-decisions.tsv`. Raw model evidence remains local.
+## Evidence locations
+
+- `VALIDATION-2026-09-18.md`: the original cohort and its execution findings.
+- `grading/README.md`: review records and provisional judge behavior.
+- `tasks/tier-2-management/README.md`: task generation and independent numeric checks.
+- `benchmark/README.md`: private submission and external intelligence imports.
+- `site/README.md`: public aggregate data and the static explorer.
+
+The active local trail is `/tmp/tti-launch-decisions.tsv`.

@@ -34,6 +34,7 @@ export function acceptSubmission(store, input) {
   assert.ok(string(input.model?.id) && string(input.model?.vendor), 'Supply model identity or unknown');
   assert.ok(string(input.transcript, 4_000_000), 'Supply transcript evidence');
   assert.ok(input.elapsedSeconds == null || Number.isFinite(input.elapsedSeconds) && input.elapsedSeconds >= 0, 'Invalid elapsed time');
+  assert.ok(['submitted', 'timeout', 'provider_error', 'cancelled', 'invalid_execution'].includes(input.status), 'Supply the attempt outcome');
   const profile = executionProfile(input.profile);
   const registered = JSON.parse(regular(path.join(store, 'tasks', input.taskHash + '.json')));
   assert.equal(registered.taskHash, input.taskHash);
@@ -52,7 +53,7 @@ export function acceptSubmission(store, input) {
     model: { id: input.model.id, vendor: input.model.vendor }, ...profile,
     transcript: input.transcript, files: input.files, elapsedSeconds: input.elapsedSeconds ?? null,
     reportedUsage: input.usage ?? null, reportedCost: input.cost ?? null,
-    status: 'queued', evidenceStatus: 'unverified', grade: null, comparisonEligible: false };
+    status: 'queued', attemptStatus: input.status, evidenceStatus: 'unverified', grade: null, comparisonEligible: false };
   const contentHash = sha256(canonical(record)), key = sha256(input.attemptId), attempts = path.join(store, 'attempts'); ensure(attempts);
   const target = path.join(attempts, key);
   if (fs.existsSync(target)) {
@@ -64,9 +65,13 @@ export function acceptSubmission(store, input) {
   const full = { ...record, contentHash, receivedAt: new Date().toISOString() };
   try {
     write(path.join(staging, 'record.json'), JSON.stringify(full, null, 2));
-    // mkdir claims the attempt ID. Concurrent submissions cannot overwrite it.
-    fs.mkdirSync(target, { mode: 0o700 });
-    fs.renameSync(path.join(staging, 'record.json'), path.join(target, 'record.json'));
+    // A directory rename publishes a complete record atomically.
+    try { fs.renameSync(staging, target); } catch (error) {
+      if (!['EEXIST', 'ENOTEMPTY'].includes(error.code)) throw error;
+      const existing = JSON.parse(regular(path.join(target, 'record.json')));
+      assert.equal(existing.contentHash, contentHash, 'Concurrent attempt ID contains different evidence');
+      return { id: key, contentHash, duplicate: true, status: existing.status };
+    }
   } finally { fs.rmSync(staging, { recursive: true, force: true }); }
   return { id: key, contentHash, duplicate: false, status: 'queued' };
 }
