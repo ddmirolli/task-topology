@@ -84,8 +84,9 @@ task and rejects the original and partial defects. The original ten-ticket
 suite remains a maintainer fixture check, not the pilot scoring authority.
 Run `npm ci --prefix tasks/tier-1-entry/app`, then `npm run test:tier1`.
 Run `npm run test:pilot` and `npm run verify:pilot` for local pilot verification.
-Browser verification uses Browserbase. Live model calls, the full transcript
-rubric, Tier 2 execution, and the public site remain pending.
+Browser verification uses Browserbase. Two subscription canaries passed the date grader. One exposed a client tool
+approval error and remains diagnostic. The corrected matched pilot, the full
+transcript rubric, Tier 2 execution, and the public site remain pending.
 
 ## Credit
 

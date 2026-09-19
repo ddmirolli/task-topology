@@ -56,7 +56,7 @@ export async function gradeExternal({ packet, submission, receipt, outputDir, br
   for (const key of ['id', 'vendor']) text(receipt.model?.[key], `model.${key}`);
   for (const key of ['method', 'client', 'version', 'billing']) text(receipt.execution?.[key], `execution.${key}`);
   text(receipt.transcript, 'transcript');
-  assert.ok(['submitted', 'timeout', 'provider_error', 'cancelled'].includes(receipt.status), 'Supply the attempt outcome');
+  assert.ok(['submitted', 'timeout', 'provider_error', 'cancelled', 'invalid_execution'].includes(receipt.status), 'Supply the attempt outcome');
   assert.ok(receipt.elapsedSeconds == null || Number.isFinite(receipt.elapsedSeconds) && receipt.elapsedSeconds >= 0, 'Invalid elapsed time');
   const files = inventory(submission);
   fs.mkdirSync(outputDir, { recursive: true, mode: 0o700 });

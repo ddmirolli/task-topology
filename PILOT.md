@@ -1,12 +1,15 @@
 # Small validation pilot
 
 Draft v0.2, 2026-09-18. The scoring and access rulings in SPEC.md are approved.
-The model choices, spending limit, and replacement TTI formula are not.
+The API spending proposal and replacement TTI formula remain unapproved.
+Dan authorized continued validation through existing subscription access.
 
 Implementation: [pilot/README.md](pilot/README.md). The local runner and
 behavioral checks cover the three selected tickets. Tasks can be exported to any execution client and graded locally. The optional
 API proposal is two models, 18 attempts, and a $40 cap. API spending is not a
-prerequisite for validation. Live model validation remains pending.
+prerequisite for validation. Two date-task subscription canaries passed the
+grader. The first had a tool approval error and remains diagnostic.
+The corrected matched trial is the next validation step.
 
 ## Question
 

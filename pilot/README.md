@@ -210,3 +210,58 @@ containment or comprehensive resistance to resource exhaustion.
 - [OpenAI token counting](https://developers.openai.com/api/docs/guides/token-counting): preflight input counts.
 - [OpenAI prompt caching](https://developers.openai.com/api/docs/guides/prompt-caching): disjoint usage categories.
 - [OpenAI pricing](https://developers.openai.com/api/docs/pricing): rates captured on 2026-09-18.
+
+## Run through an existing Codex subscription
+
+The optional Codex adapter uses the same exported task and grader. It is one
+client implementation of the open entry workflow. Other clients can use the
+external receipt interface without adopting Codex.
+
+Read account metadata and confirm the included allowance:
+
+```sh
+node pilot/codex-account.mjs /private/path/account-check.json
+```
+
+Run one task with any model ID your Codex client supports:
+
+```sh
+node pilot/codex.mjs 07 MODEL_ID /private/path/new-attempt
+```
+
+The adapter uses the existing ChatGPT login. It refuses API-key authentication,
+unknown allowance, and general usage at or above 90 percent. It does not buy
+credits, consume reset credits, or fall back to the API. The model catalog is
+recorded for diagnosis, not used as a benchmark allowlist.
+
+Each attempt records its launch configuration, prompt, CLI JSON events,
+terminal usage, and elapsed time from the parent monotonic clock. The clock
+includes client startup and tools. Account checks, dependency setup, sandbox
+probes, and post-submission grading remain outside the measured interval.
+Backend snapshot identity remains unverified when the CLI does not expose it.
+
+A restrictive Codex permission profile protects host files and dependencies.
+The four TTI MCP tools use the existing sandbox for app work and HTTP tests.
+Only that local MCP server has pre-approved tools. Native shell execution,
+plugins, desktop automation, browsing, and host skill discovery are disabled
+for the tested client. Failed MCP transport, unexpected native tools, and an
+absent terminal event prevent a successful runner outcome. This adapter is
+still a private macOS pilot, not containment for hostile public submissions.
+
+Run the configurable matched pilot after installing the locked dependencies
+and supplying the Browserbase credentials described above:
+
+```sh
+node pilot/subscription-trial.mjs pilot/subscription-plan.json /private/path/new-trial
+```
+
+The example plan selects two models and 18 attempts. The runner freezes its
+files, alternates model order, checks allowance before each attempt, preserves
+all outcomes, and stops on client or grading errors. It has no automatic
+retry or model substitution. Diagnostic canaries are separate from this plan.
+
+Subscription receipts retain cost as unavailable. Complete usage can support
+a separately labeled API-equivalent estimate at dated list prices. That is
+not a charge to the subscription. External submissions remain unverified;
+this controlled adapter adds its own timing evidence without promoting model
+identity or the unfinished transcript rubric into verified rankings.
