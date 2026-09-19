@@ -9,7 +9,7 @@
     "generate:brand": "node scripts/generate-brand-assets.mjs",
     "verify:brand": "node scripts/generate-brand-assets.mjs --check",
     "test:tier1": "node tasks/tier-1-entry/scripts/verify.mjs",
-    "test:pilot": "node --test pilot/runner.test.mjs pilot/codex.test.mjs",
+    "test:pilot": "node --test pilot/runner.test.mjs pilot/codex.test.mjs scripts/summarize-pilot.test.mjs",
     "verify:pilot": "node pilot/verify.mjs",
     "verify:pilot:browser": "node pilot/verify.mjs --browser"
   },
