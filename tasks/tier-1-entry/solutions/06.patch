@@ -1,0 +1,15 @@
+--- a/routes/dashboard.js
++++ b/routes/dashboard.js
+@@ -8,7 +8,5 @@
+-  const clients = db.prepare('SELECT * FROM clients ORDER BY name').all();
+-  const rows = clients.map((client) => ({
+-    ...client,
+-    invoiceCount: db
+-      .prepare('SELECT COUNT(*) AS n FROM invoices WHERE client_id = ? AND deleted_at IS NULL')
+-      .get(client.id).n,
+-  }));
++  const rows = db.prepare(`
++    SELECT c.*, COUNT(i.id) AS invoiceCount
++    FROM clients c LEFT JOIN invoices i ON i.client_id = c.id AND i.deleted_at IS NULL
++    GROUP BY c.id ORDER BY c.name
++  `).all();

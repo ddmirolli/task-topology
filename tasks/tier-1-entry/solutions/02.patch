@@ -1,0 +1,22 @@
+--- a/lib/invoice.js
++++ b/lib/invoice.js
+@@ -3,2 +3,2 @@
+-  for (const item of items) sum += item.qty * item.unit_price;
+-  return Math.floor(sum * 100) / 100;
++  for (const item of items) sum += item.qty * Math.round(item.unit_price * 100);
++  return sum / 100;
+--- a/lib/email/summary.js
++++ b/lib/email/summary.js
+@@ -3,2 +3,2 @@
+-  for (const item of items) total += item.qty * item.unit_price;
+-  total = Math.floor(total * 100) / 100;
++  for (const item of items) total += item.qty * Math.round(item.unit_price * 100);
++  total = total / 100;
+--- a/test/invoice.test.js
++++ b/test/invoice.test.js
+@@ -10 +10 @@
+-  assert.equal(invoiceTotal([{ qty: 1, unit_price: 0.7 }, { qty: 1, unit_price: 0.1 }, { qty: 1, unit_price: 0.1 }]), 0.89);
++  assert.equal(invoiceTotal([{ qty: 1, unit_price: 0.7 }, { qty: 1, unit_price: 0.1 }, { qty: 1, unit_price: 0.1 }]), 0.90);
+@@ -14 +14 @@
+-  assert.equal(invoiceTotal([{ qty: 1, unit_price: 1.15 }]), 1.14);
++  assert.equal(invoiceTotal([{ qty: 1, unit_price: 1.15 }]), 1.15);

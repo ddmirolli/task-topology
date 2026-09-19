@@ -1,0 +1,12 @@
+<%- include('partials/head', { title: 'Reset password' }) %>
+<h1>Choose a new password</h1>
+<% if (error) { %><p class="error"><%= error %></p><% } %>
+<% if (token) { %>
+  <form method="post" action="/reset/<%= token %>" class="card">
+    <label>New password <input type="password" name="password" minlength="8" required></label>
+    <button type="submit" class="btn-primary">Save password</button>
+  </form>
+<% } else { %>
+  <p><a href="/forgot">Request a new link</a></p>
+<% } %>
+<%- include('partials/foot') %>

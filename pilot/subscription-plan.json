@@ -1,0 +1,12 @@
+{
+  "version": "mtb-subscription-plan/1",
+  "tickets": ["01", "04", "07"],
+  "models": [
+    { "id": "gpt-5.6-luna", "effort": "medium" },
+    { "id": "gpt-5.6-terra", "effort": "medium" }
+  ],
+  "repetitions": 3,
+  "limits": { "attemptSeconds": 900, "commandSeconds": 30 },
+  "retryPolicy": "none",
+  "billing": "included_allowance"
+}

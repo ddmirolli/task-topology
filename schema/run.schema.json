@@ -1,108 +1,350 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://tasktopology.com/schema/run.schema.json",
-  "title": "TTI run",
-  "description": "One benchmark run. Emitted by the harness, submitted to tasktopology.com, regraded on the server.",
+  "$id": "https://modeltopography.com/schema/run.schema.json",
+  "title": "MTB run",
+  "description": "Draft record for a benchmark run through any client, provider, or access method. Independent grading determines the result.",
   "type": "object",
-  "required": ["schema_version", "run_id", "model", "harness", "task", "prices", "tokens", "timing", "transcript"],
+  "required": [
+    "schema_version",
+    "run_id",
+    "model",
+    "harness",
+    "task",
+    "timing",
+    "transcript",
+    "execution"
+  ],
   "properties": {
-    "schema_version": { "const": "1" },
-    "run_id": { "type": "string", "description": "UUID v4 minted by the harness" },
-    "submitted_at": { "type": "string", "format": "date-time" },
+    "schema_version": {
+      "const": "2"
+    },
+    "run_id": {
+      "type": "string",
+      "description": "UUID v4 minted by the harness"
+    },
+    "submitted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
     "submitter": {
       "type": "object",
       "properties": {
-        "github": { "type": "string", "description": "GitHub login of the submitter, used for trust levels" }
+        "github": {
+          "type": "string",
+          "description": "GitHub login of the submitter, used for trust levels"
+        }
       }
     },
     "model": {
       "type": "object",
-      "required": ["id", "vendor"],
+      "required": [
+        "id",
+        "vendor"
+      ],
       "properties": {
-        "id": { "type": "string", "description": "Exact API model id, e.g. claude-fable-5-1" },
-        "vendor": { "type": "string" },
-        "display_name": { "type": "string" },
-        "reasoning_setting": { "type": "string", "description": "Effort or thinking setting if the API exposes one" }
+        "id": {
+          "type": "string",
+          "description": "Model identifier reported by the execution client. Record unknown when unavailable; never infer identity."
+        },
+        "vendor": {
+          "type": "string"
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "reasoning_setting": {
+          "type": "string",
+          "description": "Effort or thinking setting if the client exposes one"
+        }
       }
     },
     "harness": {
       "type": "object",
-      "required": ["name", "version", "reference"],
+      "required": [
+        "name",
+        "version",
+        "reference"
+      ],
       "properties": {
-        "name": { "type": "string" },
-        "version": { "type": "string" },
-        "reference": { "type": "boolean", "description": "true only for the TTI reference harness" }
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "reference": {
+          "type": "boolean",
+          "description": "true only for the MTB reference harness"
+        }
       }
     },
     "task": {
       "type": "object",
-      "required": ["tier", "set_version", "task_id", "fingerprint"],
+      "required": [
+        "tier",
+        "set_version",
+        "task_id",
+        "fingerprint"
+      ],
       "properties": {
-        "tier": { "type": "integer", "enum": [1, 2, 3] },
-        "set_version": { "type": "string", "description": "Published task set version, e.g. 2026.3" },
-        "task_id": { "type": "string" },
-        "fingerprint": { "type": "string", "description": "SHA-256 of the exact task text given to the model" },
-        "target_hours": { "type": "number" }
+        "tier": {
+          "type": "integer",
+          "enum": [
+            1,
+            2,
+            3
+          ]
+        },
+        "set_version": {
+          "type": "string",
+          "description": "Published task set version, e.g. 2026.3"
+        },
+        "task_id": {
+          "type": "string"
+        },
+        "fingerprint": {
+          "type": "string",
+          "description": "SHA-256 of the exact task text given to the model"
+        },
+        "target_hours": {
+          "type": "number",
+          "deprecated": true,
+          "description": "Legacy design estimate only. Never use as elapsed runtime, credited work, or a reliability boundary."
+        }
       }
     },
     "prices": {
-      "type": "object",
-      "required": ["input_per_million_usd", "output_per_million_usd", "source_url", "as_of"],
+      "type": [
+        "object",
+        "null"
+      ],
+      "required": [
+        "input_per_million_usd",
+        "output_per_million_usd",
+        "source_url",
+        "as_of"
+      ],
       "properties": {
-        "input_per_million_usd": { "type": "number" },
-        "output_per_million_usd": { "type": "number" },
-        "cached_input_per_million_usd": { "type": "number" },
-        "source_url": { "type": "string" },
-        "as_of": { "type": "string", "format": "date" }
+        "input_per_million_usd": {
+          "type": "number"
+        },
+        "output_per_million_usd": {
+          "type": "number"
+        },
+        "cached_input_per_million_usd": {
+          "type": "number"
+        },
+        "source_url": {
+          "type": "string"
+        },
+        "as_of": {
+          "type": "string",
+          "format": "date"
+        }
       }
     },
     "tokens": {
-      "type": "object",
-      "required": ["input", "output"],
+      "type": [
+        "object",
+        "null"
+      ],
+      "required": [
+        "input",
+        "output"
+      ],
       "properties": {
-        "input": { "type": "integer" },
-        "output": { "type": "integer" },
-        "cached_input": { "type": "integer" },
-        "api_calls": { "type": "integer" }
+        "input": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "output": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "cached_input": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "api_calls": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        }
       }
     },
     "timing": {
-      "type": "object",
-      "required": ["started_at", "ended_at", "wall_seconds"],
+      "type": [
+        "object",
+        "null"
+      ],
+      "required": [
+        "started_at",
+        "ended_at",
+        "wall_seconds"
+      ],
       "properties": {
-        "started_at": { "type": "string", "format": "date-time" },
-        "ended_at": { "type": "string", "format": "date-time" },
-        "wall_seconds": { "type": "number" },
-        "steps": { "type": "integer", "description": "Tool calls made" }
+        "started_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ended_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "wall_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "steps": {
+          "type": "integer",
+          "description": "Tool calls made"
+        }
       }
     },
     "transcript": {
       "type": "object",
-      "required": ["sha256", "url"],
+      "required": [
+        "sha256",
+        "url"
+      ],
       "properties": {
-        "sha256": { "type": "string" },
-        "url": { "type": "string", "description": "Where the full transcript is stored after upload" },
-        "provider_request_ids": { "type": "array", "items": { "type": "string" }, "description": "API request ids, used to verify a run was real" }
+        "sha256": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "description": "Where the full transcript is stored after upload"
+        },
+        "provider_request_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Provider request IDs when exposed. Their absence does not bar other execution methods."
+        }
       }
     },
     "grade": {
       "type": "object",
       "description": "Set by the server after regrading. Anything the submitter puts here is discarded.",
       "properties": {
-        "graded_at": { "type": "string", "format": "date-time" },
-        "grader_version": { "type": "string" },
-        "success": { "type": "boolean" },
+        "graded_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "grader_version": {
+          "type": "string"
+        },
+        "success": {
+          "type": "boolean"
+        },
         "failure": {
-          "type": ["object", "null"],
+          "type": [
+            "object",
+            "null"
+          ],
           "properties": {
-            "rule": { "type": "integer", "minimum": 1, "maximum": 7 },
-            "at_seconds": { "type": "number" },
-            "evidence": { "type": "string" }
+            "rule": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 7
+            },
+            "at_seconds": {
+              "type": "number"
+            },
+            "evidence": {
+              "type": "string"
+            }
           }
         },
-        "tier_rubric": { "type": "object", "description": "Tier specific results, see GRADING.md" },
-        "trust_level": { "type": "string", "enum": ["held", "unverified", "verified", "official"] }
+        "tier_rubric": {
+          "type": "object",
+          "description": "Tier specific results, see GRADING.md"
+        },
+        "trust_level": {
+          "type": "string",
+          "enum": [
+            "held",
+            "unverified",
+            "verified",
+            "official"
+          ]
+        }
       }
+    },
+    "execution": {
+      "type": "object",
+      "required": [
+        "method",
+        "client",
+        "version",
+        "billing"
+      ],
+      "properties": {
+        "method": {
+          "type": "string",
+          "minLength": 1
+        },
+        "client": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "billing": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "description": "Free-form provenance, not an allowlist. Examples include subscription clients, APIs, local execution, and future access methods. Record additional settings and tool configuration here."
+    },
+    "cost": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "basis": {
+          "type": "string",
+          "description": "For example actual charge, API-equivalent estimate, allocated subscription cost, or unavailable. Compare matching bases separately."
+        },
+        "usd": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "evidence": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "description": "Cost evidence is optional for entry. Missing cost prevents cost scoring, not task grading."
+    },
+    "evidence_status": {
+      "type": "string",
+      "enum": [
+        "unverified",
+        "verified"
+      ],
+      "default": "unverified",
+      "description": "The verifier owns this field; a submitter cannot grant verification."
     }
   }
 }

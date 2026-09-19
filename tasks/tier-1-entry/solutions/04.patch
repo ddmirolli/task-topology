@@ -1,0 +1,60 @@
+--- a/db/schema.sql
++++ b/db/schema.sql
+@@ -18 +18,2 @@
+-  client_id INTEGER NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
++  client_id INTEGER REFERENCES clients(id) ON DELETE SET NULL,
++  client_name TEXT NOT NULL DEFAULT '',
+--- /dev/null
++++ b/db/migrations/001-preserve-invoices.sql
+@@ -0,0 +1,20 @@
++PRAGMA foreign_keys = OFF;
++BEGIN;
++CREATE TABLE invoices_next (
++  id INTEGER PRIMARY KEY,
++  client_id INTEGER REFERENCES clients(id) ON DELETE SET NULL,
++  client_name TEXT NOT NULL DEFAULT '',
++  number TEXT NOT NULL,
++  issued_on TEXT NOT NULL,
++  due_on TEXT NOT NULL,
++  status TEXT NOT NULL DEFAULT 'unpaid',
++  deleted_at TEXT,
++  created_at TEXT NOT NULL
++);
++INSERT INTO invoices_next (id, client_id, client_name, number, issued_on, due_on, status, deleted_at, created_at)
++SELECT i.id, i.client_id, COALESCE(c.name, ''), i.number, i.issued_on, i.due_on, i.status, i.deleted_at, i.created_at
++FROM invoices i LEFT JOIN clients c ON c.id = i.client_id;
++DROP TABLE invoices;
++ALTER TABLE invoices_next RENAME TO invoices;
++COMMIT;
++PRAGMA foreign_keys = ON;
+--- a/routes/clients.js
++++ b/routes/clients.js
+@@ -18 +18,5 @@
+-  req.app.locals.db.prepare('DELETE FROM clients WHERE id = ?').run(req.params.id);
++  const db = req.app.locals.db;
++  db.transaction(() => {
++    db.prepare('UPDATE invoices SET client_name = (SELECT name FROM clients WHERE id = ?) WHERE client_id = ?').run(req.params.id, req.params.id);
++    db.prepare('DELETE FROM clients WHERE id = ?').run(req.params.id);
++  })();
+--- a/routes/invoices.js
++++ b/routes/invoices.js
+@@ -12 +12 @@
+-  if (q) { where.push('(i.number LIKE ? OR c.name LIKE ?)'); params.push(`%${q}%`, `%${q}%`); }
++  if (q) { where.push('(i.number LIKE ? OR COALESCE(c.name, i.client_name) LIKE ?)'); params.push(`%${q}%`, `%${q}%`); }
+@@ -16,2 +16,2 @@
+-    SELECT i.*, c.name AS client_name, c.timezone AS client_timezone
+-    FROM invoices i JOIN clients c ON c.id = i.client_id
++    SELECT i.*, COALESCE(c.name, i.client_name) AS client_name, c.timezone AS client_timezone
++    FROM invoices i LEFT JOIN clients c ON c.id = i.client_id
+--- a/routes/api.js
++++ b/routes/api.js
+@@ -11,2 +11,2 @@
+-    SELECT i.*, c.name AS client_name
+-    FROM invoices i JOIN clients c ON c.id = i.client_id
++    SELECT i.*, COALESCE(c.name, i.client_name) AS client_name
++    FROM invoices i LEFT JOIN clients c ON c.id = i.client_id
+--- a/views/clients/confirm-delete.ejs
++++ b/views/clients/confirm-delete.ejs
+@@ -3 +3 @@
+-<p>Delete <strong><%= clientRow.name %></strong> and all of their invoices? This cannot be undone.</p>
++<p>Delete <strong><%= clientRow.name %></strong> ? Their invoices will remain. This cannot be undone.</p>

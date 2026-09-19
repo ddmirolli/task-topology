@@ -1,13 +1,26 @@
 {
-  "name": "task-topology-index",
+  "name": "model-topography",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "generate:brand": "node scripts/generate-brand-assets.mjs",
-    "verify:brand": "node scripts/generate-brand-assets.mjs --check"
+    "verify:brand": "node scripts/generate-brand-assets.mjs --check",
+    "test:tier1": "node tasks/tier-1-entry/scripts/verify.mjs",
+    "test:pilot": "node --test pilot/runner.test.mjs pilot/codex.test.mjs scripts/summarize-pilot.test.mjs scripts/subscription-cost.test.mjs",
+    "verify:pilot": "node pilot/verify.mjs",
+    "verify:pilot:browser": "node pilot/verify.mjs --browser",
+    "test:launch": "node --test grading/*.test.mjs benchmark/*.test.mjs",
+    "build:core": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "pretest:launch": "npm run build:core",
+    "pretest:pilot": "npm run build:core"
   },
   "devDependencies": {
-    "sharp": "0.35.4"
+    "@types/node": "24.13.6",
+    "sharp": "0.35.4",
+    "typescript": "7.0.2"
   }
 }

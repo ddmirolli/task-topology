@@ -1,0 +1,44 @@
+{
+  "version": "mtb-pilot-plan/1",
+  "approved": false,
+  "tickets": [
+    "01",
+    "04",
+    "07"
+  ],
+  "repetitions": 3,
+  "totalUsd": 40,
+  "limits": {
+    "attemptSeconds": 900,
+    "commandSeconds": 30,
+    "maxTurns": 30,
+    "maxInputTokens": 32000,
+    "maxOutputTokens": 4000,
+    "attemptUsd": 4
+  },
+  "priceSource": "https://developers.openai.com/api/docs/pricing",
+  "priceDate": "2026-09-18",
+  "models": [
+    {
+      "id": "gpt-5.6-luna",
+      "effort": "medium",
+      "rates": {
+        "input": 0.2,
+        "cached": 0.02,
+        "cacheWrite": 0.25,
+        "output": 1.2
+      }
+    },
+    {
+      "id": "gpt-5.6-terra",
+      "effort": "medium",
+      "rates": {
+        "input": 2,
+        "cached": 0.2,
+        "cacheWrite": 2.5,
+        "output": 12
+      }
+    }
+  ],
+  "priceEvidenceHash": "381b35c05acd2ca6f62d117903e49a4a4242195aa077c2f4d4f11f8b8db2263c"
+}

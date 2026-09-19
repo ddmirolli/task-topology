@@ -1,0 +1,10 @@
+--- a/lib/email/reset.js
++++ b/lib/email/reset.js
+@@ -5 +5 @@
+-  const link = `${config.appUrl}/reset/${token}`;
++  const link = `${config.appUrl.replace(/^http:/, 'https:')}/reset/${token}`;
+--- a/routes/reset.js
++++ b/routes/reset.js
+@@ -12 +12 @@
+-  if (row.expires_at < clock.now().getTime()) return null;
++  if (row.expires_at * 1000 <= clock.now().getTime()) return null;

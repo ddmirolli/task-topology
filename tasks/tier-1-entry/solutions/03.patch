@@ -1,0 +1,10 @@
+--- a/lib/validate.js
++++ b/lib/validate.js
+@@ -1 +1 @@
+-const EMAIL_RE = /^[a-z0-9._-]+@[a-z0-9.-]+\.[a-z]{2,}$/i;
++const EMAIL_RE = /^[a-z0-9.+_-]+@[a-z0-9.-]+\.[a-z]{2,}$/i;
+--- a/public/js/validate.js
++++ b/public/js/validate.js
+@@ -3 +3 @@
+-  var EMAIL_RE = /^[a-z0-9._-]+@[a-z0-9.-]+\.[a-z]{2,}$/i;
++  var EMAIL_RE = /^[a-z0-9.+_-]+@[a-z0-9.-]+\.[a-z]{2,}$/i;

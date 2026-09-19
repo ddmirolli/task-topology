@@ -1,0 +1,48 @@
+--- a/views/dashboard.ejs
++++ b/views/dashboard.ejs
+@@ -5 +5 @@
+-  <thead><tr><th>Client</th><th>Invoices</th></tr></thead>
++  <thead><tr><th>Customer</th><th>Invoices</th></tr></thead>
+--- a/views/clients/confirm-delete.ejs
++++ b/views/clients/confirm-delete.ejs
+@@ -1,2 +1,2 @@
+-<%- include('../partials/head', { title: 'Delete client' }) %>
+-<h1>Delete client</h1>
++<%- include('../partials/head', { title: 'Delete customer' }) %>
++<h1>Delete customer</h1>
+@@ -5 +5 @@
+-  <button type="submit" class="btn-danger">Delete client</button>
++  <button type="submit" class="btn-danger">Delete customer</button>
+--- a/views/clients/index.ejs
++++ b/views/clients/index.ejs
+@@ -1,2 +1,2 @@
+-<%- include('../partials/head', { title: 'Clients' }) %>
+-<h1>Clients</h1>
++<%- include('../partials/head', { title: 'Customers' }) %>
++<h1>Customers</h1>
+@@ -4 +4 @@
+-  <thead><tr><th>Client</th><th>Email</th><th>Timezone</th><th></th></tr></thead>
++  <thead><tr><th>Customer</th><th>Email</th><th>Timezone</th><th></th></tr></thead>
+--- a/views/invoices/index.ejs
++++ b/views/invoices/index.ejs
+@@ -4 +4 @@
+-  <input type="search" name="q" placeholder="Search number or client" value="<%= filter.q %>">
++  <input type="search" name="q" placeholder="Search number or customer" value="<%= filter.q %>">
+@@ -14 +14 @@
+-  <thead><tr><th>Number</th><th>Client</th><th>Issued</th><th>Due</th><th>Status</th><th>Total</th></tr></thead>
++  <thead><tr><th>Number</th><th>Customer</th><th>Issued</th><th>Due</th><th>Status</th><th>Total</th></tr></thead>
+--- a/views/partials/head.ejs
++++ b/views/partials/head.ejs
+@@ -14 +14 @@
+-      <a href="/clients">Clients</a>
++      <a href="/clients">Customers</a>
+--- a/emails/reminder.ejs
++++ b/emails/reminder.ejs
+@@ -1 +1 @@
+-Dear client,
++Dear customer,
+--- a/emails/welcome.ejs
++++ b/emails/welcome.ejs
+@@ -1 +1 @@
+-Welcome aboard, new client!
++Welcome aboard, new customer!

@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en" data-theme="<%= theme %>">
+<head>
+  <meta charset="utf-8">
+  <title><%= title %> · Invoicing</title>
+  <link rel="stylesheet" href="/theme.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/">Invoicing</a>
+  <nav>
+    <% if (user) { %>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/clients">Clients</a>
+      <a href="/invoices">Invoices</a>
+      <form method="post" action="/logout" class="inline"><button class="btn-link">Log out</button></form>
+    <% } else { %>
+      <a href="/login">Log in</a>
+      <a href="/signup">Sign up</a>
+    <% } %>
+    <a href="?theme=<%= theme === 'dark' ? 'light' : 'dark' %>" class="theme-toggle">Toggle theme</a>
+  </nav>
+</header>
+<main>

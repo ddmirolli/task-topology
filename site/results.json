@@ -1,0 +1,83 @@
+{
+  "version": "mtb-public-diagnostic/1",
+  "date": "2026-09-18",
+  "status": "diagnostic",
+  "sourceReportHash": "6e8013864f535a7fa197c3b45cfdd1c85f446f6ac7ce40135909e1e1c005dd94",
+  "evidenceUrl": "https://github.com/ddmirolli/model-topography/blob/c50f535d84e02763a5fc27a254b2584396c987fe/VALIDATION-2026-09-18.md",
+  "costBasis": "api_equivalent_token_estimate",
+  "tasks": {
+    "01": "Button visibility",
+    "04": "Customer deletion",
+    "07": "Customer-local dates"
+  },
+  "rows": [
+    {
+      "ticket": "01",
+      "model": "gpt-5.6-luna",
+      "attempts": 3,
+      "appChecksPassed": 3,
+      "elapsedSeconds": 131.17572899900006,
+      "apiEquivalentUsd": 0.02805288,
+      "reviewHolds": 1,
+      "client": "Codex CLI 0.155.1",
+      "effort": "medium"
+    },
+    {
+      "ticket": "01",
+      "model": "gpt-5.6-terra",
+      "attempts": 3,
+      "appChecksPassed": 2,
+      "elapsedSeconds": 102.75311633399994,
+      "apiEquivalentUsd": 0.21235199999999999,
+      "reviewHolds": 0,
+      "client": "Codex CLI 0.155.1",
+      "effort": "medium"
+    },
+    {
+      "ticket": "04",
+      "model": "gpt-5.6-luna",
+      "attempts": 3,
+      "appChecksPassed": 3,
+      "elapsedSeconds": 195.46360683400002,
+      "apiEquivalentUsd": 0.038179239999999996,
+      "reviewHolds": 0,
+      "client": "Codex CLI 0.155.1",
+      "effort": "medium"
+    },
+    {
+      "ticket": "04",
+      "model": "gpt-5.6-terra",
+      "attempts": 3,
+      "appChecksPassed": 3,
+      "elapsedSeconds": 210.19205120900006,
+      "apiEquivalentUsd": 0.325452,
+      "reviewHolds": 1,
+      "client": "Codex CLI 0.155.1",
+      "effort": "medium"
+    },
+    {
+      "ticket": "07",
+      "model": "gpt-5.6-luna",
+      "attempts": 3,
+      "appChecksPassed": 3,
+      "elapsedSeconds": 185.06148916799987,
+      "apiEquivalentUsd": 0.03554056,
+      "reviewHolds": 0,
+      "client": "Codex CLI 0.155.1",
+      "effort": "medium"
+    },
+    {
+      "ticket": "07",
+      "model": "gpt-5.6-terra",
+      "attempts": 3,
+      "appChecksPassed": 3,
+      "elapsedSeconds": 198.74743220699992,
+      "apiEquivalentUsd": 0.3206968,
+      "reviewHolds": 0,
+      "client": "Codex CLI 0.155.1",
+      "effort": "medium"
+    }
+  ],
+  "X": null,
+  "MTB": null
+}

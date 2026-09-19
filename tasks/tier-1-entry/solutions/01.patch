@@ -1,0 +1,14 @@
+--- a/public/theme.css
++++ b/public/theme.css
+@@ -58,2 +58,2 @@
+-  background: var(--bg);
+-  color: var(--bg);
++  background: var(--accent);
++  color: #1a202c;
+--- a/test/fixtures/theme.css
++++ b/test/fixtures/theme.css
+@@ -58,2 +58,2 @@
+-  background: var(--bg);
+-  color: var(--bg);
++  background: var(--accent);
++  color: #1a202c;
