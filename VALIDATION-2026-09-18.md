@@ -42,6 +42,7 @@ No API inference runner was dispatched.
 
 The corrected source checker was applied equally to all 18 retained sessions.
 Only attempt 01 changed under that correction. Original receipts remain unchanged.
+Receipt-bound review holds also mark attempts 01 and 10 for execution review.
 The report withholds cohort throughput and cost-efficiency rates when execution
 evidence requires review. X, TTI, and full seven-rule success remain unavailable.
 

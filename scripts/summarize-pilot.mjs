@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { subscriptionTokenCost } from './subscription-cost.mjs';
 import { summarize } from '../pilot/accounting.mjs';
@@ -31,15 +32,26 @@ export function transcriptFacts(transcript) {
     finalMessages: completed.filter(i => i.type === 'agent_message').map(i => i.text),
     terminalUsage: events.filter(e => e.type === 'turn.completed').at(-1)?.usage ?? null };
 }
-export function pilotReport(directory, evidenceFile) {
+export function pilotReport(directory, evidenceFile, reviewFile) {
   const planBytes = fs.readFileSync(path.join(directory, 'plan.json')), plan = JSON.parse(planBytes);
   const evidenceBytes = fs.readFileSync(evidenceFile), prices = JSON.parse(evidenceBytes);
   const progress = JSON.parse(fs.readFileSync(path.join(directory, 'results.json')));
+  const reviewBytes = reviewFile ? fs.readFileSync(reviewFile) : null;
+  const review = reviewBytes ? JSON.parse(reviewBytes) : { version: 'tti-review-holds/1', holds: [] };
+  assert.equal(review.version, 'tti-review-holds/1', 'Unsupported review holds');
+  assert.ok(Array.isArray(review.holds), 'Review holds must be an array');
+  const holds = new Map();
+  for (const hold of review.holds) {
+    assert.ok(Number.isSafeInteger(hold.attempt) && hold.attempt > 0 && !holds.has(hold.attempt), 'Missing or duplicate review attempt');
+    assert.ok(typeof hold.reason === 'string' && hold.reason.trim() && hold.reason.length <= 2000, 'Review reason required');
+    holds.set(hold.attempt, hold);
+  }
   if (progress.planHash && progress.planHash !== sha256(planBytes)) throw new Error('Plan changed after launch');
   const taskBaselines = new Map(), configurations = new Set(), runIds = new Set();
   const attempts = schedule(plan).map((entry, index) => {
     const dir = path.join(directory, String(index + 1).padStart(2, '0'));
     if (!fs.existsSync(path.join(dir, 'receipt.json'))) {
+      assert.ok(!holds.has(index + 1), 'Review hold has no receipt');
       const started = fs.existsSync(path.join(dir, 'launch.json')) || fs.existsSync(path.join(dir, 'events.jsonl'));
       const stoppedHere = progress.stopped?.attempt === index + 1;
       const recorded = progress.records.find(r => r.index === index + 1);
@@ -48,7 +60,13 @@ export function pilotReport(directory, evidenceFile) {
         elapsedSeconds: null, apiEquivalentUsd: null, gradingError: recorded ? 'Recorded attempt has no receipt' : stoppedHere ? progress.stopped.message : null,
         evidence: fs.existsSync(dir) ? dir : null };
     }
-    const receipt = JSON.parse(fs.readFileSync(path.join(dir, 'receipt.json')));
+    const receiptBytes = fs.readFileSync(path.join(dir, 'receipt.json')), receipt = JSON.parse(receiptBytes);
+    const hold = holds.get(index + 1);
+    if (hold) {
+      assert.equal(hold.receiptHash, sha256(receiptBytes), 'Review hold receipt changed');
+      assert.equal(hold.runId, receipt.runId, 'Review hold belongs to another run');
+      holds.delete(index + 1);
+    }
     const recordFile = path.join(dir, 'result/run.json');
     const record = fs.existsSync(recordFile) ? JSON.parse(fs.readFileSync(recordFile)) : null;
     const launch = JSON.parse(fs.readFileSync(path.join(dir, 'launch.json')));
@@ -88,13 +106,14 @@ export function pilotReport(directory, evidenceFile) {
         && record.executionEvidence.nativeToolUsed === false
       : facts.nativeCalls === 0;
     const sourceClean = !receipt.execution.settings?.fullSessionRecord || sourceEvidence?.contextMatches && sourceEvidence.rejectedNativePatches.length === 0;
-    const cleanExecution = sourceClean && !receipt.sourceCaptureError && facts.parseErrors.length === 0 && nativeClean && facts.failedMcpCalls === 0 && facts.terminalUsage !== null;
+    const cleanExecution = !hold && sourceClean && !receipt.sourceCaptureError && facts.parseErrors.length === 0 && nativeClean && facts.failedMcpCalls === 0 && facts.terminalUsage !== null;
     const executionIssues = [
       !sourceClean && 'Full-session checks require review',
       receipt.sourceCaptureError && 'Full-session capture failed',
       facts.parseErrors.length > 0 && 'Malformed transcript events',
       !nativeClean && 'Native tool evidence violates the declared protocol',
       facts.failedMcpCalls > 0 && 'MCP transport failed',
+      hold && `Review hold: ${hold.reason}`,
     ].filter(Boolean);
     return { index: index + 1, ticket: entry.ticket, model: entry.model.id, repetition: entry.repetition,
       status: receipt.status, appGradePass: record?.grade?.pass ?? null, functionalPass: receipt.status === 'submitted' && record?.grade?.pass === true && cleanExecution,
@@ -105,6 +124,7 @@ export function pilotReport(directory, evidenceFile) {
       failedChecks: record?.grade?.checks?.filter(c => !c.pass) ?? [],
       sourceEvidence, executionIssues, fullRubricStatus: 'pending_evidence_review', comparisonEligible: false };
   });
+  assert.equal(holds.size, 0, 'Review hold is outside the planned schedule');
   const completeTrial = progress.completed === true && attempts.every(r => !['pending', 'not_run', 'incomplete', 'runner_error', 'evidence_missing', 'invalid_execution', 'provider_error'].includes(r.status) && !r.gradingError && !r.executionIssues?.length);
   const group = (model, ticket = null) => {
     const records = attempts.filter(r => r.model === model.id && (ticket === null || r.ticket === ticket) && !['pending', 'not_run'].includes(r.status));
@@ -119,6 +139,7 @@ export function pilotReport(directory, evidenceFile) {
   const groups = plan.models.map(model => group(model));
   const ticketGroups = plan.tickets.flatMap(ticket => plan.models.map(model => group(model, ticket)));
   return { stopped: progress.stopped ?? null, completed: progress.completed === true, generatedAt: new Date().toISOString(), planHash: sha256(planBytes),
+    reviewHoldsHash: reviewBytes ? sha256(reviewBytes) : null,
     analysisFiles: Object.fromEntries(['scripts/summarize-pilot.mjs', 'scripts/subscription-cost.mjs', 'pilot/accounting.mjs', 'pilot/session-evidence.mjs', 'pilot/cli.mjs', 'pilot/workspace.mjs']
       .map(file => [file, sha256(fs.readFileSync(path.join(root, file)))])),
     priceEvidenceHash: sha256(evidenceBytes), priceSource: prices.source, priceDate: prices.date,
@@ -136,8 +157,8 @@ export function markdownReport(report) {
     + `\n\nPrices: [dated API price source](${report.priceSource}), ${report.priceDate}.\nAll attempts count toward time. Token costs use per-call pricing evidence when complete; actual subscription charges remain unmeasured. Rates are withheld until every planned attempt has finished and grading records exist.\nRaw transcripts and grading records remain local. X and TTI are unavailable.\n`;
 }
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const [directory, evidenceFile, outputPrefix] = process.argv.slice(2);
-  const report = pilotReport(directory, evidenceFile);
+  const [directory, evidenceFile, outputPrefix, reviewFile] = process.argv.slice(2);
+  const report = pilotReport(directory, evidenceFile, reviewFile);
   fs.writeFileSync(outputPrefix + '.json', JSON.stringify(report, null, 2) + '\n', { mode: 0o600 });
   fs.writeFileSync(outputPrefix + '.md', markdownReport(report), { mode: 0o600 });
   console.log(JSON.stringify({ attempts: report.attempts.filter(r => !['pending', 'not_run'].includes(r.status)).length, groups: report.groups }, null, 2));

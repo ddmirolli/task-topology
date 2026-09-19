@@ -285,7 +285,7 @@ identity or the unfinished transcript rubric into verified rankings.
 ## Inspect a retained subscription trial
 
 ```sh
-node scripts/summarize-pilot.mjs /private/path/trial pilot/price-evidence.json /private/path/report
+node scripts/summarize-pilot.mjs /private/path/trial /private/path/trial/price-evidence.json /private/path/report
 ```
 
 The report binds the plan, frozen runner, price file, run IDs, task baselines,
@@ -296,6 +296,25 @@ No output from this script establishes full-rubric success, X, or TTI.
 Execution evidence that fails review also withholds cohort throughput and
 cost-efficiency rates. Analysis file hashes distinguish corrected source checks
 from the original frozen runner. Original receipts are not overwritten.
+
+Supply a review-holds JSON file as the optional fourth argument when transcript
+review finds an execution concern. Each hold keeps the app result and measurements
+but removes candidate credit. The report checks each hold against its run ID and
+the SHA-256 of the complete receipt file, and records the review file's hash.
+
+```json
+{
+  "version": "tti-review-holds/1",
+  "holds": [
+    {
+      "attempt": 1,
+      "runId": "the-receipt-run-id",
+      "receiptHash": "sha256-of-receipt-json-bytes",
+      "reason": "The blocked outside-workspace command requires scope review."
+    }
+  ]
+}
+```
 
 The first matched subscription trial stopped at attempt 12 because the CLI
 exposed its native patch tool despite the intended MCP-only contract. The app
