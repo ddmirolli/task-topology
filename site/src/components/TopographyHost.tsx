@@ -38,7 +38,7 @@ export function TopographyHost({ state, events, plottedCount, dataStatus, onRetr
   if (dataStatus === 'loading') message = { title: 'Loading measurements', body: null };
   else if (dataStatus === 'failed') message = {
     title: 'Measurements could not be loaded',
-    body: <button type="button" onClick={onRetry} className="mt-3 min-h-11 rounded border border-line-strong px-4 text-sm font-medium hover:bg-panel">Retry</button>,
+    body: <button type="button" onClick={onRetry} className="mt-3 min-h-11 rounded-full bg-text px-5 font-medium text-bg">Retry</button>,
   };
   else if (status === 'failed') message = { title: 'The 3D map could not start', body: 'Measurements remain available in the results table.' };
   else if (plottedCount === 0) message = {
@@ -49,12 +49,12 @@ export function TopographyHost({ state, events, plottedCount, dataStatus, onRetr
   else if (status === 'loading') message = { title: 'Loading the 3D map', body: null };
 
   return (
-    <div className="topography-frame relative w-full overflow-hidden rounded border border-line bg-bg">
+    <div className="topography-frame relative w-full overflow-hidden">
       <div id={TOPOGRAPHY_HOST_ID} ref={host} data-renderer-status={status} className="absolute inset-0 isolate" />
       {message && (
-        <div role="status" className="absolute inset-0 flex flex-col items-center justify-center bg-bg px-6 text-center">
-          <p className="text-base font-medium">{message.title}</p>
-          {message.body && <div className="mt-1 max-w-md text-sm text-muted">{message.body}</div>}
+        <div role="status" className="absolute inset-0 flex flex-col items-center justify-center bg-face px-6 text-center">
+          <p className="text-[17px] font-medium">{message.title}</p>
+          {message.body && <div className="mt-1 max-w-md text-muted">{message.body}</div>}
         </div>
       )}
     </div>

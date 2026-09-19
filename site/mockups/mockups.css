@@ -1,0 +1,22 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/hanken-grotesk';
+@import '@fontsource-variable/geist';
+@import '@fontsource-variable/ibm-plex-sans';
+@import '@fontsource-variable/archivo/wdth.css';
+
+/* Light and dark follow the visitor's system setting. There is no toggle. */
+:root { color-scheme: light dark; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+svg g[role='button']:focus-visible circle:last-of-type { stroke-width: 3; }
+
+[data-direction='a'], [data-direction='e'] { --bg: #f3f3f3; --face: #e7e7e7; --ink: #111111; --muted: #616161; --line: #d0d0d0; --grid: #bdbdbd; }
+[data-direction='b'] { --bg: #f7f7f7; --face: #ffffff; --ink: #1d1d1f; --muted: #6e6e73; --line: rgb(0 0 0 / 0.1); --grid: #c9c9c9; --material: rgb(255 255 255 / 0.74); --hover: rgb(0 0 0 / 0.05); }
+[data-direction='c'] { --bg: #ffffff; --face: #f4f4f4; --ink: #161616; --muted: #6f6f6f; --line: #e0e0e0; --grid: #c6c6c6; }
+[data-direction='d'] { --bg: #ffffff; --face: #efefef; --ink: #000000; --muted: #555555; --line: #b5b5b5; --grid: #a8a8a8; }
+
+@media (prefers-color-scheme: dark) {
+  [data-direction='a'], [data-direction='e'] { --bg: #0f0f0f; --face: #1b1b1b; --ink: #f1f1f1; --muted: #9c9c9c; --line: #303030; --grid: #3d3d3d; }
+  [data-direction='b'] { --bg: #000000; --face: #1c1c1e; --ink: #f5f5f7; --muted: #a1a1a6; --line: rgb(255 255 255 / 0.12); --grid: #3a3a3c; --material: rgb(28 28 30 / 0.74); --hover: rgb(255 255 255 / 0.08); }
+  [data-direction='c'] { --bg: #161616; --face: #262626; --ink: #f4f4f4; --muted: #a8a8a8; --line: #393939; --grid: #525252; }
+  [data-direction='d'] { --bg: #0b0b0b; --face: #1c1c1c; --ink: #ffffff; --muted: #a6a6a6; --line: #4a4a4a; --grid: #5c5c5c; }
+}

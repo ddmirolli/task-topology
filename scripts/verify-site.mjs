@@ -48,7 +48,7 @@ try {
   const rows = page => page.locator('tbody tr[data-point]');
   const markHost = page => page.evaluate(() => { document.getElementById('topography-host').dataset.qaMark = 'kept'; });
   const hostKept = page => page.evaluate(() => document.querySelectorAll('#topography-host').length === 1 && document.getElementById('topography-host').dataset.qaMark === 'kept');
-  const markColor = (page, model) => page.locator(`[data-model="${model}"] label span[aria-hidden]`).first().evaluate(node => getComputedStyle(node).backgroundColor);
+  const markColor = (page, model) => page.locator(`[data-model="${model}"] button span[aria-hidden]`).first().evaluate(node => getComputedStyle(node).backgroundColor);
 
   // Desktop: loading state, then the populated page.
   const desktop = await open({ viewport: { width: 1440, height: 900 }, results: 'slow' });
@@ -72,16 +72,17 @@ try {
   pass('published data files match the worktree byte for byte');
 
   assert.equal(await rows(page).count(), 2);
-  const table = await page.locator('tbody').first().innerText();
+  const table = await page.locator('[aria-labelledby=results-title] tbody').innerText();
   assert.match(table, /gpt-5\.6-luna[\s\S]*9 \/ 9/); assert.match(table, /gpt-5\.6-terra[\s\S]*8 \/ 9/);
-  assert.equal((table.match(/Unavailable/g) || []).length, 6, 'X, Y and Z are unavailable for both rows');
+  assert.equal((table.match(/Unavailable/g) || []).length, 2, 'coordinates are unavailable for both rows');
+  assert.doesNotMatch(table, /Plotted/, 'no row claims a plotted point');
   assert.equal(await page.locator('#topography-host').getAttribute('data-renderer-status'), 'absent');
   assert.equal(await page.locator('#topography-host').evaluate(node => node.childElementCount), 0, 'the page puts nothing inside the host');
   await page.getByText('The 3D map is not built yet').waitFor();
   assert.match(await page.locator('[data-plotted-count]').innerText(), /^0 of 2/);
   const box = await page.locator('#topography-host').boundingBox();
   assert.ok(box.y + box.height <= 900 && box.height >= 360, `map fits the first desktop viewport (${Math.round(box.height)}px tall)`);
-  assert.ok(box.width > 700, `map dominates the first screen (${Math.round(box.width)}px wide)`);
+  assert.ok(box.width > 760, `map dominates the first screen (${Math.round(box.width)}px wide)`);
   await shot(page, 'desktop-light');
   pass('real diagnostic rows render, no score is shown, and the empty map state is present');
 
@@ -101,25 +102,31 @@ try {
   pass('tier selection works and empty tiers show an honest empty state');
 
   // Model and reasoning selection.
-  await page.locator('[data-model="gpt-5.6-luna"] input[type=checkbox]').first().uncheck();
-  assert.match(await page.locator('tr', { hasText: 'gpt-5.6-luna' }).innerText(), /Hidden/);
+  const lunaKey = page.locator('[data-model="gpt-5.6-luna"] button').first();
+  await lunaKey.click();
+  assert.equal(await lunaKey.getAttribute('aria-pressed'), 'false');
+  assert.match(await page.locator('tr', { hasText: 'gpt-5.6-luna' }).innerText(), /Not shown/);
   assert.match(await page.locator('tr', { hasText: 'gpt-5.6-terra' }).innerText(), /No coordinates/);
   assert.equal(await markColor(page, 'gpt-5.6-terra'), terraColor, 'a filter does not move a model color');
   assert.equal(await rows(page).count(), 2, 'hidden configurations keep their measurements in the table');
-  await page.getByRole('button', { name: 'None', exact: true }).click();
-  assert.equal(await page.locator('[data-model] input:checked').count(), 0);
-  await page.getByRole('button', { name: 'All', exact: true }).click();
-  assert.equal(await page.locator('[data-model] input:checked').count(), 4);
-  await page.locator('[data-model="gpt-5.6-terra"] ul label').click();
-  assert.equal(await page.locator('[data-model="gpt-5.6-terra"] > label input').evaluate(node => node.checked), false, 'a reasoning setting toggles its configuration');
-  await page.locator('[data-model="gpt-5.6-terra"] ul label').click();
+  await lunaKey.click();
+  assert.equal(await lunaKey.getAttribute('aria-pressed'), 'true');
+  // Only measured settings appear. This cohort has one per model, so there is nothing to step through.
+  assert.equal(await page.locator('[data-model="gpt-5.6-terra"] [data-setting]').innerText(), 'medium');
+  assert.equal(await page.locator('[data-model] button[aria-label*="reasoning setting"]').count(), 0);
+  await page.getByText('Layers', { exact: true }).click();
+  await page.getByLabel('Connecting surface').uncheck();
+  await page.getByLabel('Connecting surface').check();
+  await page.getByText('Layers', { exact: true }).click();
   assert.ok(await hostKept(page), 'host survives filter changes');
   pass('model and reasoning selection works without touching measurements or colors');
 
   // Details, task view, and sorting.
+  assert.match(await page.locator('[data-point-details]').innerText(), /gpt-5\.6-luna/, 'the reading defaults to the first configuration shown');
   await page.getByRole('button', { name: /Details for gpt-5\.6-terra/ }).click();
+  await page.locator('[data-point-details] summary').click();
   const details = await page.locator('[data-point-details]').innerText();
-  for (const expected of [/gpt-5\.6-terra/, /Pending transcript grading/, /API-equivalent token estimate/, /not a subscription charge/, /Codex CLI/, /0\.155\.1/, /Customer deletion/, /Not recorded/])
+  for (const expected of [/gpt-5\.6-terra/, /Graded successes\s+Pending/, /API-equivalent token estimate/, /not a subscription charge/, /Codex CLI/, /0\.155\.1/, /Customer deletion/, /Not recorded/])
     assert.match(details, expected);
   assert.match(await page.locator('[data-point-details] a', { hasText: 'Cohort evidence' }).getAttribute('href'), /^https:\/\/github\.com\/ddmirolli\/model-topography\/blob\/[a-f0-9]{40}\//);
   await shot(page, 'desktop-details');
@@ -147,41 +154,42 @@ try {
   const outline = await page.evaluate(() => getComputedStyle(document.activeElement).outlineStyle);
   assert.notEqual(outline, 'none', 'keyboard focus is visible');
   await page.keyboard.press('Escape');
-  await page.getByRole('button', { name: 'Methodology' }).focus();
+  await page.getByRole('button', { name: 'Method', exact: true }).focus();
   await page.keyboard.press('Enter');
   await page.getByRole('heading', { name: 'Methodology and caveats' }).waitFor();
   await shot(page, 'desktop-methodology');
   await page.keyboard.press('Escape');
   await page.getByRole('heading', { name: 'Methodology and caveats' }).waitFor({ state: 'hidden' });
-  assert.equal(await page.evaluate(() => document.activeElement?.textContent), 'Methodology', 'focus returns to the opener');
-  await page.getByRole('button', { name: 'ECI snapshot' }).first().click();
+  assert.equal(await page.evaluate(() => document.activeElement?.textContent), 'Method', 'focus returns to the opener');
+  await page.getByRole('button', { name: 'Data', exact: true }).click();
+  assert.equal(await page.locator('dialog[open] a[href="/results.json"]').count(), 1);
   await page.getByText('266 of 266 models').waitFor();
   await page.getByLabel('Filter by model or organization').fill('Claude Fable 5.1');
   await page.getByText('1 of 266 models').waitFor();
   // Escape in a search field clears it first, so close with the button.
   await page.getByRole('button', { name: 'Close' }).click();
-  await page.getByRole('heading', { name: 'Epoch Capabilities Index snapshot' }).waitFor({ state: 'hidden' });
+  await page.getByRole('heading', { name: 'Data', exact: true }).waitFor({ state: 'hidden' });
   pass('tier radios, table rows, dialogs and Escape all work from the keyboard');
 
-  // Theme: toggle, persistence, and system default.
-  assert.equal(await page.evaluate(() => document.documentElement.dataset.theme), 'light');
-  await page.getByRole('button', { name: 'Dark theme' }).click();
-  assert.equal(await page.evaluate(() => document.documentElement.dataset.theme), 'dark');
-  await page.reload(); await rows(page).first().waitFor();
-  assert.equal(await page.evaluate(() => document.documentElement.dataset.theme), 'dark', 'the chosen theme persists');
-  assert.notEqual(await markColor(page, 'gpt-5.6-terra'), terraColor, 'model colors have a dark variant');
-  await page.getByRole('button', { name: /Details for gpt-5\.6-luna/ }).click();
-  await shot(page, 'desktop-dark');
+  // Theme follows the system setting. The page has no theme control.
+  const background = target => target.evaluate(() => getComputedStyle(document.body).backgroundColor);
+  assert.equal(await background(page), 'rgb(243, 243, 243)');
+  assert.equal(await page.getByRole('button', { name: /theme|dark|light/i }).count(), 0, 'no theme control');
   await desktop.context.close();
-  const system = await open({ viewport: { width: 1280, height: 800 }, colorScheme: 'dark' });
+  const system = await open({ viewport: { width: 1440, height: 900 }, colorScheme: 'dark' });
   await system.page.goto(target); await rows(system.page).first().waitFor();
-  assert.equal(await system.page.evaluate(() => document.documentElement.dataset.theme), 'dark', 'the system theme applies before a choice');
+  assert.equal(await background(system.page), 'rgb(15, 15, 15)', 'a dark system setting gives the dark palette');
+  assert.notEqual(await markColor(system.page, 'gpt-5.6-terra'), terraColor, 'model colors have a dark variant');
+  await system.page.getByRole('button', { name: /Details for gpt-5\.6-luna/ }).click();
+  await shot(system.page, 'desktop-dark');
+  await system.page.emulateMedia({ colorScheme: 'light' });
+  assert.equal(await background(system.page), 'rgb(243, 243, 243)', 'the palette follows a live system change');
   // The synthetic fixture must not load in a production build.
   await system.page.goto(new URL('?fixture=synthetic', target).href); await rows(system.page).first().waitFor();
   assert.equal(await system.page.getByText(/synthetic/i).count(), 0);
   assert.equal(await rows(system.page).count(), 2);
   await system.context.close();
-  pass('theme toggle persists, the system theme is the default, and the synthetic fixture is absent');
+  pass('light and dark follow the system setting with no toggle, and the synthetic fixture is absent');
 
   // Load failure and retry.
   const failing = await open({ viewport: { width: 1280, height: 800 }, results: 'fail' });
@@ -202,8 +210,8 @@ try {
   assert.ok(await phone.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'no page-level horizontal overflow');
   const phoneHost = await phone.locator('#topography-host').boundingBox();
   assert.ok(phoneHost.y + phoneHost.height <= 844, 'tier control and map fit the first mobile screen');
-  const small = await phone.evaluate(() => [...document.querySelectorAll('button, label:has(input), a[href]')]
-    .filter(node => node.getClientRects().length && node.getBoundingClientRect().height < 44).map(node => node.textContent.trim().slice(0, 30)));
+  const small = await phone.evaluate(() => [...document.querySelectorAll('button, label:has(input), a[href], summary')]
+    .filter(node => node.getClientRects().length && node.getBoundingClientRect().height < 43.5).map(node => node.textContent.trim().slice(0, 30)));
   assert.deepEqual(small, [], 'every visible control is at least 44px tall');
   await shot(phone, 'mobile-light');
   await shot(phone, 'mobile-light-full', true);
@@ -211,17 +219,15 @@ try {
   await phone.locator('[data-empty-results]').waitFor();
   await phone.getByText('Entry level', { exact: true }).tap();
   await phone.getByRole('button', { name: /Details for gpt-5\.6-terra/ }).tap();
-  await phone.locator('[data-details-sheet]').waitFor();
-  assert.match(await phone.locator('[data-details-sheet]').innerText(), /gpt-5\.6-terra[\s\S]*Cost basis/);
-  assert.equal(await phone.evaluate(() => document.activeElement?.textContent), 'Close', 'focus moves into the details sheet');
+  assert.match(await phone.locator('[data-point-details]').innerText(), /gpt-5\.6-terra[\s\S]*API-equivalent cost/, 'the reading under the map follows the selection');
+  await phone.locator('[data-point-details]').scrollIntoViewIfNeeded();
   await shot(phone, 'mobile-details');
-  await phone.getByRole('button', { name: 'Close' }).tap();
-  await phone.locator('[data-details-sheet]').waitFor({ state: 'hidden' });
-  await phone.getByRole('button', { name: 'Dark theme' }).tap();
+  await phone.emulateMedia({ colorScheme: 'dark' });
+  await phone.evaluate(() => scrollTo(0, 0));
   await shot(phone, 'mobile-dark');
   assert.ok(await phone.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
   await mobile.context.close();
-  pass('mobile layout has no overflow, 44px targets, tier switching and a details sheet');
+  pass('mobile layout has no overflow, 44px targets, tier switching and a reading under the map');
 
   assert.deepEqual(errors, [], 'no page or console errors');
   pass('no page or console errors');

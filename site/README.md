@@ -65,9 +65,10 @@ module, and `npm run audit:dist` fails if its marker appears in `dist/`.
 | Lifetime | Mounts once. Filters, tiers, and themes never remount it |
 | Children | None from the page. The renderer owns every child |
 | Position | `position: absolute; inset: 0` inside `.topography-frame`, with `isolation: isolate` |
-| Width | The center column. At least 288px |
-| Height, 1024px and wider | `clamp(360px, 100vh - 13rem, 720px)` |
-| Height, narrower | `clamp(260px, 60vw, 420px)` |
+| Place | The left part of the tabbed map panel. The reading column takes 320px on the right |
+| Width, 1024px and wider | The panel width less 320px. At most 856px |
+| Height, 1024px and wider | `clamp(380px, 62vh, 640px)` |
+| Narrower | The full panel width at a 10:7 aspect ratio. At least 240px tall |
 | Status | `data-renderer-status` is `absent`, `loading`, `mounted`, or `failed` |
 
 The size changes with the viewport. A renderer must observe the host with
@@ -77,14 +78,32 @@ The size changes with the viewport. A renderer must observe the host with
 renderer in `src/topography/renderer.ts`. The page state, colors, and theme are in
 `src/App.tsx`, `src/data/colors.ts`, and `src/theme.ts`.
 
+## Page structure
+
+Dan ruled on this structure on 2026-09-19, after reviewing the mockups in `mockups/`:
+
+1. Top navigation: the logo and name on the left, Method and Data on the right.
+2. A short introduction. Dan writes it in `src/content/intro.ts`. While that string
+   is empty, the page renders no introduction.
+3. The map panel. Tier tabs sit on its top edge. The panel holds the renderer host
+   and the reading for one configuration. The model keys sit under the panel.
+4. The results table.
+
 ## Design rules
 
+- Light and dark follow the visitor's system setting through `prefers-color-scheme`.
+  The page has no theme control and stores no preference.
 - The interface is monochrome. The tokens are the `--mtb-*` variables in `src/styles.css`.
 - Pastel hues belong to models only. A hue comes from a hash of the model ID, so it
   never depends on row order, filters, or tier. `PINNED_HUES` holds fixed hues.
 - Every model mark has an outline and a text label. Color is never the only identifier.
-- The system theme applies until a visitor chooses one. The choice persists in
-  `localStorage` under `mtb-theme`.
+- The typeface is Hanken Grotesk, self-hosted through `@fontsource-variable`.
+
+## Mockups
+
+`mockups/` holds the five design directions Dan reviewed, with notional data and a
+static map illustration. Run `npm run dev` and open `/mockups/`. They never ship: the
+production build has one input, `index.html`, and `src/styles.css` excludes their classes.
 
 ## Deployment
 

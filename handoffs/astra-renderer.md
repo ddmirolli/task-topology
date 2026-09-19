@@ -40,8 +40,11 @@ no children. Everything inside the host is yours.
 
 | Viewport | Host height | Host width |
 | --- | --- | --- |
-| 1024px and wider | `clamp(360px, 100vh - 13rem, 720px)` | The center column, about 50% to 65% of the viewport |
-| Narrower | `clamp(260px, 60vw, 420px)` | The page width less 32px. At least 288px |
+| 1024px and wider | `clamp(380px, 62vh, 640px)` | The map panel less the 320px reading column. At most 856px |
+| Narrower | Width times 0.7. At least 240px | The page width less 40px |
+
+The host sits on the panel's face color, not the page background. `theme.background`
+is that face color. Clear the canvas to it, or keep the canvas transparent.
 
 Observe the host with `ResizeObserver`. Do not set its size.
 
@@ -58,7 +61,7 @@ effort, and one configuration with a missing axis.
 | --- | --- |
 | `tier`, `comparisonKey` | The visitor's choices. Filter with `visiblePoints(state)` |
 | `points` | Every loaded point, all tiers. Never plot an `unavailable` axis at zero |
-| `selectedConfigurationIds` | Configurations that contribute to the surface. Sorted |
+| `selectedConfigurationIds` | One configuration per shown model: the reasoning setting in use. These build the surface. Sorted |
 | `focusedPointId` | The hovered or keyboard-focused point. If none, the pinned point. Else `null` |
 | `showSurface`, `showReasoningPaths` | The layer checkboxes |
 | `reducedMotion` | `prefers-reduced-motion`. Stop camera easing and transitions when true |
@@ -69,12 +72,13 @@ Theme values, from `site/src/theme.ts`:
 
 | Key | Light | Dark | Use |
 | --- | --- | --- | --- |
-| `background` | `#ffffff` | `#0a0a0a` | Canvas clear color |
-| `foreground` | `#171717` | `#ededed` | Axes, labels, point outlines |
-| `grid` | `#d4d4d4` | `#333333` | Grid lines and the connecting surface |
+| `background` | `#e7e7e7` | `#1b1b1b` | Canvas clear color. The map panel's face |
+| `foreground` | `#111111` | `#f1f1f1` | Axes, labels, point outlines |
+| `grid` | `#bdbdbd` | `#3d3d3d` | Grid lines and the connecting surface |
 | `accent` | `#000000` | `#ffffff` | Focus and selection outlines |
 
-Model colors are pastel: OKLCH lightness 0.74 and chroma 0.11 in light mode, 0.82 and
+The theme follows the visitor's system setting and can change while you are mounted.
+The page has no theme control. Model colors are pastel: OKLCH lightness 0.74 and chroma 0.11 in light mode, 0.82 and
 0.09 in dark mode. A pastel cannot reach 3:1 contrast on white alone. Give every point
 a `theme.foreground` outline and keep the surface monochrome. Hue belongs to model
 points, reasoning paths, and legend marks only. Do not define colors in the renderer.
@@ -83,10 +87,17 @@ points, reasoning paths, and legend marks only. Do not define colors in the rend
 
 - `onFocus(pointId | null)`: pointer hover or keyboard focus on a point. Send `null`
   when it ends. The page shows that point's details and highlights its table row.
-- `onSelect(pointId)`: click, tap, or Enter on a point. The page pins the details.
-  Below 1024px it opens the details sheet. The visitor closes it with Escape or Close.
+- `onSelect(pointId)`: click, tap, or Enter on a point. The page pins that point in
+  the reading beside the map. Escape unpins it.
 
-Neither event changes `selectedConfigurationIds`. The Models control owns that.
+Neither event changes `selectedConfigurationIds`. The model keys under the panel own
+that. A key shows or hides its model. Its arrows step through the model's measured
+reasoning settings, and the chosen setting becomes the model's selected configuration.
+
+`visiblePoints(state)` returns the selected configurations only. For reasoning paths,
+read a shown model's other measured settings from `state.points`, with the same tier
+and comparison key. Draw them as smaller marks. `site/mockups/Surface.tsx` illustrates
+the intended look with notional data. It is a static SVG, not a starting point for the engine.
 
 ## Rules from the specification
 
@@ -109,11 +120,13 @@ Fable did not change `core/topography.ts`. These need a decision before real sco
    dataset records none of them. The site stores `''` and displays "Not recorded".
 2. `successCount` has no place for unadjudicated app checks. The site sets it to
    `null` and keeps app checks in its own `ConfigurationRecord`.
-3. `TopographyViewState` has one `focusedPointId`. The page merges hover and pin into
+3. `visiblePoints` drops a model's unselected reasoning settings, but reasoning paths
+   need them. The renderer reads them from `points`. A core helper would make this explicit.
+4. `TopographyViewState` has one `focusedPointId`. The page merges hover and pin into
    it. A renderer that styles them differently needs a second field.
-4. The public dataset has no tier or comparison field. The site assigns tier 1 and
+5. The public dataset has no tier or comparison field. The site assigns tier 1 and
    derives the comparison key `mtb-public-diagnostic/1:2026-09-18` from version and date.
-5. `reasoning.providerValue` and `reasoning.order` are `null` for the current data.
+6. `reasoning.providerValue` and `reasoning.order` are `null` for the current data.
    Reasoning paths need a recorded order.
 
 ## Commands

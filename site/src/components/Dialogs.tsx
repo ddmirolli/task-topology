@@ -11,14 +11,14 @@ function Dialog({ open, onClose, title, children }: { open: boolean; onClose(): 
   }, [open]);
   return (
     <dialog ref={node} onClose={onClose} onClick={event => { if (event.target === node.current) onClose(); }} aria-labelledby="dialog-title"
-      className="m-auto max-h-[min(90dvh,760px)] w-[min(92vw,720px)] rounded border border-line-strong bg-bg p-0 text-text">
+      className="m-auto max-h-[min(90dvh,760px)] w-[min(92vw,720px)] rounded-[20px] bg-bg p-0 text-text shadow-[0_24px_60px_rgb(0_0_0/0.3)]">
       {open && (
         <div className="flex max-h-[min(90dvh,760px)] flex-col">
           <div className="flex items-center justify-between gap-4 border-b border-line px-5 py-3">
-            <h2 id="dialog-title" className="text-lg font-semibold">{title}</h2>
-            <button type="button" onClick={onClose} className="min-h-11 rounded border border-line-strong px-3 text-sm hover:bg-panel">Close</button>
+            <h2 id="dialog-title" className="text-[19px] font-semibold tracking-[-0.01em]">{title}</h2>
+            <button type="button" onClick={onClose} className="min-h-11 rounded-full bg-face px-4 hover:bg-line">Close</button>
           </div>
-          <div className="overflow-y-auto px-5 py-4 text-sm">{children}</div>
+          <div className="overflow-y-auto px-5 py-4">{children}</div>
         </div>
       )}
     </dialog>
@@ -62,7 +62,7 @@ export function MethodologyDialog({ open, onClose }: { open: boolean; onClose():
 
 type SnapshotState = { status: 'idle' | 'loading' | 'failed' } | { status: 'ready'; snapshot: IntelligenceSnapshot };
 
-export function IntelligenceDialog({ open, onClose }: { open: boolean; onClose(): void }) {
+export function DataDialog({ open, onClose }: { open: boolean; onClose(): void }) {
   const [state, setState] = useState<SnapshotState>({ status: 'idle' });
   const [query, setQuery] = useState('');
   useEffect(() => {
@@ -80,7 +80,14 @@ export function IntelligenceDialog({ open, onClose }: { open: boolean; onClose()
   }, [snapshot, query]);
 
   return (
-    <Dialog open={open} onClose={onClose} title="Epoch Capabilities Index snapshot">
+    <Dialog open={open} onClose={onClose} title="Data">
+      <h3 className="font-semibold">Downloads</h3>
+      <ul className="mt-1 mb-5 flex flex-wrap gap-x-5">
+        {[['results.json', 'Diagnostic results'], ['intelligence.json', 'Epoch snapshot'], ['epoch-source.csv', 'Epoch source file']].map(([file, label]) => (
+          <li key={file}><a href={`/${file}`} className="inline-flex min-h-11 items-center underline underline-offset-2">{label}, {file}</a></li>
+        ))}
+      </ul>
+      <h3 className="mb-1 font-semibold">Epoch Capabilities Index snapshot</h3>
       {state.status === 'loading' && <p role="status">Loading the snapshot</p>}
       {state.status === 'failed' && <p role="alert">The snapshot could not be loaded.</p>}
       {snapshot && (
@@ -96,7 +103,7 @@ export function IntelligenceDialog({ open, onClose }: { open: boolean; onClose()
           </p>
           <label className="mt-4 block font-medium">Filter by model or organization
             <input type="search" value={query} onChange={event => setQuery(event.target.value)}
-              className="mt-1 block min-h-11 w-full rounded border border-line-strong bg-bg px-3 font-normal" />
+              className="mt-1 block min-h-11 w-full rounded-full bg-face px-4 font-normal" />
           </label>
           <p className="mt-2 text-xs text-muted" role="status">{matches.length} of {snapshot.observations.length} models</p>
           <table className="mt-2 w-full text-left tabular-nums">

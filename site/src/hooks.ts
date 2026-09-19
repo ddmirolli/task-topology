@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 import type { ColorMode } from './data/colors.ts';
 import { buildRecords, type ConfigurationRecord } from './data/records.ts';
 import { parseDiagnosticDataset, type DiagnosticDataset } from './data/schema.ts';
-import { readPreference, writePreference, type ThemePreference } from './theme.ts';
 
 export function useMediaQuery(query: string): boolean {
   const subscribe = useCallback((notify: () => void) => {
@@ -13,14 +12,9 @@ export function useMediaQuery(query: string): boolean {
   return useSyncExternalStore(subscribe, () => matchMedia(query).matches);
 }
 
-// The system theme applies until a visitor chooses one. The choice persists.
-export function useTheme(): { mode: ColorMode; preference: ThemePreference; setPreference(next: ThemePreference): void } {
-  const [preference, setStored] = useState<ThemePreference>(readPreference);
-  const systemDark = useMediaQuery('(prefers-color-scheme: dark)');
-  const mode: ColorMode = preference === 'system' ? (systemDark ? 'dark' : 'light') : preference;
-  useEffect(() => { document.documentElement.dataset.theme = mode; }, [mode]);
-  const setPreference = useCallback((next: ThemePreference) => { writePreference(next); setStored(next); }, []);
-  return { mode, preference, setPreference };
+// Light and dark follow the system setting. The page offers no theme control.
+export function useColorMode(): ColorMode {
+  return useMediaQuery('(prefers-color-scheme: dark)') ? 'dark' : 'light';
 }
 
 export type DataState =

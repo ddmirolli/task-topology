@@ -47,6 +47,8 @@ export function ResultsTable({ records, selected, colors, focusedPointId, pinned
   const [view, setView] = useState<View>('configurations');
   const [sort, setSort] = useState<{ key: SortKey; ascending: boolean }>({ key: 'model', ascending: true });
   const hasTasks = records.some(record => record.tasks.length > 0);
+  // Until a coordinate is validated, one column says so once per row instead of three times.
+  const scored = records.some(({ point }) => [point.axes.x, point.axes.y, point.axes.z].some(axis => axis.status === 'validated'));
 
   const rows = useMemo(() => {
     const built: TableRow[] = view === 'tasks'
@@ -62,39 +64,39 @@ export function ResultsTable({ records, selected, colors, focusedPointId, pinned
   }, [records, view, sort]);
 
   const header = (key: SortKey, label: string, className = '') => (
-    <th scope="col" aria-sort={sort.key === key ? (sort.ascending ? 'ascending' : 'descending') : 'none'} className={`p-0 font-medium ${className}`}>
+    <th scope="col" aria-sort={sort.key === key ? (sort.ascending ? 'ascending' : 'descending') : 'none'} className={`p-0 font-normal ${className}`}>
       <button type="button" onClick={() => setSort(current => ({ key, ascending: current.key === key ? !current.ascending : true }))}
         className={`flex min-h-11 w-full items-center gap-1 px-3 hover:text-text ${className.includes('text-right') ? 'justify-end' : ''}`}>
         {label}<span aria-hidden="true" className="w-3 text-xs">{sort.key === key ? (sort.ascending ? '↑' : '↓') : ''}</span>
       </button>
     </th>
   );
-  const plain = (label: string, className = '') => <th scope="col" className={`px-3 font-medium ${className}`}>{label}</th>;
+  const plain = (label: string, className = '') => <th scope="col" className={`px-3 font-normal ${className}`}>{label}</th>;
 
   return (
     <section aria-labelledby="results-title">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <div>
-          <h2 id="results-title" className="text-lg font-semibold">Results</h2>
-          {note && rows.length > 0 && <p className="text-xs text-muted" data-evidence-label>{note}</p>}
+          <h2 id="results-title" className="text-[22px] font-semibold tracking-[-0.02em]">Results</h2>
+          {note && rows.length > 0 && <p className="text-[13px] text-muted" data-evidence-label>{note}</p>}
         </div>
         {hasTasks && (
-          <div role="group" aria-label="Table rows" className="flex overflow-hidden rounded border border-line-strong text-sm">
+          <div role="group" aria-label="Table rows" className="flex rounded-full bg-face p-1 text-[14px]">
             {(['configurations', 'tasks'] as const).map(option => (
               <button key={option} type="button" aria-pressed={view === option}
                 onClick={() => { setView(option); if (option === 'configurations' && sort.key === 'task') setSort({ key: 'model', ascending: true }); }}
-                className={`min-h-11 px-3 sm:min-h-9 ${view === option ? 'bg-text font-medium text-invert' : 'hover:bg-panel'}`}>{option === 'tasks' ? 'By task' : 'By configuration'}</button>
+                className={`min-h-11 rounded-full px-4 sm:min-h-8 ${view === option ? 'bg-text font-medium text-bg' : 'text-muted hover:text-text'}`}>{option === 'tasks' ? 'By task' : 'By configuration'}</button>
             ))}
           </div>
         )}
       </div>
       {rows.length === 0 ? (
-        <p className="rounded border border-line px-4 py-8 text-center text-sm text-muted" data-empty-results>No measurements collected for this tier.</p>
+        <p className="rounded-[20px] bg-face px-4 py-10 text-center text-muted" data-empty-results>No measurements collected for this tier.</p>
       ) : (
-        <div className="overflow-x-auto rounded border border-line">
-          <table className="w-full min-w-max border-collapse text-left text-sm tabular-nums">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-max border-collapse text-left tabular-nums">
             <caption className="sr-only">Measured configurations for the selected tier. Column buttons change the sort order. Select a model to read its details.</caption>
-            <thead className="border-b border-line bg-panel text-muted">
+            <thead className="text-[13px] text-muted">
               <tr>
                 {header('model', 'Model')}
                 {view === 'tasks' && header('task', 'Task')}
@@ -103,9 +105,8 @@ export function ResultsTable({ records, selected, colors, focusedPointId, pinned
                 {header('checks', 'App checks', 'text-right')}
                 {header('elapsed', 'Elapsed', 'text-right')}
                 {header('cost', 'API-equivalent cost', 'text-right')}
-                {plain('X', 'hidden text-right sm:table-cell')}
-                {plain('Y', 'hidden text-right sm:table-cell')}
-                {plain('Z', 'hidden text-right sm:table-cell')}
+                {scored ? <>{plain('X', 'hidden text-right sm:table-cell')}{plain('Y', 'hidden text-right sm:table-cell')}{plain('Z', 'hidden text-right sm:table-cell')}</>
+                  : plain('X, Y, Z coordinates', 'hidden text-right sm:table-cell')}
                 {plain('On map', 'hidden text-right md:table-cell')}
               </tr>
             </thead>
@@ -116,7 +117,7 @@ export function ResultsTable({ records, selected, colors, focusedPointId, pinned
                 const complete = [point.axes.x, point.axes.y, point.axes.z].every(axis => axis.status === 'validated');
                 return (
                   <tr key={row.key} data-point={point.id} onMouseEnter={() => onHover(point.id)} onMouseLeave={() => onHover(null)} onClick={() => onPin(point.id)}
-                    className={`cursor-pointer border-t border-line first:border-t-0 ${pinned ? 'bg-panel shadow-[inset_3px_0_0_var(--mtb-accent)]' : focused ? 'bg-panel' : ''}`}>
+                    className={`cursor-pointer border-t border-line ${pinned ? 'bg-face shadow-[inset_3px_0_0_var(--mtb-text)]' : focused ? 'bg-face' : ''}`}>
                     <th scope="row" className="p-0 font-medium">
                       <button type="button" data-point-trigger={point.id} aria-pressed={pinned} aria-label={`Details for ${configuration.displayName}, ${configuration.reasoning.label} reasoning`}
                         onClick={event => { event.stopPropagation(); onPin(point.id); }} onFocus={() => onHover(point.id)} onBlur={() => onHover(null)}
@@ -130,10 +131,12 @@ export function ResultsTable({ records, selected, colors, focusedPointId, pinned
                     <td className="px-3 text-right">{row.checks} / {row.attempts}</td>
                     <td className="px-3 text-right">{seconds(row.elapsed)}</td>
                     <td className="px-3 text-right">{usd(row.cost)}</td>
-                    <td className="hidden px-3 text-right sm:table-cell">{axisCell(point.axes.x)}</td>
-                    <td className="hidden px-3 text-right sm:table-cell">{axisCell(point.axes.y)}</td>
-                    <td className="hidden px-3 text-right sm:table-cell">{axisCell(point.axes.z)}</td>
-                    <td className="hidden px-3 text-right text-muted md:table-cell">{!selected.has(configuration.id) ? 'Hidden' : complete ? 'Plotted' : 'No coordinates'}</td>
+                    {scored ? <>
+                      <td className="hidden px-3 text-right sm:table-cell">{axisCell(point.axes.x)}</td>
+                      <td className="hidden px-3 text-right sm:table-cell">{axisCell(point.axes.y)}</td>
+                      <td className="hidden px-3 text-right sm:table-cell">{axisCell(point.axes.z)}</td>
+                    </> : <td className="hidden px-3 text-right text-muted sm:table-cell">Unavailable</td>}
+                    <td className="hidden px-3 text-right text-muted md:table-cell">{!selected.has(configuration.id) ? 'Not shown' : complete ? 'Plotted' : 'No coordinates'}</td>
                   </tr>
                 );
               })}
