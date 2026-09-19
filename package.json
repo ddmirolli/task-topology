@@ -16,7 +16,11 @@
     "build:core": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "pretest:launch": "npm run build:core",
-    "pretest:pilot": "npm run build:core"
+    "pretest:pilot": "npm run build:core",
+    "test:suite": "npm run build:core && node --test suite/*.test.mjs",
+    "verify:suite": "npm run build:core && node suite/verify.mjs",
+    "verify:executive": "npm run build:core && node suite/verify-executive.mjs",
+    "prepare:cohort": "npm run build:core && node suite/prepare.mjs"
   },
   "devDependencies": {
     "@types/node": "24.13.6",

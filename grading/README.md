@@ -65,3 +65,26 @@ Invalid judge output is retained and does not grant benchmark success.
 The current judge has not passed calibration. Its source-line canary missed the
 known environment defect in original cohort attempt 01. The full batch stopped.
 See [launch validation](../VALIDATION-2026-09-19.md) for the evidence and limits.
+
+## Version 2 calibration work
+
+Execution holds now survive unsupported all-pass reviews. Native patch rejections,
+context mismatches, and unreadable transcripts cannot become passes through a
+judge decision. An invalid environment remains separate from a model failure.
+
+The rules grader records instruction loss when independent task checks establish
+an unmet requirement, following Dan's 2026-09-19 ruling. It attaches exact failed
+check evidence and retained final submission text to model failure decisions.
+The original model response and its source-line references remain separate files.
+This does not change the model's verdict or invent a failure timestamp.
+
+`calibrate.mjs` checks known successes, ordinary errors, task failures, attempted
+outside writes, and invalid execution. It retains frozen labels, packets, code
+hashes, and every response. `audit.mjs` prepares the random 10 percent human sample
+plus calibration disagreements. The human task remains pending until a person
+completes it.
+
+`report.mjs` binds management prose to its independently graded findings.
+`calibrate-report.mjs` tests an accurate report, a wrong prose total, and a missing
+owner and deadline. Report qualification does not qualify transcript review.
+Neither qualification authorizes publishing scores.

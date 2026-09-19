@@ -92,3 +92,14 @@ separate requirements. Passing numeric checks alone never produces full success.
 It proves current credential access, stale credential rejection, denied writes,
 source preservation, and matching numeric results. The launch CI provisions this
 service. A model-facing isolated Tier 2 runner remains pending.
+
+## Executable version 2
+
+`core/management.ts` provisions a fresh isolated PostgreSQL cluster, exports a
+version 2 packet, and checks both stale-password rejection and denied reader
+writes. It supplies the TypeScript access client and a Python helper directory.
+The generated contract defines editable paths. Version 1 packets remain supported.
+
+The runner checks CRM contents before and after execution. Numeric grading also
+checks the returned source hashes and version 2 file scope. Report and transcript
+reviews remain separate. Use the commands in [the suite guide](../../suite/README.md).

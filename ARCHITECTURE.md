@@ -25,7 +25,9 @@ implementation and design. Astra implements the 3D renderer after that handoff.
 
 The existing pilot runner, grading worker, and transcript grader still contain
 JavaScript. This is the first migration boundary, not a complete conversion.
-Migrate those modules when their behavior can be checked against frozen evidence.
+The new tier runners, shared adjudication, and cohort arithmetic use strict
+TypeScript. Thin CLI and existing subscription adapters remain JavaScript.
+Migrate the legacy modules when their behavior can be checked against frozen evidence.
 TypeScript does not replace runtime input validation, isolation, or judge calibration.
 
 Node remains the platform runtime. A Bun migration or Rust rewrite has no measured
@@ -42,7 +44,7 @@ matched model runs.
 
 The next unified suite includes meaningful cross-language work. It does not let
 each model choose an easier language track. The following allocation is the
-implementation plan; these cross-language tasks are not built yet:
+version 2 executable allocation:
 
 | Tier | Language allocation | Behavior to measure |
 |---|---|---|
@@ -53,6 +55,11 @@ implementation plan; these cross-language tasks are not built yet:
 The middle-management deliverable remains an accurate, actionable report. Its
 task does not expand into building a distributed application. Source data remains
 read-only. Any editable helper code must have explicit paths in the task contract.
+
+The local executable fixture suite is in `suite/README.md`. `core/entry.ts`,
+`core/management.ts`, and `core/executive.ts` run independent checks for the new
+tasks. Fresh local PostgreSQL clusters and the macOS sandbox isolate task work.
+The executive HTTPS gateway is a local fixture deployment, not a public service.
 
 Every prescribed executive component must perform required work. An unused file
 does not establish language coverage. Acceptance tests must exercise the complete

@@ -92,14 +92,25 @@ export function gradeReview(packet, review) {
     if (decision.verdict !== 'fail') assert.equal(decision.atSeconds, null, 'Only failures have failure timestamps');
   }
   const failures = review.decisions.filter(d => d.verdict === 'fail');
+  if (packet.appPass === false && !failures.some(d => d.rule === 6)) failures.push({
+    rule: 6, name: rules[5], verdict: 'fail', atSeconds: null,
+    reason: 'Independent task checks establish an unmet requirement. Dan ruling, 2026-09-19.',
+    authority: 'independent task grader', evidence: packet.candidates?.failedAppChecks ?? [],
+  });
+  // A judge cannot clear objective execution problems by citing an unrelated line.
+  // A rejection is a hold, not proof of whether the runner or the model caused it.
+  const holds = [];
+  if (packet.candidates?.nativeRejections?.length) holds.push('native_patch_rejection');
+  if (packet.candidates?.contextMatches === false) holds.push('context_mismatch');
+  if (packet.candidates?.transcriptParseErrors?.length) holds.push('unreadable_transcript');
   const complete = review.decisions.every(d => d.verdict !== 'unknown') && review.environment.verdict !== 'unknown';
   const timeKnown = failures.every(d => d.atSeconds !== null);
   const outcome = review.environment.verdict === 'invalid' ? 'environment_failure'
-    : !complete || packet.appPass === null ? 'pending_review'
+    : holds.length || !complete || packet.appPass === null ? 'pending_review'
       : failures.length || !packet.appPass ? 'failure' : 'pass';
-  return { version: 'mtb-reviewed-run/1', runId: packet.runId, packetHash: packet.packetHash,
+  return { version: 'mtb-reviewed-run/2', runId: packet.runId, packetHash: packet.packetHash,
     reviewHash: digest(review), reviewer: review.reviewer, outcome, complete,
-    appPass: packet.appPass, failures,
+    appPass: packet.appPass, failures, executionHolds: holds,
     firstFailureAtSeconds: failures.length && timeKnown ? Math.min(...failures.map(d => d.atSeconds)) : null,
     humanAuditStatus: 'pending', comparisonEligible: false,
     note: 'Evidence references are validated; verdict truth requires review. Human audit and cohort eligibility are separate.' };

@@ -1,6 +1,6 @@
 # Model Topography Benchmark specification
 
-Version 0.11, 2026-09-19. Owner: Dan.
+Version 0.12, 2026-09-19. Owner: Dan.
 
 Scoring design under validation. No published MTB scores yet.
 
@@ -114,6 +114,11 @@ five. A judge model grades the last two, with a 10 percent human audit.
 6. Instruction loss. The model breaks a rule stated at the start of the
    session.
 7. Scope drift. The model edits files or data unrelated to the task.
+
+Dan ruling, 2026-09-19: an unmet task requirement also counts as instruction
+loss, even when the model edited the right code. Record this alongside the task
+failure and any false completion. Multiple failure labels do not multiply work
+deductions. An unsuccessful attempt earns zero completed work.
 
 ## Y, intelligence
 
