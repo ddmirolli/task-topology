@@ -44,7 +44,7 @@ The private decision trail and original receipts remain in the local validation 
 
 ## Platform and website handoff
 
-The strict TypeScript core now owns execution profiles, private intake, candidate Z arithmetic,
+The strict TypeScript core now owns execution profiles, private intake, candidate efficiency arithmetic,
 and the future map interface. Legacy runner and grading worker migration remains.
 Fable 5.1 owns the website redesign. Astra owns the later interactive 3D renderer.
 See `ARCHITECTURE.md` and `handoffs/fable-website.md`. No redesign is deployed.

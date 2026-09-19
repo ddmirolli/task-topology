@@ -1,0 +1,53 @@
+@import 'tailwindcss';
+/* Design mockups never ship. Keep their classes out of the production stylesheet. */
+@source not '../mockups';
+@import '@fontsource-variable/hanken-grotesk';
+
+/* Monochrome interface palette. Model colors are the only hues on the page and
+   arrive as inline styles from src/data/colors.ts. Light and dark follow the
+   visitor's system setting. There is no theme control. Keep these values in
+   step with RENDERER_THEME in src/theme.ts. */
+:root {
+  color-scheme: light dark;
+  --mtb-bg: #f3f3f3;
+  --mtb-face: #e7e7e7;
+  --mtb-line: #d0d0d0;
+  --mtb-text: #111111;
+  --mtb-muted: #5e5e5e;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --mtb-bg: #0f0f0f;
+    --mtb-face: #1b1b1b;
+    --mtb-line: #303030;
+    --mtb-text: #f1f1f1;
+    --mtb-muted: #9c9c9c;
+  }
+}
+
+@theme inline {
+  --font-sans: 'Hanken Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
+  --color-bg: var(--mtb-bg);
+  --color-face: var(--mtb-face);
+  --color-line: var(--mtb-line);
+  --color-text: var(--mtb-text);
+  --color-muted: var(--mtb-muted);
+}
+
+@layer base {
+  html { font-family: var(--font-sans); -webkit-text-size-adjust: 100%; }
+  body { background: var(--mtb-bg); color: var(--mtb-text); font-size: 15px; line-height: 1.5; }
+  :focus-visible { outline: 2px solid var(--mtb-text); outline-offset: 2px; border-radius: 2px; }
+  button, summary, label, select { touch-action: manipulation; }
+  button:not(:disabled), summary, label:has(input:not(:disabled)) { cursor: pointer; }
+  dialog::backdrop { background: rgb(0 0 0 / 0.55); }
+  @media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  }
+}
+
+/* Documented size of #topography-host. See site/README.md before changing it. */
+.topography-frame { aspect-ratio: 10 / 7; min-height: 240px; }
+@media (min-width: 1024px) {
+  .topography-frame { aspect-ratio: auto; height: clamp(380px, 62vh, 640px); }
+}

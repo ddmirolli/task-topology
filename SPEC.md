@@ -13,11 +13,16 @@ Each measured model configuration is one dot in 3D space per task tier. Three ax
 starts at zero and has no upper limit, so a model two years from now plots
 beyond today's models without re-scaling the chart.
 
-| Axis | Question it answers | Unit |
-|------|---------------------|------|
-| Y | How smart is the model? | Epoch Capabilities Index, open ended |
-| X | How much work can it be trusted to complete unattended? | Workload at 90 percent success; scale pending calibration |
-| Z | How efficiently does it complete correct work? | Combined cost and speed efficiency; formula under calibration |
+| Axis | Chart letter | Question it answers | Unit |
+|------|--------------|---------------------|------|
+| Workload | X | How much work can it be trusted to complete unattended? | Workload at 90 percent success; scale pending calibration |
+| Efficiency | Y | How efficiently does it complete correct work? | Combined cost and speed efficiency; formula under calibration |
+| Intelligence | Z, vertical | How smart is the model? | Epoch Capabilities Index, open ended |
+
+Dan ruling, 2026-09-19: axes have names, not letters. Data, code, and any routing
+client use `workload`, `efficiency`, and `intelligence`. Letters exist only on the
+chart, where intelligence is the vertical axis. Earlier revisions called
+intelligence Y and efficiency Z.
 
 ## The three task tiers
 
@@ -115,26 +120,26 @@ five. A judge model grades the last two, with a 10 percent human audit.
    session.
 7. Scope drift. The model edits files or data unrelated to the task.
 
-## Y, intelligence
+## Intelligence
 
 Reuse existing benchmarks. Do not build a new intelligence test.
 
-- Y = the model's Epoch Capabilities Index (ECI). ECI stitches 50 plus
+- Intelligence is the model's Epoch Capabilities Index (ECI). ECI stitches 50 plus
   published benchmarks into one open ended scale using item response
   theory, so it does not saturate when individual benchmarks do. Reference
   code is open source at github.com/epoch-research/benchmark-stitching.
-- If a model has no verified ECI identity match, leave Y unavailable.
+- If a model has no verified ECI identity match, leave intelligence unavailable.
   Artificial Analysis may appear as a separately labeled intelligence measure.
   Keep the source and version visible. Its raw score does not substitute for
   ECI on the same numerical axis. Any conversion needs validation.
-- Y is the same for a model at every tier. Treat it as separate evidence;
+- Intelligence is the same for a model at every tier. Treat it as separate evidence;
   a Tier 1 result does not have to match a published intelligence ranking.
 
-## X, trusted width
+## Workload, trusted width
 
-X measures the amount of coherent work a model can complete in one session
+Workload measures the amount of coherent work a model can complete in one session
 without human help at the 90 percent success bar. Actual runtime is a
-separate measurement. Finishing the same work faster does not reduce X.
+separate measurement. Finishing the same work faster does not reduce workload.
 
 - Define workload levels before model runs, independently of model speed.
   Compare the same task versions, constraints, and starting conditions.
@@ -145,13 +150,13 @@ separate measurement. Finishing the same work faster does not reduce X.
 - The version 0.8 formula based on failures per ten minutes is retired.
   The pilot has not established that failure risk is constant over time.
 - Calibration of the workload scale and estimation of the 90 percent
-  boundary remain open. Publish X as unavailable until they are validated.
+  boundary remain open. Publish workload as unavailable until they are validated.
   A run count alone does not establish the required reliability.
 
 ## Speed
 
 Speed is correct work completed per elapsed hour on a matched task set.
-It is recorded separately from cost and must increase Z when completed work and cost are unchanged.
+It is recorded separately from cost and must increase efficiency when completed work and cost are unchanged.
 
 ```
 completed_work = sum of fixed work units for successful attempts
@@ -160,7 +165,7 @@ speed          = completed_work / sum of elapsed attempt hours
 
 - Fix work units before runs. For the small Tier 1 pilot, each ticket has
   one unit and every model gets the same tickets with equal repetitions.
-  These units compare that matched task set only; they do not calibrate X
+  These units compare that matched task set only; they do not calibrate workload
   or equate a Tier 1 repair with a Tier 3 project.
 - Include elapsed time spent on failed attempts. Each failed attempt earns
   zero completed work. Record every retry as another attempt.
@@ -173,11 +178,11 @@ speed          = completed_work / sum of elapsed attempt hours
 - Compare runs with the same harness, task mix, resource limits, and
   declared provider settings. Speed measures that tested configuration.
 
-## Z, execution efficiency
+## Execution efficiency
 
-Dan ruling, 2026-09-19: Z incorporates correct work, cost, and elapsed time.
-For equal correct work and cost, faster execution must increase Z. For equal
-correct work and time, lower cost must increase Z. Extra reasoning receives no
+Dan ruling, 2026-09-19: efficiency incorporates correct work, cost, and elapsed time.
+For equal correct work and cost, faster execution must increase efficiency. For equal
+correct work and time, lower cost must increase efficiency. Extra reasoning receives no
 credit by itself. Its gains must justify its time and cost.
 
 The implementation in `core/efficiency.ts` evaluates this candidate:
@@ -185,30 +190,32 @@ The implementation in `core/efficiency.ts` evaluates this candidate:
 ```
 cost_efficiency = completed_work / total_attempt_cost_usd
 speed           = completed_work / total_attempt_hours
-candidate_Z     = sqrt(cost_efficiency * speed)
+candidate_efficiency = sqrt(cost_efficiency * speed)
 ```
 
 This geometric mean gives speed and cost efficiency equal proportional weight.
-Doubling either alone multiplies Z by sqrt(2). Doubling both doubles Z.
-Repeating the same cohort doubles work, time, and cost but leaves Z unchanged.
+Doubling either alone multiplies efficiency by sqrt(2). Doubling both doubles it.
+Repeating the same cohort doubles work, time, and cost but leaves efficiency unchanged.
 The unit is work units per square root of USD-hours. This weighting is an
 implementation candidate, not a validated scientific scale or a Dan-approved
-numerical formula. Its version is `mtb-efficiency-geometric/1`.
+numerical formula. Its version is `mtb-efficiency-geometric/2`. Version 1 had the same arithmetic
+and named its outputs `candidateZ` and `publishedZ`.
 
 - Freeze work units, task mix, repetitions, retry policy, and measurement rules
   before runs. Compare identical task sets and conditions within each tier.
 - Include failed attempts and retries in cost and elapsed time. Failed attempts
   earn zero work. Unresolved grading or environment faults withhold the candidate.
-- Keep raw cost efficiency and speed beside Z. Include all supported billable
+- Keep raw cost efficiency and speed beside efficiency. A routing client weighs
+  cost and speed separately, so both stay published. Include all supported billable
   token categories. Token counts alone do not measure usefulness.
 - Keep dated API-equivalent estimates, actual charges, subscription allocations,
   and local compute costs on separate cost bases. Never pool them.
 - Missing or nonpositive denominators leave the metric unavailable. Included
   subscription access does not mean free normalized work or infinite efficiency.
 - Zero successful work produces zero efficiency when both denominators are known
-  and positive. It does not produce a fabricated X or Y coordinate.
+  and positive. It does not produce a fabricated workload or intelligence coordinate.
 - Validate sensitivity, uncertainty, task weights, and ranking stability before
-  publishing Z. The candidate calculator always returns `publishedZ: null` and
+  publishing efficiency. The candidate calculator always returns `publishedEfficiency: null` and
   `comparisonEligible: false`. Existing diagnostic results remain unchanged.
 
 ## The chart
@@ -216,7 +223,8 @@ numerical formula. Its version is `mtb-efficiency-geometric/1`.
 - Show one point per measured model configuration and tier. A configuration
   records model identity, client, reasoning settings, tools, limits, and protocol.
 - Let visitors select entry level, middle management, or senior executive.
-  X and Z can change by tier. Y remains its independently sourced measure.
+  Workload and efficiency can change by tier. Intelligence remains its independently
+  sourced measure, so a tier change moves a point across the floor and keeps its height.
 - Give the rotatable, zoomable 3D view the main space on the page. Hover and
   keyboard focus expose model, configuration, raw measurements, and evidence.
 - Let visitors show or hide configurations. Keep measured coordinates and axis
@@ -228,6 +236,9 @@ numerical formula. Its version is `mtb-efficiency-geometric/1`.
   recorded order. Preserve peaks, valleys, and gaps without forced smoothing.
 - Provider effort names have no universal numeric equivalence. Missing settings
   remain unavailable. A preference slider cannot alter published coordinates.
+- The chart has one reasoning slider. Its stops run from each model's lowest measured
+  setting to its highest, by recorded order. Every stop shows measured runs only. A
+  model with one measured setting does not move.
 - Omit points with unavailable axes from the scored 3D surface. Keep their
   supported measurements in an accessible table. Never replace missing with zero.
 - Three coordinates are the primary product. No overall scalar winner or distance

@@ -14,9 +14,11 @@ the apex domain configuration. Public submission remains pending.
 
 | Axis | Question | Unit |
 |------|----------|------|
-| Y | How smart is the model? | Epoch Capabilities Index |
-| X | How much work can it complete unattended? | Workload at 90 percent success; calibration pending |
-| Z | How efficiently does it complete correct work? | Combined speed and cost efficiency; calibration pending |
+| Workload | How much work can it complete unattended? | Workload at 90 percent success; calibration pending |
+| Efficiency | How efficiently does it complete correct work? | Combined speed and cost efficiency; calibration pending |
+| Intelligence | How smart is the model? | Epoch Capabilities Index |
+
+On the chart, workload is X, efficiency is Y, and intelligence is the vertical Z.
 
 Every axis starts at zero and has no ceiling. A model two years from now
 plots beyond today's models without re-scaling the chart.
@@ -47,7 +49,7 @@ as work completed.
 The earlier time-window and composite formulas are retired. Workload
 calibration and the implemented speed-and-cost candidate need validation. The first
 pilot reports task outcomes, elapsed time, and cost. It does not publish
-X, MTB ranks, or claims about hours of reliable unattended operation.
+workload scores, MTB ranks, or claims about hours of reliable unattended operation.
 See [PILOT.md](PILOT.md) for the next step.
 
 ## What counts as a failure

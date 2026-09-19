@@ -1,26 +1,15 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Model Topography measures the work AI models can complete independently. Explore the first diagnostic results and the benchmark's development.">
-<title>Model Topography · Results explorer</title>
-<link rel="icon" href="/brand/favicon/favicon.ico"><link rel="stylesheet" href="/style.css">
-<script type="module" src="/app.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Model Topography compares measured AI model configurations by trusted workload, external intelligence and execution efficiency across three task tiers.">
+<title>Model Topography</title>
+<link rel="icon" href="/brand/favicon/favicon.ico">
+<script type="module" src="/src/main.tsx"></script>
 </head>
 <body>
-<header><a class="wordmark" href="/" aria-label="Model Topography home"><img src="/brand/model-topography-glyph-adaptive.svg" alt=""> MODEL TOPOGRAPHY</a><nav><a href="#results">Results</a><a href="#method">Method</a><a href="https://github.com/ddmirolli/model-topography">GitHub ↗</a></nav></header>
-<main>
-<section class="intro"><div><p class="eyebrow">BENCHMARK IN DEVELOPMENT</p><h1>What can you<br>hand off?</h1><p class="deck">Explore how AI models handle work, from a small repair to a complete project. Start with the evidence behind each result.</p></div><div class="intro-note"><span class="signal"></span> First diagnostic cohort<p>18 attempts. Three coding tasks.<br>Full benchmark grading is still pending.</p><a href="#method">What these results establish ↓</a></div></section>
-<section id="results" aria-labelledby="results-title"><div class="section-head"><h2 id="results-title">Results explorer</h2><span id="data-date" class="muted"></span></div>
-<div class="tier-tabs" role="group" aria-label="Task tier"><button type="button" data-tier="1" aria-pressed="true">01 <strong>Entry level</strong></button><button type="button" data-tier="2" aria-pressed="false">02 <strong>Middle management</strong></button><button type="button" data-tier="3" aria-pressed="false">03 <strong>Senior executive</strong></button></div>
-<p class="notice">Diagnostic results. An app passing its tests does not establish full benchmark success. These results do not rank models.</p>
-<div class="controls"><label>Model <select id="model"><option value="all">All tested models</option></select></label><label>Task <select id="ticket"><option value="all">All tested tasks</option></select></label><label>Chart measure <select id="measure"><option value="elapsedSeconds">Total elapsed time</option><option value="apiEquivalentUsd">API-equivalent token cost</option></select></label><a class="download" href="/results.json" download>Download data ↓</a></div>
-<div id="empty" hidden><h3>No results for this tier yet.</h3><p id="empty-copy"></p></div>
-<div id="populated"><div class="stats" id="stats" aria-live="polite"></div><div class="chart-panel"><div class="section-head"><h3 id="chart-title">Total elapsed time</h3><span class="muted">All attempts included</span></div><div id="chart" role="img" aria-label="Measured resources by task and model"></div><p id="chart-note" class="muted"></p></div>
-<div class="table-scroll"><table><caption class="sr-only">Diagnostic task results. Use column buttons to change sorting.</caption><thead><tr><th>Task</th><th>Requested model</th><th>App checks</th><th><button data-sort="elapsedSeconds">Seconds ↕</button></th><th><button data-sort="apiEquivalentUsd">API-equivalent USD ↕</button></th><th>Evidence</th></tr></thead><tbody id="rows"></tbody></table></div><p id="result-count" aria-live="polite" class="muted"></p></div>
-<p id="load-error" hidden role="alert">Results could not be loaded. Please refresh or read the results in the GitHub repository.</p>
-</section>
-<section id="method" class="method"><div><p class="eyebrow">READ THE MEASUREMENTS</p><h2>A result you can inspect.</h2><p>Each entry records a specific model, client, configuration, and task version. Subscription, API, and local access can all participate.</p><a id="evidence-link" href="https://github.com/ddmirolli/model-topography/blob/c50f535d84e02763a5fc27a254b2584396c987fe/VALIDATION-2026-09-18.md">Read the cohort findings ↗</a></div><dl><div><dt>Correctness</dt><dd>17 of 18 apps passed independent task checks. Two app-passing attempts have execution review holds. Full transcript grading and human audit remain pending.</dd></div><div><dt>Speed and cost</dt><dd>Elapsed time includes failed attempts. Cost is a dated API-equivalent token estimate, not a subscription bill. Throughput and cost-efficiency scores remain unavailable.</dd></div><div><dt>Trusted workload and efficiency</dt><dd>Workload calibration and efficiency scoring are unfinished. A short repair does not establish reliability on a larger project. The 3D model comparison will follow validated measurements.</dd></div><div><dt>External intelligence data</dt><dd><a href="https://epoch.ai/eci">Epoch AI</a> supplies a separate capability measure. Our <a href="/intelligence.json" download>dated snapshot contains 266 observations</a>. Model identity mapping remains pending. Epoch ECI and other intelligence indices are kept on separate scales. <a href="/epoch-source.csv" download>Original CSV</a>. Data: <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.</dd></div></dl></section>
-<section class="participate"><div><h2>Run it with your own setup.</h2><p>The local pilot exports tasks and independently grades returned apps. Public uploads are not open yet.</p></div><a href="https://github.com/ddmirolli/model-topography/blob/98b7879/pilot/README.md">Get the local runner ↗</a></section>
-</main><footer><span>Model Topography</span><span>Measured configurations. Traceable results.</span><a href="https://github.com/ddmirolli/model-topography/blob/98b7879/LAUNCH.md">Launch progress ↗</a></footer>
-</body></html>
+<div id="root"></div>
+<noscript>Model Topography needs JavaScript. The measurements are also available in /results.json.</noscript>
+</body>
+</html>
