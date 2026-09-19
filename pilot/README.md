@@ -252,7 +252,8 @@ Only that local MCP server has pre-approved tools. Native patch edits are also
 allowed inside the app workspace and recorded with their paths. Native shell execution,
 plugins, memories, desktop automation, browsing, and host skill discovery are disabled
 for the tested client. Full-session checks reject extra user instructions,
-skill catalogs, and recognized rejected native patch calls. Native edits
+skill catalogs, and recognized native patch permission rejections. Malformed
+patches and failed context matches remain ordinary timed tool errors. Native edits
 without a completed event also invalidate the run. Arbitrary JavaScript tool
 orchestration still needs transcript review; these checks are not the full rubric. Failed MCP transport, native shell or web tools, edits outside the app, and an
 absent terminal event prevent a successful runner outcome. This adapter is

@@ -11,8 +11,12 @@ prerequisite for validation. Two date-task subscription canaries passed the
 grader. The first had a tool approval error and remains diagnostic.
 The first matched subscription trial stopped after 12 attempts when the client
 used a native edit tool outside the declared tool protocol. Its records remain
-diagnostic, with no pooled speed or cost ranking. The next configuration
-declares and verifies the client's native workspace edits before a new trial.
+diagnostic, with no pooled speed or cost ranking. The replacement configuration
+declares native workspace edits and isolates the client's home and skill inputs.
+A second trial stopped after four attempts because a grader bug treated a
+malformed workspace patch as a permission rejection. The corrected classifier
+was checked against all four records. Original records remain unchanged, and
+a fresh trial uses the correction. Ordinary patch errors count toward time.
 
 ## Question
 

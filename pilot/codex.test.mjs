@@ -90,6 +90,14 @@ test('session evidence rejects injected instructions and rejected native patches
   const call = item({ type: 'custom_tool_call', name: 'exec', call_id: 'patch', input: 'await tools.apply_patch("patch");' });
   const output = item({ type: 'custom_tool_call_output', call_id: 'patch', output: 'Script error: apply_patch verification failed: Operation not permitted' });
   assert.deepEqual(inspect([call, output]).rejectedNativePatches, ['patch']);
+  for (const text of [
+    'apply_patch verification failed: invalid patch: multiple operations target /workspace/routes/clients.js',
+    'apply_patch verification failed: Failed to find expected lines in /workspace/example.js',
+    'apply_patch failed: invalid patch format',
+  ]) {
+    const ordinaryError = item({ type: 'custom_tool_call_output', call_id: 'patch', output: text });
+    assert.deepEqual(inspect([call, ordinaryError]).rejectedNativePatches, []);
+  }
   assert.equal(inspect([]).customCodeInterpretation, 'requires_review');
 });
 

@@ -13,7 +13,7 @@ export function sessionEvidence(bytes, prompt) {
   const rejectedNativePatches = outputs.filter(i => {
     const call = calls.get(i.call_id), input = call?.input ?? call?.arguments ?? '';
     return (call?.name === 'apply_patch' || /\bapply_patch\s*\(/.test(input))
-      && /apply_patch[\s\S]*(?:failed|denied|not permitted|rejected)/i.test(JSON.stringify(i.output));
+      && /(?:permission denied|operation not permitted|outside (?:the )?(?:workspace|project)|(?:sandbox|approval)[^\n]*(?:denied|rejected)|writing outside[^\n]*not allowed)/i.test(JSON.stringify(i.output));
   }).map(i => i.call_id);
   return { taskMessageCount: taskMessages.length, extraUserMessageCount: extraUserMessages.length,
     skillCatalogCount: skillCatalogs.length, rejectedNativePatches,
