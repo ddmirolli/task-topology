@@ -1,8 +1,8 @@
 {
-  "name": "tti-tier1-invoicing",
+  "name": "mtb-tier1-invoicing",
   "version": "1.0.0",
   "private": true,
-  "description": "Small invoicing app used as the target for TTI tier 1 tickets.",
+  "description": "Small invoicing app used as the target for MTB tier 1 tickets.",
   "scripts": {
     "start": "node server.js",
     "test": "node --test test/*.test.js"

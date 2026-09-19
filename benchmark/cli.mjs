@@ -20,14 +20,14 @@ export async function gradeQueued(store, id, packet, outputDir, options = {}) {
   assert.equal(canonical(registration.appFiles), canonical(manifest.appFiles), 'Starting app differs');
   assert.equal(canonical(registration.taskFiles), canonical(manifest.taskFiles), 'Task files differ');
   assert.ok(!fs.existsSync(outputDir), 'Retain previous grading output');
-  const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'tti-queued-'));
+  const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'mtb-queued-'));
   try {
     for (const [file, content] of Object.entries(record.files)) {
       const target = path.resolve(workspace, file);
       assert.ok(target.startsWith(path.resolve(workspace) + path.sep), 'Unsafe submitted path');
       fs.mkdirSync(path.dirname(target), { recursive: true }); fs.writeFileSync(target, content, { flag: 'wx' });
     }
-    const receipt = { version: 'tti-external-receipt/1', runId: manifest.runId, taskHash: manifest.taskHash,
+    const receipt = { version: 'mtb-external-receipt/1', runId: manifest.runId, taskHash: manifest.taskHash,
       model: record.model, execution: { method: record.profile.accessMethod, client: record.profile.client,
         version: record.profile.clientVersion, billing: 'unreported', settings: record.profile.settings },
       status: record.attemptStatus, elapsedSeconds: record.elapsedSeconds, transcript: record.transcript,

@@ -4,6 +4,9 @@ The local intake accepts model evidence without a model catalog or payment-metho
 allowlist. It retains unknown timing and cost. Submitted grades and trust labels
 are discarded. This is an operator CLI, not an internet-facing upload service.
 
+First run `npm ci` and `npm run build:core` at the repository root. The existing
+profile import now forwards to compiled strict TypeScript.
+
 Register a task exported by `pilot/external.mjs`:
 
 ```sh
@@ -11,13 +14,13 @@ node benchmark/cli.mjs register PRIVATE_STORE TASK_PACKET
 node benchmark/cli.mjs submit PRIVATE_STORE SUBMISSION_JSON
 ```
 
-The submission format is `tti-submission/1`. Supply a stable `attemptId`, registered
+The submission format is `mtb-submission/1`. Supply a stable `attemptId`, registered
 `taskHash`, `model.id`, `model.vendor`, raw `transcript`, and a `files` object mapping
 relative app paths to UTF-8 text. Record `status` as submitted, timeout, provider_error,
 cancelled, or invalid_execution. `elapsedSeconds`, `usage`, and `cost` are optional.
 The current text-only adapter has an 8 MB envelope limit and a 4 MB app limit.
 
-Supply an execution profile with version `tti-execution-profile/1`. It records task
+Supply an execution profile with version `mtb-execution-profile/1`. It records task
 set, grader, tool contract, and environment hashes; client and version; access
 method; memory, compaction, retry, and timing policies; tools; provider settings;
 and attempt, command, and output limits. These are declared claims until verified.

@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://tasktopology.com/schema/aggregate.schema.json",
-  "title": "TTI aggregate",
-  "description": "Retired version 0.8 aggregate proposal. Do not generate current X or TTI scores from this schema. Replacement pending scoring validation; see SPEC.md and schema/README.md.",
+  "$id": "https://modeltopography.com/schema/aggregate.schema.json",
+  "title": "MTB aggregate",
+  "description": "Retired version 0.8 aggregate proposal. Do not generate current X or MTB scores from this schema. Replacement pending scoring validation; see SPEC.md and schema/README.md.",
   "deprecated": true,
   "$comment": "Historical draft retained for traceability. No published aggregates or running consumers exist.",
   "type": "object",
-  "required": ["model_id", "tier", "set_version", "runs", "x", "y", "z", "tti"],
+  "required": ["model_id", "tier", "set_version", "runs", "x", "y", "z", "mtb"],
   "properties": {
     "model_id": { "type": "string" },
     "display_name": { "type": "string" },
@@ -53,6 +53,6 @@
         "successful_hours_per_usd": { "type": "number" }
       }
     },
-    "tti": { "type": "number", "description": "Cube root of x.hours_at_90 * y.eci * z.successful_hours_per_usd" }
+    "mtb": { "type": "number", "description": "Cube root of x.hours_at_90 * y.eci * z.successful_hours_per_usd" }
   }
 }

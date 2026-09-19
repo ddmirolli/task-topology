@@ -21,7 +21,7 @@ export function summarize(records) {
   return { attempts: records.length, successes: success, elapsedSeconds: elapsed, costUsd: cost, costBasis: completeCost ? [...bases][0] ?? null : null,
     timingBasis: timings.size === 1 ? [...timings][0] : 'mixed',
     correctPerHour: elapsed > 0 ? success * 3600 / elapsed : null,
-    correctPerDollar: cost > 0 ? success / cost : null, X: null, TTI: null };
+    correctPerDollar: cost > 0 ? success / cost : null, X: null, MTB: null };
 }
 export function requestReserve(limits, rates) {
   return (limits.maxInputTokens * Math.max(rates.input, rates.cached, rates.cacheWrite) + limits.maxOutputTokens * rates.output) / 1e6;

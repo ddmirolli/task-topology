@@ -11,7 +11,7 @@ export function trialInputs() {
 }
 export async function subscriptionTrial(planFile, destination) {
   const planBytes = fs.readFileSync(planFile), plan = JSON.parse(planBytes);
-  assert.equal(plan.version, 'tti-subscription-plan/1');
+  assert.equal(plan.version, 'mtb-subscription-plan/1');
   assert.equal(plan.retryPolicy, 'none'); assert.equal(plan.billing, 'included_allowance');
   assert.ok(Number.isSafeInteger(plan.repetitions) && plan.repetitions > 0);
   assert.ok(Array.isArray(plan.models) && plan.models.length > 0);

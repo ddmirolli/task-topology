@@ -4,7 +4,7 @@
   "properties": {
     "version": {
       "type": "string",
-      "const": "tti-transcript-review/1"
+      "const": "mtb-transcript-review/1"
     },
     "packetHash": {
       "type": "string",

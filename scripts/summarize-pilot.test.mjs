@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { transcriptFacts } from './summarize-pilot.mjs';
 
 const call = (tool, args, result = { code: 0 }, error = null) => ({ type: 'item.completed', item: {
-  id: 'fixture', type: 'mcp_tool_call', server: 'tti', tool, arguments: args,
+  id: 'fixture', type: 'mcp_tool_call', server: 'mtb', tool, arguments: args,
   result: { content: [{ type: 'text', text: JSON.stringify(result) }] }, error } });
 const log = events => events.map(e => JSON.stringify(e)).join('\n');
 
@@ -26,7 +26,7 @@ test('transcript audit distinguishes failed transport, repeated reads, and faile
 test('started and stopped attempts cannot disappear as unstarted schedule slots', async t => {
   const fs = await import('node:fs'), os = await import('node:os'), path = await import('node:path');
   const { pilotReport } = await import('./summarize-pilot.mjs');
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tti-report-test-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mtb-report-test-'));
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
   fs.writeFileSync(path.join(dir, 'plan.json'), JSON.stringify({ models: [{ id: 'model', effort: 'medium' }], tickets: ['07'], repetitions: 2 }));
   const prices = path.join(dir, 'prices.json'); fs.writeFileSync(prices, JSON.stringify({ source: 'https://example.invalid/prices', date: '2026-09-18', rates: {} }));
@@ -46,7 +46,7 @@ test('report binds frozen evidence, preserves malformed runs, and withholds unju
   const fs = await import('node:fs'), os = await import('node:os'), path = await import('node:path');
   const { pilotReport } = await import('./summarize-pilot.mjs');
   const { sha256 } = await import('../pilot/workspace.mjs');
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tti-report-integrity-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mtb-report-integrity-'));
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
   const write = (file, data) => fs.writeFileSync(path.join(dir, file), JSON.stringify(data));
   const plan = { models: [{ id: 'model', effort: 'medium' }], tickets: ['07'], repetitions: 2 };
@@ -77,17 +77,17 @@ test('report binds frozen evidence, preserves malformed runs, and withholds unju
   assert.equal(report().groups[0].costUsd, null);
   assert.equal(report().groups[0].correctPerDollar, null);
   const hold = { attempt: 2, runId: '02', receiptHash: sha256(fs.readFileSync(path.join(dir, '02/receipt.json'))), reason: 'Blocked outside-workspace command requires scope review' };
-  write('holds.json', { version: 'tti-review-holds/1', holds: [hold] });
+  write('holds.json', { version: 'mtb-review-holds/1', holds: [hold] });
   const held = () => pilotReport(dir, path.join(dir, 'prices.json'), path.join(dir, 'holds.json'));
   assert.equal(held().attempts[1].appGradePass, true);
   assert.equal(held().attempts[1].functionalPass, false);
   assert.equal(held().groups[0].correctPerHour, null);
   assert.equal(held().attempts[1].elapsedSeconds, 10);
-  write('holds.json', { version: 'tti-review-holds/1', holds: [{ ...hold, receiptHash: 'wrong' }] });
+  write('holds.json', { version: 'mtb-review-holds/1', holds: [{ ...hold, receiptHash: 'wrong' }] });
   assert.throws(held, /receipt changed/);
-  write('holds.json', { version: 'tti-review-holds/1', holds: [{ ...hold, runId: 'wrong' }] });
+  write('holds.json', { version: 'mtb-review-holds/1', holds: [{ ...hold, runId: 'wrong' }] });
   assert.throws(held, /another run/);
-  write('holds.json', { version: 'tti-review-holds/1', holds: [hold, hold] });
+  write('holds.json', { version: 'mtb-review-holds/1', holds: [hold, hold] });
   assert.throws(held, /duplicate review/);
   write('results.json', { ...progress, completed: false });
   assert.equal(report().groups[0].correctPerHour, null);

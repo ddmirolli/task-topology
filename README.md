@@ -1,12 +1,14 @@
-# Task Topology Index (TTI)
+# Model Topography
 
 Which model should I use here, and how wide a task can I hand it?
 
-TTI is being built to plot AI models in 3D, per task tier, with results
-at [tasktopology.com](https://tasktopology.com). This repo holds the
+The Model Topography Benchmark measures models across three task tiers.
+Model Topography will plot those measurements in 3D, with results
+at [modeltopography.com](https://modeltopography.com). This repo holds the
 benchmark design, test fixtures, and a small macOS validation runner.
-The [diagnostic results explorer](https://task-topology.vercel.app) is hosted.
-Public submission and the custom-domain connection remain pending.
+The [diagnostic results explorer](https://modeltopography.com) is hosted.
+The project belongs to the Model Topography Vercel team. Vercel verifies
+the apex domain configuration. Public submission remains pending.
 
 ## The three axes
 
@@ -14,13 +16,13 @@ Public submission and the custom-domain connection remain pending.
 |------|----------|------|
 | Y | How smart is the model? | Epoch Capabilities Index |
 | X | How much work can it complete unattended? | Workload at 90 percent success; calibration pending |
-| Z | How much correct work per dollar? | Successful standardized work units per dollar |
+| Z | How efficiently does it complete correct work? | Combined speed and cost efficiency; calibration pending |
 
 Every axis starts at zero and has no ceiling. A model two years from now
 plots beyond today's models without re-scaling the chart.
 
 Model choice depends on capability, the amount of work that can be completed
-without help, and cost. TTI records those dimensions together.
+without help, speed, and cost. MTB records those dimensions together.
 
 ## The three tiers
 
@@ -38,14 +40,14 @@ capability, where capability is effectiveness times efficiency.
 ## Scoring status
 
 The goal is to measure how much work a model can complete unattended at
-90 percent success. Finishing the same work faster must improve TTI when
+90 percent success. Finishing the same work faster must improve MTB when
 correctness, reliability, and cost are equal. Time spent is never credited
 as work completed.
 
 The earlier time-window and composite formulas are retired. Workload
-calibration and a formula that includes speed need validation. The first
+calibration and the implemented speed-and-cost candidate need validation. The first
 pilot reports task outcomes, elapsed time, and cost. It does not publish
-X, TTI ranks, or claims about hours of reliable unattended operation.
+X, MTB ranks, or claims about hours of reliable unattended operation.
 See [PILOT.md](PILOT.md) for the next step.
 
 ## What counts as a failure
@@ -62,6 +64,11 @@ subscription client, API runner, or local model, then grade the returned app.
 There is no model or access-method allowlist. The optional API runner has its
 own spending controls. Local verification makes no benchmark model calls.
 Public submission is later work.
+
+The platform uses strict TypeScript for the scoring core, execution profiles,
+private submission intake, and the future map contract. Existing Python data tools and versioned JS task
+fixtures remain. See [ARCHITECTURE.md](ARCHITECTURE.md) for the migration boundary.
+Run `npm ci` and `npm run build:core` before using the private benchmark CLI.
 
 ## Repo map
 

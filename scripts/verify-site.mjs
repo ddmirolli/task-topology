@@ -6,15 +6,15 @@ import {execFileSync} from 'node:child_process';
 import { connectBrowserbase } from '../pilot/browserbase.mjs';
 import {fileURLToPath} from 'node:url';
 const root=fileURLToPath(new URL('../site',import.meta.url));
-const target=process.argv[2] || 'https://tti-qa.invalid/';
-const output=process.argv[3] || '/tmp/tti-site-qa';
+const target=process.argv[2] || 'https://mtb-qa.invalid/';
+const output=process.argv[3] || '/tmp/mtb-site-qa';
 const connection=await connectBrowserbase(), errors=[], evidence=[];
 const sourceCommit=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
 const assets={};
 fs.mkdirSync(output,{recursive:true});
 try {
  const context=await connection.browser.newContext({viewport:{width:1280,height:1000},colorScheme:'light'});
- if(target==='https://tti-qa.invalid/') await context.route('https://tti-qa.invalid/**',async route=>{
+ if(target==='https://mtb-qa.invalid/') await context.route('https://mtb-qa.invalid/**',async route=>{
   const name=new URL(route.request().url()).pathname, file=path.join(root,name==='/'?'index.html':name);
   const mime={'.html':'text/html','.css':'text/css','.js':'text/javascript','.json':'application/json','.svg':'image/svg+xml','.ico':'image/x-icon'};
   if(!fs.existsSync(file))return route.fulfill({status:404,body:'Not found'});

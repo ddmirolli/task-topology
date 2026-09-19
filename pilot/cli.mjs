@@ -9,7 +9,7 @@ import { grade } from './grade.mjs';
 import { summarize, requestReserve } from './accounting.mjs';
 
 export function validatePlan(plan, { live = false, now = Date.now(), evidenceFile = new URL('./price-evidence.json', import.meta.url) } = {}) {
-  assert.equal(plan.version, 'tti-pilot-plan/1');
+  assert.equal(plan.version, 'mtb-pilot-plan/1');
   const evidenceBytes = fs.readFileSync(evidenceFile);
   const evidence = JSON.parse(evidenceBytes);
   assert.equal(plan.priceSource, evidence.source);

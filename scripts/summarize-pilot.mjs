@@ -15,8 +15,8 @@ export function pilotReport(directory, evidenceFile, reviewFile) {
   const evidenceBytes = fs.readFileSync(evidenceFile), prices = JSON.parse(evidenceBytes);
   const progress = JSON.parse(fs.readFileSync(path.join(directory, 'results.json')));
   const reviewBytes = reviewFile ? fs.readFileSync(reviewFile) : null;
-  const review = reviewBytes ? JSON.parse(reviewBytes) : { version: 'tti-review-holds/1', holds: [] };
-  assert.equal(review.version, 'tti-review-holds/1', 'Unsupported review holds');
+  const review = reviewBytes ? JSON.parse(reviewBytes) : { version: 'mtb-review-holds/1', holds: [] };
+  assert.equal(review.version, 'mtb-review-holds/1', 'Unsupported review holds');
   assert.ok(Array.isArray(review.holds), 'Review holds must be an array');
   const holds = new Map();
   for (const hold of review.holds) {
@@ -122,7 +122,7 @@ export function pilotReport(directory, evidenceFile, reviewFile) {
       .map(file => [file, sha256(fs.readFileSync(path.join(root, file)))])),
     priceEvidenceHash: sha256(evidenceBytes), priceSource: prices.source, priceDate: prices.date,
     interpretation: 'Pipeline validation only. Requested model IDs; full transcript rubric pending. Source checks use the recorded analysis files; original receipts remain unchanged. Token-cost estimates require complete per-request records reconciled to the terminal totals and dated prices. Missing evidence leaves cost unavailable. Estimates are not subscription charges. Canaries excluded.',
-    executionReviewRequired: attempts.some(r => r.executionIssues?.length), attempts, ticketGroups, groups, X: null, TTI: null };
+    executionReviewRequired: attempts.some(r => r.executionIssues?.length), attempts, ticketGroups, groups, X: null, MTB: null };
 }
 export function markdownReport(report) {
   const number = (n, decimals = 2) => n == null ? 'unavailable' : n.toFixed(decimals);
@@ -132,7 +132,7 @@ export function markdownReport(report) {
     + report.groups.map(g => `| ${g.model} | ${g.attempts} / ${g.planned} | ${g.appChecksPassed} | ${number(g.elapsedSeconds)} | ${number(g.correctPerHour)} | ${number(g.costUsd, 4)} USD |`).join('\n')
     + '\n\n| Attempt | Model | Ticket | Repeat | Outcome | Seconds | API-equivalent USD | Changed files |\n|---:|---|---|---:|---|---:|---:|---|\n'
     + report.attempts.map(r => `| ${r.index} | ${r.model} | ${r.ticket} | ${r.repetition} | ${r.status !== 'submitted' ? r.status : r.executionIssues?.length ? 'execution review required' : r.functionalPass ? 'functional pass' : r.gradingError ? 'ungraded' : 'task failure'} | ${number(r.elapsedSeconds)} | ${number(r.apiEquivalentUsd, 4)} | ${(r.changedFiles ?? []).join(', ')} |`).join('\n')
-    + `\n\nPrices: [dated API price source](${report.priceSource}), ${report.priceDate}.\nAll attempts count toward time. Token costs use per-call pricing evidence when complete; actual subscription charges remain unmeasured. Rates are withheld until every planned attempt has finished and grading records exist.\nRaw transcripts and grading records remain local. X and TTI are unavailable.\n`;
+    + `\n\nPrices: [dated API price source](${report.priceSource}), ${report.priceDate}.\nAll attempts count toward time. Token costs use per-call pricing evidence when complete; actual subscription charges remain unmeasured. Rates are withheld until every planned attempt has finished and grading records exist.\nRaw transcripts and grading records remain local. X and MTB are unavailable.\n`;
 }
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [directory, evidenceFile, outputPrefix, reviewFile] = process.argv.slice(2);

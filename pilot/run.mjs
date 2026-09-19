@@ -47,8 +47,8 @@ export async function runAttempt({ ticket, model, limits, adapter, outputDir, bu
     const instructions = fs.readFileSync(path.join(root, 'pilot/contracts/common.md'), 'utf8') + '\nUse read_file, write_file, run_command, and run_tests. Use run_tests for the visible suite. Shell commands may access only the app and the allocated loopback port. Other network access is denied.\n';
     const prompt = fs.readFileSync(path.join(root, `tasks/tier-1-entry/tickets/${ticket}.md`), 'utf8') + '\n' + fs.readFileSync(path.join(root, `pilot/contracts/${ticket}.md`), 'utf8');
     const input = [{ role: 'user', content: prompt }];
-    record = { schemaVersion: 'tti-pilot-run/1', runId: crypto.randomUUID(), kind, ticket, model,
-      execution: { method: 'api', client: 'tti-responses', version: '1', billing: 'usage' },
+    record = { schemaVersion: 'mtb-pilot-run/1', runId: crypto.randomUUID(), kind, ticket, model,
+      execution: { method: 'api', client: 'mtb-responses', version: '1', billing: 'usage' },
       costBasis: 'api_list_price', timingBasis: 'runner',
       limits, prompt, instructions, taskHash: sha256(instructions + '\n' + prompt), appFiles: inventory(appSource),
       runnerFiles: inventory(path.join(root, 'pilot')), platform: { os: process.platform, node: process.version },

@@ -1,15 +1,15 @@
-# Task Topology Index (TTI) spec
+# Model Topography Benchmark specification
 
-Version 0.10, 2026-09-18. Owner: Dan.
+Version 0.11, 2026-09-19. Owner: Dan.
 
-Scoring design under validation. No published TTI scores yet.
+Scoring design under validation. No published MTB scores yet.
 
 ## Purpose
 
 An open source benchmark that answers one question for developers and
 builders: which model should I use here, and how wide a task can I hand it?
 
-Every model is one dot in 3D space per task tier. Three axes. Every axis
+Each measured model configuration is one dot in 3D space per task tier. Three axes. Every axis
 starts at zero and has no upper limit, so a model two years from now plots
 beyond today's models without re-scaling the chart.
 
@@ -17,7 +17,7 @@ beyond today's models without re-scaling the chart.
 |------|---------------------|------|
 | Y | How smart is the model? | Epoch Capabilities Index, open ended |
 | X | How much work can it be trusted to complete unattended? | Workload at 90 percent success; scale pending calibration |
-| Z | How much correct work per dollar? | Successful standardized work units per dollar |
+| Z | How efficiently does it complete correct work? | Combined cost and speed efficiency; formula under calibration |
 
 ## The three task tiers
 
@@ -31,7 +31,7 @@ capability is effectiveness times efficiency. Source: `source/dan-2026-09-18-thr
 | 2 | Middle management | Reconcile several databases behind separate access gates, then report a summary, conclusion and recommended action. | 1 to 4 hours |
 | 3 | Senior executive | One prompt: stand up a working ticketing system that deploys inside the platform to replace Jira. | 16 to 64 hours |
 
-Every model runs the same tasks at every tier. The chart lets the reader
+One versioned benchmark contains all three tiers. Every model runs the same tasks at every tier. Multiple languages belong inside that shared suite, not separate language tracks. The chart lets the reader
 pick a tier and see every model's dot for that tier. The target durations
 above describe the intended scope of the work. They are uncalibrated design
 estimates, not required model runtimes or points awarded for time spent.
@@ -74,7 +74,7 @@ estimates, not required model runtimes or points awarded for time spent.
 - Accept every solution that meets the task's observable requirements and
   explicit constraints. A reference fix proves that a task is solvable;
   it is not the required implementation.
-- Speed must improve TTI. For equal work and all other scoring inputs
+- Speed must improve MTB. For equal work and all other scoring inputs
   equal, including correctness, reliability, intelligence, and cost, a
   faster model must receive a higher score. Waiting, extra tool
   calls, and longer output must never increase its credited work.
@@ -151,7 +151,7 @@ separate measurement. Finishing the same work faster does not reduce X.
 ## Speed
 
 Speed is correct work completed per elapsed hour on a matched task set.
-It is recorded separately from cost and must affect the eventual TTI rank.
+It is recorded separately from cost and must increase Z when completed work and cost are unchanged.
 
 ```
 completed_work = sum of fixed work units for successful attempts
@@ -173,44 +173,66 @@ speed          = completed_work / sum of elapsed attempt hours
 - Compare runs with the same harness, task mix, resource limits, and
   declared provider settings. Speed measures that tested configuration.
 
-## Z, cost efficiency
+## Z, execution efficiency
 
-Z measures correct work per dollar on the same matched task set.
+Dan ruling, 2026-09-19: Z incorporates correct work, cost, and elapsed time.
+For equal correct work and cost, faster execution must increase Z. For equal
+correct work and time, lower cost must increase Z. Extra reasoning receives no
+credit by itself. Its gains must justify its time and cost.
+
+The implementation in `core/efficiency.ts` evaluates this candidate:
 
 ```
-Z = completed_work / sum of attempt costs in USD
+cost_efficiency = completed_work / total_attempt_cost_usd
+speed           = completed_work / total_attempt_hours
+candidate_Z     = sqrt(cost_efficiency * speed)
 ```
 
-- Use the same fixed work units as the speed calculation. Never use the
-  model's elapsed runtime as the numerator.
-- Include costs from failed attempts and retries. Include all billable
-  token categories and use the public API prices in effect on the run date.
-  Record cache and reasoning usage when the provider bills them separately.
-- Access and cost accounting are separate. Use complete usage and dated API
-  prices to report an API-equivalent estimate when those data exist, regardless
-  of how the run was paid for. Label estimates separately from actual charges.
-- Keep actual charges and any documented allocation of subscription or local
-  compute costs in separate fields. Never pool different cost bases.
-- Missing usage or prices leave Z unavailable. An included subscription run
-  does not imply zero normalized cost or infinite cost efficiency.
-- If no attempt succeeds, completed work, speed, and Z are zero, provided
-  their denominators are known and positive. Missing or nonpositive
-  denominators make the corresponding metric unavailable.
+This geometric mean gives speed and cost efficiency equal proportional weight.
+Doubling either alone multiplies Z by sqrt(2). Doubling both doubles Z.
+Repeating the same cohort doubles work, time, and cost but leaves Z unchanged.
+The unit is work units per square root of USD-hours. This weighting is an
+implementation candidate, not a validated scientific scale or a Dan-approved
+numerical formula. Its version is `mtb-efficiency-geometric/1`.
+
+- Freeze work units, task mix, repetitions, retry policy, and measurement rules
+  before runs. Compare identical task sets and conditions within each tier.
+- Include failed attempts and retries in cost and elapsed time. Failed attempts
+  earn zero work. Unresolved grading or environment faults withhold the candidate.
+- Keep raw cost efficiency and speed beside Z. Include all supported billable
+  token categories. Token counts alone do not measure usefulness.
+- Keep dated API-equivalent estimates, actual charges, subscription allocations,
+  and local compute costs on separate cost bases. Never pool them.
+- Missing or nonpositive denominators leave the metric unavailable. Included
+  subscription access does not mean free normalized work or infinite efficiency.
+- Zero successful work produces zero efficiency when both denominators are known
+  and positive. It does not produce a fabricated X or Y coordinate.
+- Validate sensitivity, uncertainty, task weights, and ranking stability before
+  publishing Z. The candidate calculator always returns `publishedZ: null` and
+  `comparisonEligible: false`. Existing diagnostic results remain unchanged.
 
 ## The chart
 
-- One dot per model per tier. Axes X, Y, Z in the units above, no
-  normalization.
-- A tier selector: entry level, middle management, senior executive.
-  Switching tiers moves the dots. A model that is smart and cheap but
-  fails wide work sits far out on Y and Z at tier 1 and collapses toward
-  the origin at tier 3.
-- Show speed next to the three axes. The final TTI ranking must satisfy
-  the speed ruling above while preserving correctness and reliability.
-- The version 0.8 cube-root formula is retired because it omits speed.
-  The replacement formula and tradeoffs between speed, price, and trust
-  require validation before publication. Do not publish provisional TTI
-  numbers or choose weights after seeing model results.
+- Show one point per measured model configuration and tier. A configuration
+  records model identity, client, reasoning settings, tools, limits, and protocol.
+- Let visitors select entry level, middle management, or senior executive.
+  X and Z can change by tier. Y remains its independently sourced measure.
+- Give the rotatable, zoomable 3D view the main space on the page. Hover and
+  keyboard focus expose model, configuration, raw measurements, and evidence.
+- Let visitors show or hide configurations. Keep measured coordinates and axis
+  units fixed when the selection changes. The connecting surface can redraw.
+- Treat the surface between points as visual interpolation, not measured model
+  performance. Handle overlapping points without changing the stored scores.
+- Reasoning controls select actual runs at supported settings. They do not
+  predict scores between settings. Connect comparable observed settings in their
+  recorded order. Preserve peaks, valleys, and gaps without forced smoothing.
+- Provider effort names have no universal numeric equivalence. Missing settings
+  remain unavailable. A preference slider cannot alter published coordinates.
+- Omit points with unavailable axes from the scored 3D surface. Keep their
+  supported measurements in an accessible table. Never replace missing with zero.
+- Three coordinates are the primary product. No overall scalar winner or distance
+  from the origin substitutes for a task-specific choice. The old cube-root
+  composite remains retired.
 
 ## How to read it
 
@@ -223,13 +245,13 @@ Z = completed_work / sum of attempt costs in USD
 
 ## Distribution
 
-- Results live at tasktopology.com (bought by Dan, 2026-09-18) with the
+- Results live at modeltopography.com with the
   chart and the tier selector.
 - The benchmark lives in a public GitHub repo linked from the site. The
   repo holds the harness, the three tier task sets, the grader, the cost
   logger and every transcript behind the published numbers.
 - Anyone can download it, run it on any model, and submit the result. The
-  running cost of keeping TTI current is shared across everyone who uses
+  running cost of keeping MTB current is shared across everyone who uses
   it (Dan, 2026-09-18).
 
 ### Submitting a run
@@ -238,7 +260,7 @@ This is the future community workflow. The validation pilot keeps records
 local and does not upload or publish transcripts. Provider credentials and
 authorization headers must never enter published records.
 
-- The harness ends every run with `tti submit`. It packs the transcript,
+- The harness ends every run with `mtb submit`. It packs the transcript,
   available usage and cost evidence, model name, execution client and a fingerprint of the
   exact task text, and sends it to the site.
 - The site checks task integrity and independently grades each run:

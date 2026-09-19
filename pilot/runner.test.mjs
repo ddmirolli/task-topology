@@ -18,7 +18,7 @@ const model = plan.models[1];
 const usage = { input_tokens: 1000, output_tokens: 100, input_tokens_details: { cached_tokens: 400, cache_write_tokens: 200 } };
 const response = output => ({ data: { id: 'fixture-response', model: model.id, status: 'completed', usage, output }, requestId: 'fixture-request' });
 const final = [{ type: 'message', content: [{ type: 'output_text', text: 'Finished the requested change.' }] }];
-const temporary = t => { const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tti-runner-test-')); t.after(() => fs.rmSync(dir, { recursive: true, force: true })); return dir; };
+const temporary = t => { const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mtb-runner-test-')); t.after(() => fs.rmSync(dir, { recursive: true, force: true })); return dir; };
 
 test('the 18-attempt schedule is balanced and fits the proposed cap', () => {
   assert.ok(Math.abs(validatePlan(plan).maximumUsd - 38.016) < 1e-9);
@@ -64,9 +64,9 @@ test('file tools reject path traversal, dangling symlinks, and hard links', { sk
 test('sandbox blocks host answers, dependency writes, inherited keys, and excess output', { skip: process.platform !== 'darwin' }, async t => {
   const dir = copyApp(); t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
   await probeSandbox(dir);
-  const result = await execute(dir, `cat '${root}/tasks/tier-1-entry/solutions/01.patch'; env; node -e "require('fs').writeFileSync('node_modules/tti-escape','bad')"`, { read: [dependencyPath] });
+  const result = await execute(dir, `cat '${root}/tasks/tier-1-entry/solutions/01.patch'; env; node -e "require('fs').writeFileSync('node_modules/mtb-escape','bad')"`, { read: [dependencyPath] });
   assert.doesNotMatch(result.output, /a\/public\/theme\.css|OPENAI_API_KEY=|OP_SERVICE_ACCOUNT_TOKEN=/);
-  assert.notEqual(result.code, 0); assert.ok(!fs.existsSync(path.join(dependencyPath, 'tti-escape')));
+  assert.notEqual(result.code, 0); assert.ok(!fs.existsSync(path.join(dependencyPath, 'mtb-escape')));
   const processRead = await execute(dir, `ps eww -p ${process.pid}`);
   assert.notEqual(processRead.code, 0, 'cannot inspect the parent process environment');
   assert.equal((await execute(dir, 'yes', { maxBytes: 512 })).outputLimited, true);
@@ -135,7 +135,7 @@ test('any execution method can submit without prices, usage, or API credentials'
   t.after(() => fs.rmSync(good, { recursive: true, force: true }));
   const packet = path.join(dir, 'packet'), manifest = exportTask('07', packet);
   for (const [index, method] of ['subscription', 'api', 'local', 'future-access-method'].entries()) {
-    const receipt = { version: 'tti-external-receipt/1', runId: manifest.runId, taskHash: manifest.taskHash,
+    const receipt = { version: 'mtb-external-receipt/1', runId: manifest.runId, taskHash: manifest.taskHash,
       model: { id: `unknown-model-${index}`, vendor: 'unknown-vendor' },
       execution: { method, client: 'custom-client', version: 'test-1', billing: method },
       status: 'submitted', elapsedSeconds: 60, transcript: 'Synthetic fixture, no model call.',
@@ -146,7 +146,7 @@ test('any execution method can submit without prices, usage, or API credentials'
     assert.equal(record.evidenceStatus, 'unverified'); assert.equal(record.comparisonEligible, false);
     assert.equal(record.timingBasis, 'submitter_reported');
   }
-  const receipt = { version: 'tti-external-receipt/1', runId: manifest.runId, taskHash: 'wrong' };
+  const receipt = { version: 'mtb-external-receipt/1', runId: manifest.runId, taskHash: 'wrong' };
   await assert.rejects(() => gradeExternal({ packet, submission: good, receipt, outputDir: path.join(dir, 'bad') }));
 });
 

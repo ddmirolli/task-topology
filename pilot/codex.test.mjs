@@ -8,7 +8,7 @@ import { codexAccount, requireAllowance } from './codex-account.mjs';
 import { codexConfig, probeCodex, nativeExecution, collectSession } from './codex.mjs';
 import { copyApp, root } from './workspace.mjs';
 
-const temporary = t => { const p = fs.mkdtempSync(path.join(os.tmpdir(), 'tti-codex-test-')); t.after(() => fs.rmSync(p, { recursive: true, force: true })); return p; };
+const temporary = t => { const p = fs.mkdtempSync(path.join(os.tmpdir(), 'mtb-codex-test-')); t.after(() => fs.rmSync(p, { recursive: true, force: true })); return p; };
 
 test('subscription preflight reads metadata without exposing account identity or authorizing credits', async t => {
   const dir = temporary(t), fake = path.join(dir, 'client');
@@ -43,7 +43,7 @@ test('MCP transport executes isolated tools and rejects an outside write', { ski
 });
 
 // This uses the installed client's sandbox and makes no inference request.
-test('installed native client respects workspace and dependency boundaries', { skip: process.platform !== 'darwin' || process.env.TTI_TEST_CODEX !== '1' }, t => {
+test('installed native client respects workspace and dependency boundaries', { skip: process.platform !== 'darwin' || process.env.MTB_TEST_CODEX !== '1' }, t => {
   const dir = copyApp(); t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
   const config = codexConfig(dir, 43219, 3, 'medium');
   assert.equal(config.memories.use_memories, false);

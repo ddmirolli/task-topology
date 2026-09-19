@@ -27,7 +27,7 @@ export async function codexAccount(binary = 'codex') {
     child.stdin.write(JSON.stringify({ id, method, params }) + '\n');
   });
   try {
-    await call('initialize', { clientInfo: { name: 'tti-preflight', version: '1' }, capabilities: { experimentalApi: true } });
+    await call('initialize', { clientInfo: { name: 'mtb-preflight', version: '1' }, capabilities: { experimentalApi: true } });
     child.stdin.write(JSON.stringify({ method: 'initialized' }) + '\n');
     const auth = await call('account/read', { refreshToken: false });
     const limits = await call('account/rateLimits/read');

@@ -7,8 +7,8 @@ import shutil
 from pathlib import Path
 from test_management import seed, grade, reconcile
 
-if os.environ.get('TTI_EPHEMERAL_POSTGRES') != '1':
-    raise SystemExit('Set TTI_EPHEMERAL_POSTGRES=1 only for a fresh disposable test database')
+if os.environ.get('MTB_EPHEMERAL_POSTGRES') != '1':
+    raise SystemExit('Set MTB_EPHEMERAL_POSTGRES=1 only for a fresh disposable test database')
 
 
 def psql(sql=None, file=None, reader=None):
@@ -21,7 +21,7 @@ def psql(sql=None, file=None, reader=None):
     return subprocess.run(args, env=env, text=True, capture_output=True, timeout=30)
 
 
-with tempfile.TemporaryDirectory(prefix='tti-management-pg-') as temp:
+with tempfile.TemporaryDirectory(prefix='mtb-management-pg-') as temp:
     packet = Path(temp) / 'packet'; seed.build(packet)
     setup = psql(file=packet / 'operator/crm.sql')
     assert setup.returncode == 0, setup.stderr

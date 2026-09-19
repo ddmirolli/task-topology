@@ -13,5 +13,5 @@ snapshot is kept separate from model
 results because exact identity mapping is pending.
 
 Browser verification uses Browserbase. Public submission, full transcript grading,
-human audit, workload calibration, and TTI scores remain unavailable.
+human audit, workload calibration, and MTB scores remain unavailable.
 The static deployment does not open the local evidence store to the internet.

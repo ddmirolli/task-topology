@@ -19,7 +19,7 @@ def load(file):
 def grade(packet, submission):
     packet, submission = Path(packet), Path(submission)
     manifest, key = load(packet / 'manifest.json'), load(packet / 'operator/key.json')
-    if manifest['version'] != 'tti-management/1':
+    if manifest['version'] != 'mtb-management/1':
         raise ValueError('Unsupported task version')
     if hashlib.sha256((packet / 'operator/key.json').read_bytes()).hexdigest() != manifest['keyHash']:
         raise ValueError('Answer key changed')
@@ -69,7 +69,7 @@ def grade(packet, submission):
     checks.append({'name': 'totals', 'pass': isinstance(totals, dict) and set(totals) == set(key['totals'])
         and all(type(v) is int for v in totals.values()) and totals == key['totals']})
     checks.append({'name': 'report-present', 'pass': bool(report_file.read_text().strip())})
-    return {'version': 'tti-management-grade/1', 'taskHash': manifest['taskHash'],
+    return {'version': 'mtb-management-grade/1', 'taskHash': manifest['taskHash'],
             'submissionHash': hashlib.sha256(finding_file.read_bytes() + b'\x00' + report_file.read_bytes()).hexdigest(),
             'dataChecksPass': all(c['pass'] for c in checks), 'checks': checks,
             'reportReview': 'pending', 'transcriptReview': 'pending',

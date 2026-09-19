@@ -1,11 +1,11 @@
 {
-  "version": "tti-intelligence-snapshot/1",
+  "version": "mtb-intelligence-snapshot/1",
   "source": "Epoch AI",
   "metric": "ECI",
   "sourceUrl": "https://epoch.ai/data/eci_scores.csv",
   "methodologyUrl": "https://epoch.ai/eci",
   "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
-  "attribution": "Epoch AI, Epoch Capabilities Index. Data normalized for Task Topology.",
+  "attribution": "Epoch AI, Epoch Capabilities Index. Data normalized for Model Topography.",
   "fetchedAt": "2026-09-19T03:49:28.932050+00:00",
   "lastModified": null,
   "etag": "\"467834282e740b659ed49cdb76e37de8\"",

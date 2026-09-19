@@ -90,11 +90,11 @@ and public answer files during scored runs.
 
 ## Check one candidate
 
-Set `TTI_APP_DIR` to the absolute path of the candidate app, with its
+Set `MTB_APP_DIR` to the absolute path of the candidate app, with its
 locked dependencies installed. For example, to check ticket 03:
 
 ```sh
-TTI_APP_DIR=/absolute/path/to/candidate node --test tasks/tier-1-entry/hidden/03-*.test.js
+MTB_APP_DIR=/absolute/path/to/candidate node --test tasks/tier-1-entry/hidden/03-*.test.js
 ```
 
 The thirty checks cover the published gotchas. They are a local fixture

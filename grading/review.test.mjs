@@ -4,7 +4,7 @@ import { sha256 } from '../pilot/workspace.mjs';
 import { gradeReview, reviewTemplate } from './review.mjs';
 
 function fixture() {
-  const body = { version: 'tti-review-packet/1', runId: 'run-a', appPass: true, elapsedSeconds: 20,
+  const body = { version: 'mtb-review-packet/1', runId: 'run-a', appPass: true, elapsedSeconds: 20,
     sources: { session: 'read source\nfinal result', result: 'app checks passed' } };
   const packet = { ...body, packetHash: sha256(JSON.stringify(body)) }, review = reviewTemplate(packet);
   review.reviewer = { kind: 'model', id: 'any-model', version: 'recorded-version' };

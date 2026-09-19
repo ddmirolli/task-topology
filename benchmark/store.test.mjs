@@ -6,16 +6,16 @@ import path from 'node:path';
 import { registerTask, acceptSubmission } from './store.mjs';
 import { compareProfiles } from './profile.mjs';
 const hash = 'a'.repeat(64);
-const profile = { version: 'tti-execution-profile/1', taskSetHash: hash, graderHash: hash,
+const profile = { version: 'mtb-execution-profile/1', taskSetHash: hash, graderHash: hash,
   client: 'future-client', clientVersion: '1', accessMethod: 'future-method', toolContractHash: hash,
   environmentHash: hash, memoryPolicy: 'fresh', compactionPolicy: 'recorded', retryPolicy: 'none',
   timingPolicy: 'task-to-submission', limits: { attemptSeconds: 60, commandSeconds: 10, maxOutputBytes: 32000 },
   settings: { effort: 'medium' }, tools: ['read', 'write'] };
 function fixture(t) {
-  const store = fs.mkdtempSync(path.join(os.tmpdir(), 'tti-store-'));
+  const store = fs.mkdtempSync(path.join(os.tmpdir(), 'mtb-store-'));
   t.after(() => fs.rmSync(store, { recursive: true, force: true }));
-  registerTask(store, { version: 'tti-task-export/1', taskHash: hash, ticket: '04', appFiles: {}, taskFiles: {} });
-  return { store, input: { version: 'tti-submission/1', status: 'submitted', attemptId: 'one', taskHash: hash,
+  registerTask(store, { version: 'mtb-task-export/1', taskHash: hash, ticket: '04', appFiles: {}, taskFiles: {} });
+  return { store, input: { version: 'mtb-submission/1', status: 'submitted', attemptId: 'one', taskHash: hash,
     model: { id: 'unlisted-model', vendor: 'unlisted-provider' }, profile,
     transcript: 'raw client evidence', files: { 'app.js': 'submitted code' }, elapsedSeconds: null,
     grade: { pass: true }, evidenceStatus: 'official' } };

@@ -1,5 +1,8 @@
 # Subscription validation, 2026-09-18
 
+Project names are normalized to the approved brand. Measurements and findings
+are unchanged; original receipts retain their recorded bytes and source revisions.
+
 The third diagnostic cohort completed all 18 planned attempts through existing
 subscription access. Seventeen submitted apps passed the independent task checks.
 This batch does not establish full benchmark success or a model ranking.
@@ -44,7 +47,7 @@ The corrected source checker was applied equally to all 18 retained sessions.
 Only attempt 01 changed under that correction. Original receipts remain unchanged.
 Receipt-bound review holds also mark attempts 01 and 10 for execution review.
 The report withholds cohort throughput and cost-efficiency rates when execution
-evidence requires review. X, TTI, and full seven-rule success remain unavailable.
+evidence requires review. X, MTB, and full seven-rule success remain unavailable.
 
 ## Runner corrections and verification
 

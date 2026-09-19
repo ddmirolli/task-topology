@@ -21,6 +21,6 @@ try {
       } finally { fs.rmSync(source, { recursive: true, force: true }); }
     }
   }
-  if (process.env.TTI_RECEIPT) fs.writeFileSync(process.env.TTI_RECEIPT, JSON.stringify({ browserbaseSession: connection?.sessionId, results }, null, 2));
+  if (process.env.MTB_RECEIPT) fs.writeFileSync(process.env.MTB_RECEIPT, JSON.stringify({ browserbaseSession: connection?.sessionId, results }, null, 2));
   console.log(`${results.length} fixture verdicts verified. No benchmark model calls.${browserEnabled ? '' : ' Ticket 01 browser checks not run.'}`);
 } finally { if (connection) await connection.close(); }

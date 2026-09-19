@@ -21,7 +21,7 @@ export function codexConfig(workspace, port, commandSeconds, effort, clientHome)
     .filter(name => fs.existsSync(path.join(systemSkills, name, 'SKILL.md')))
     .map(name => ({ path: path.join(clientHome, 'skills/.system', name, 'SKILL.md'), enabled: false })) : [];
   return { model_provider: 'openai', forced_login_method: 'chatgpt', model_reasoning_effort: effort,
-    approval_policy: 'never', default_permissions: 'tti', project_doc_max_bytes: 0,
+    approval_policy: 'never', default_permissions: 'mtb', project_doc_max_bytes: 0,
     skills: { config: disabledSkills },
     memories: { use_memories: false, generate_memories: false },
     web_search: 'disabled', tools: { view_image: false },
@@ -29,20 +29,20 @@ export function codexConfig(workspace, port, commandSeconds, effort, clientHome)
       skill_search: false, skip_host_skill_discovery: true },
     shell_environment_policy: { inherit: 'none', set: { PATH: `${path.dirname(process.execPath)}:/usr/bin:/bin`,
       TMPDIR: path.join(workspace, '.runner-home'), NODE_ENV: 'test', TZ: 'UTC' } },
-    permissions: { tti: { filesystem: { ':minimal': 'read',
+    permissions: { mtb: { filesystem: { ':minimal': 'read',
       ...Object.fromEntries(['/System', '/usr', '/bin', '/sbin', '/Library/Apple', '/dev', path.dirname(path.dirname(process.execPath)), dependencyPath].map(p => [p, 'read'])),
       [workspace]: 'write', [path.join(os.homedir(), '.codex')]: 'deny', ...(clientHome ? { [clientHome]: 'deny' } : {}) }, network: { enabled: false } } },
-    mcp_servers: { tti: { command: process.execPath,
+    mcp_servers: { mtb: { command: process.execPath,
       args: [path.join(root, 'pilot/mcp-stdio.mjs'), workspace, String(port), String(commandSeconds * 1000)],
       required: true, default_tools_approval_mode: 'approve', startup_timeout_sec: 20, tool_timeout_sec: commandSeconds + 5 } } };
 }
 export function probeCodex(workspace, config, binary = 'codex') {
-  const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'tti-codex-denied-'));
+  const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'mtb-codex-denied-'));
   const sentinel = path.join(outside, 'answer'); fs.writeFileSync(sentinel, 'PRIVATE-SENTINEL');
   try {
-    const script = `const fs=require('fs');let denied=false;try{fs.readFileSync(${JSON.stringify(sentinel)})}catch(e){denied=['EPERM','EACCES'].includes(e.code)}if(!denied)process.exit(9);fs.writeFileSync('probe-ok','ok');try{fs.writeFileSync(${JSON.stringify(path.join(dependencyPath, 'tti-denied-write'))},'bad');process.exit(10)}catch(e){if(!['EPERM','EACCES'].includes(e.code))throw e}console.log('isolated');`;
-    const result = spawnSync(binary, ['sandbox', '-P', 'tti', '-C', workspace,
-      ...configArgs({ default_permissions: 'tti', permissions: config.permissions }), process.execPath, '-e', script],
+    const script = `const fs=require('fs');let denied=false;try{fs.readFileSync(${JSON.stringify(sentinel)})}catch(e){denied=['EPERM','EACCES'].includes(e.code)}if(!denied)process.exit(9);fs.writeFileSync('probe-ok','ok');try{fs.writeFileSync(${JSON.stringify(path.join(dependencyPath, 'mtb-denied-write'))},'bad');process.exit(10)}catch(e){if(!['EPERM','EACCES'].includes(e.code))throw e}console.log('isolated');`;
+    const result = spawnSync(binary, ['sandbox', '-P', 'mtb', '-C', workspace,
+      ...configArgs({ default_permissions: 'mtb', permissions: config.permissions }), process.execPath, '-e', script],
     { encoding: 'utf8', timeout: 15000 });
     assert.equal(result.status, 0, result.stderr); assert.equal(result.stdout.trim(), 'isolated');
     fs.unlinkSync(path.join(workspace, 'probe-ok'));
@@ -108,7 +108,7 @@ export async function runCodex({ ticket, model, effort = 'medium', outputDir, at
   const packet = path.join(outputDir, 'packet');
   const manifest = exportTask(ticket, packet), workspace = fs.realpathSync(copyApp(path.join(packet, 'task/app')));
   fs.mkdirSync(path.join(workspace, '.runner-home'), { recursive: true });
-  const clientHome = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'tti-client-home-')));
+  const clientHome = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'mtb-client-home-')));
   const authFile = path.join(process.env.CODEX_HOME ?? path.join(os.homedir(), '.codex'), 'auth.json');
   let child;
   const kill = () => { if (child?.pid) { try { process.kill(-child.pid, 'SIGKILL'); } catch {} } };
@@ -119,12 +119,12 @@ export async function runCodex({ ticket, model, effort = 'medium', outputDir, at
     const preflight = { account, ...probeCodex(workspace, config, binary) };
     const prompt = fs.readFileSync(path.join(packet, 'task/instructions.md'), 'utf8') + '\n'
       + fs.readFileSync(path.join(packet, 'task/ticket.md'), 'utf8')
-      + '\nExecution notes: use the tti MCP tools for app work. The native apply_patch tool may also edit files inside the supplied app. Use mcp__tti__run_tests for the visible tests; ordinary shell commands are offline. Work only in the supplied app. Finish within the declared time limit.\n';
+      + '\nExecution notes: use the mtb MCP tools for app work. The native apply_patch tool may also edit files inside the supplied app. Use mcp__mtb__run_tests for the visible tests; ordinary shell commands are offline. Work only in the supplied app. Finish within the declared time limit.\n';
     const args = ['exec', '--ignore-user-config', '--ignore-rules', '--skip-git-repo-check',
       '--json', '--color', 'never', '-C', workspace, '-m', model, ...configArgs(config), '-'];
     const execution = { method: 'subscription', client: 'codex-cli', version, billing: 'included_allowance',
       settings: { model, effort, webSearch: false, skills: false, plugins: false, memories: false, nativeWorkspaceWrites: true, fullSessionRecord: true, isolatedClientHome: true },
-      limits: { attemptSeconds, commandSeconds, stdoutBytes: 20_000_000 }, isolation: 'Codex permission profile and TTI sandboxed MCP tools' };
+      limits: { attemptSeconds, commandSeconds, stdoutBytes: 20_000_000 }, isolation: 'Codex permission profile and MTB sandboxed MCP tools' };
     fs.writeFileSync(path.join(outputDir, 'launch.json'), JSON.stringify({ execution, args, preflight, prompt,
       promptHash: sha256(prompt), runnerFiles: inventory(path.join(root, 'pilot')) }, null, 2), { mode: 0o600 });
     const env = { PATH: process.env.PATH, HOME: clientHome, CODEX_HOME: clientHome, TMPDIR: path.join(workspace, '.runner-home'), LANG: 'en_US.UTF-8' };
@@ -161,7 +161,7 @@ export async function runCodex({ ticket, model, effort = 'medium', outputDir, at
       sourceCaptureError = error.message;
       if (status === 'submitted') status = 'invalid_execution';
     }
-    const receipt = { sourceTranscriptHash: session?.hash ?? null, sourceThreadId: session?.threadId ?? null, sourceCaptureError, version: 'tti-external-receipt/1', runId: manifest.runId, taskHash: manifest.taskHash,
+    const receipt = { sourceTranscriptHash: session?.hash ?? null, sourceThreadId: session?.threadId ?? null, sourceCaptureError, version: 'mtb-external-receipt/1', runId: manifest.runId, taskHash: manifest.taskHash,
       model: { id: model, vendor: 'OpenAI', reasoning_setting: effort }, execution, status, elapsedSeconds,
       startedAt, finishedAt, transcript: stdout || stderr || 'Client produced no transcript', usage: completed?.usage ?? null,
       cost: null, exitCode: exit, timingSource: 'parent_monotonic_clock', identitySource: 'requested CLI model; exact backend snapshot unverified' };

@@ -31,7 +31,7 @@ export function exportTask(ticket, destination) {
   }
   fs.writeFileSync(path.join(taskDir, 'instructions.md'), content.instructions);
   fs.writeFileSync(path.join(taskDir, 'ticket.md'), content.prompt);
-  const manifest = { version: 'tti-task-export/1', runId: crypto.randomUUID(), ticket,
+  const manifest = { version: 'mtb-task-export/1', runId: crypto.randomUUID(), ticket,
     taskHash: content.taskHash, appFiles: files, taskFiles: inventory(taskDir) };
   writeJson(path.join(destination, 'manifest.json'), manifest);
   return manifest;
@@ -42,7 +42,7 @@ function text(value, label) {
 export async function gradeExternal({ packet, submission, receipt, outputDir, browser }) {
   assert.ok(!fs.existsSync(outputDir), 'Choose a new output directory; retain earlier attempts');
   const manifest = JSON.parse(fs.readFileSync(path.join(packet, 'manifest.json'), 'utf8'));
-  assert.equal(manifest.version, 'tti-task-export/1');
+  assert.equal(manifest.version, 'mtb-task-export/1');
   const content = taskContent(manifest.ticket);
   assert.equal(manifest.taskHash, content.taskHash, 'Task version differs from this grader');
   assert.deepEqual(manifest.appFiles, inventory(appSource), 'Starting app version differs from this grader');
@@ -50,7 +50,7 @@ export async function gradeExternal({ packet, submission, receipt, outputDir, br
   assert.equal(fs.readFileSync(path.join(packet, 'task/instructions.md'), 'utf8'), content.instructions, 'Task instructions changed');
   assert.equal(fs.readFileSync(path.join(packet, 'task/ticket.md'), 'utf8'), content.prompt, 'Task prompt changed');
   assert.deepEqual(inventory(path.join(packet, 'task/app')), manifest.appFiles, 'Starting app changed');
-  assert.equal(receipt.version, 'tti-external-receipt/1');
+  assert.equal(receipt.version, 'mtb-external-receipt/1');
   assert.equal(receipt.runId, manifest.runId);
   assert.equal(receipt.taskHash, manifest.taskHash);
   for (const key of ['id', 'vendor']) text(receipt.model?.[key], `model.${key}`);
@@ -70,7 +70,7 @@ export async function gradeExternal({ packet, submission, receipt, outputDir, br
   }
   assert.deepEqual(inventory(snapshot), files, 'Submission changed during collection');
   writeJson(path.join(outputDir, 'receipt.json'), receipt);
-  const record = { schemaVersion: 'tti-external-run/1', runId: manifest.runId, ticket: manifest.ticket,
+  const record = { schemaVersion: 'mtb-external-run/1', runId: manifest.runId, ticket: manifest.ticket,
     model: receipt.model, execution: receipt.execution, taskHash: manifest.taskHash,
     instructions: content.instructions, prompt: content.prompt,
     appFiles: manifest.appFiles, submittedFiles: files, runnerFiles: inventory(path.join(root, 'pilot')),

@@ -5,8 +5,8 @@ import { sha256 } from '../pilot/workspace.mjs';
 
 test('published diagnostics contain aggregate fields only and keep scores unavailable', () => {
   const d = JSON.parse(fs.readFileSync(new URL('../site/results.json', import.meta.url)));
-  assert.equal(d.status, 'diagnostic'); assert.equal(d.X, null); assert.equal(d.TTI, null);
-  assert.match(d.evidenceUrl, /^https:\/\/github.com\/ddmirolli\/task-topology\/blob\/[a-f0-9]{40}\//);
+  assert.equal(d.status, 'diagnostic'); assert.equal(d.X, null); assert.equal(d.MTB, null);
+  assert.match(d.evidenceUrl, /^https:\/\/github.com\/ddmirolli\/model-topography\/blob\/[a-f0-9]{40}\//);
   const fields = ['ticket', 'model', 'attempts', 'appChecksPassed', 'elapsedSeconds', 'apiEquivalentUsd', 'reviewHolds', 'client', 'effort'].sort();
   const seen = new Set();
   for (const row of d.rows) {

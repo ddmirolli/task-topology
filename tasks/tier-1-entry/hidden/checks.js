@@ -5,7 +5,7 @@ const os = require('node:os');
 const { createRequire } = require('node:module');
 const { spawnSync } = require('node:child_process');
 
-const appDir = path.resolve(process.env.TTI_APP_DIR || path.join(__dirname, '../app'));
+const appDir = path.resolve(process.env.MTB_APP_DIR || path.join(__dirname, '../app'));
 const fromApp = createRequire(path.join(appDir, 'package.json'));
 const load = (file) => fromApp(path.join(appDir, file));
 const read = (file) => fs.readFileSync(path.join(appDir, file), 'utf8');
@@ -64,7 +64,7 @@ async function exported(t, query = '') {
   return { ...ctx, rows: csvParse(response.text) };
 }
 function legacyDatabase(t) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tti-migration-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mtb-migration-'));
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
   const file = path.join(dir, 'old.sqlite');
   const db = new (fromApp('better-sqlite3'))(file);

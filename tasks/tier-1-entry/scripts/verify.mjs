@@ -20,7 +20,7 @@ const expectedFailures = {
 function run(dir, args) {
   const result = spawnSync(process.execPath, args, {
     cwd: dir, encoding: 'utf8', timeout: 60_000,
-    env: { ...process.env, TZ: 'UTC', APP_URL: 'http://localhost:3000', TTI_APP_DIR: dir, NODE_ENV: 'test' },
+    env: { ...process.env, TZ: 'UTC', APP_URL: 'http://localhost:3000', MTB_APP_DIR: dir, NODE_ENV: 'test' },
   });
   assert.equal(result.status, 0, result.error?.message || result.stdout + result.stderr);
   return result.stdout;

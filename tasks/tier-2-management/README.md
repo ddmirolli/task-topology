@@ -73,7 +73,7 @@ independently reconciles source exports through SQL joins. `tools/grade.py`
 checks a returned workspace without executing submitted code.
 
 Copy the generated `task/` directory to an isolated model workspace. Provision a
-fresh PostgreSQL database named `tti_management` using `operator/crm.sql` as the
+fresh PostgreSQL database named `mtb_management` using `operator/crm.sql` as the
 administrator. The model receives the reader account only. The default connection
 is `127.0.0.1:5432`. Freeze any connection changes in a new packet manifest before
 running a model. Do not use a shared database.

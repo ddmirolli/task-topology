@@ -9,11 +9,11 @@ export async function buttons(workspace, browser) {
       try {
         await context.route('**/*', async route => {
           const url = new URL(route.request().url());
-          if (url.origin !== 'https://tti.invalid') return route.abort();
+          if (url.origin !== 'https://mtb.invalid') return route.abort();
           const request = route.request();
           let result = await app.http(url.pathname + url.search, { method: request.method(), body: request.postDataBuffer() || undefined,
             headers: request.postDataBuffer() ? { 'content-type': request.headers()['content-type'] || 'application/x-www-form-urlencoded' } : {} });
-          // Browserbase proxy egress cannot resolve tti.invalid. Follow local redirects here.
+          // Browserbase proxy egress cannot resolve mtb.invalid. Follow local redirects here.
           for (let n = 0; [301, 302, 303].includes(result.status) && n < 5; n++) {
             assert.ok(result.headers.location?.startsWith('/') && !result.headers.location.startsWith('//'));
             result = await app.http(result.headers.location);
@@ -22,7 +22,7 @@ export async function buttons(workspace, browser) {
           await route.fulfill({ status: result.status, headers: result.headers, body: result.text });
         });
         const page = await context.newPage(); page.setDefaultTimeout(5000);
-        await page.goto(`https://tti.invalid/${name}?theme=${theme}`);
+        await page.goto(`https://mtb.invalid/${name}?theme=${theme}`);
         const button = page.locator(`form[action="/${name}"]`).locator('button[type="submit"], button:not([type]), input[type="submit"]');
         assert.ok(await button.isVisible()); assert.ok(await button.isEnabled());
         const appearance = await button.evaluate(el => {

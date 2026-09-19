@@ -23,7 +23,7 @@ try {
   } else if (action === 'write_file') {
     if (typeof content !== 'string' || Buffer.byteLength(content) > 262144) throw new Error('File exceeds write limit');
     fs.mkdirSync(path.dirname(file), { recursive: true });
-    const temp = path.join(path.dirname(file), `.tti-write-${crypto.randomUUID()}`);
+    const temp = path.join(path.dirname(file), `.mtb-write-${crypto.randomUUID()}`);
     try { fs.writeFileSync(temp, content, { flag: 'wx' }); fs.renameSync(temp, file); }
     finally { try { fs.unlinkSync(temp); } catch {} }
     process.stdout.write(JSON.stringify({ value: 'written' }));

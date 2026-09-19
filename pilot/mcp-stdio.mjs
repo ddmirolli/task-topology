@@ -10,7 +10,7 @@ for await (const line of input) {
     request = JSON.parse(line);
     if (request.id == null) continue;
     let result;
-    if (request.method === 'initialize') result = { protocolVersion: '2024-11-05', capabilities: { tools: {} }, serverInfo: { name: 'tti', version: '1' } };
+    if (request.method === 'initialize') result = { protocolVersion: '2024-11-05', capabilities: { tools: {} }, serverInfo: { name: 'mtb', version: '1' } };
     else if (request.method === 'ping') result = {};
     else if (request.method === 'tools/list') result = { tools: tools.map(t => ({ name: t.name, description: t.description, inputSchema: t.parameters })) };
     else if (request.method === 'tools/call') {

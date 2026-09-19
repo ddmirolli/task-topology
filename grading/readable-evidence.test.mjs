@@ -16,7 +16,7 @@ test('readable evidence retains record paths, multiline strings, empty values, a
 
 test('a packet cannot substitute readable evidence while retaining the original transcript', () => {
   const raw = '{"text":"actual result"}';
-  const body = { version: 'tti-review-packet/2', rawSources: { session: raw, events: raw },
+  const body = { version: 'mtb-review-packet/2', rawSources: { session: raw, events: raw },
     sources: { session: readableEvidence(raw), events: readableEvidence(raw) }, bindings: { session: sha256(raw) } };
   const seal = () => ({ ...body, packetHash: sha256(JSON.stringify(body)) });
   verifyPacket(seal());

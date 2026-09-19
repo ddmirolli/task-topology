@@ -23,7 +23,7 @@ export function inventory(dir) {
 }
 export function copyApp(source = appSource) {
   inventory(source);
-  const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'tti-pilot-'));
+  const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'mtb-pilot-'));
   try {
     fs.cpSync(source, workspace, { recursive: true, filter: file => !path.relative(source, file).split(path.sep).some(p => ['node_modules', '.runner-home', '.git', '.env'].includes(p)) && !/\.sqlite(?:-|$)/.test(file) });
     // Dependencies come from the maintainer's locked install, never the submission.

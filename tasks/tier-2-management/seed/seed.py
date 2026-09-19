@@ -8,7 +8,7 @@ import random
 import sqlite3
 from pathlib import Path
 
-VERSION = 'tti-management/1'
+VERSION = 'mtb-management/1'
 
 
 def sha(data):
@@ -77,8 +77,8 @@ def build(destination, seed=20260918):
     (task / 'data/support_tickets.csv').write_bytes(output.getvalue().encode('utf-16'))
     password = 'synthetic-' + sha(str(seed).encode())[:24]
     write_json(task / '.sandbox-secrets/crm/readonly.json', {'host': '127.0.0.1', 'port': 5432,
-        'database': 'tti_management', 'user': 'tti_reader', 'password': password})
-    (task / '.env.crm').write_text('PGHOST=127.0.0.1\nPGPORT=5432\nPGDATABASE=tti_management\nPGUSER=tti_reader\nPGPASSWORD=expired-synthetic-password\n')
+        'database': 'mtb_management', 'user': 'mtb_reader', 'password': password})
+    (task / '.env.crm').write_text('PGHOST=127.0.0.1\nPGPORT=5432\nPGDATABASE=mtb_management\nPGUSER=mtb_reader\nPGPASSWORD=expired-synthetic-password\n')
     (task / 'docs/access.md').write_text('''# Data access
 
 CRM uses PostgreSQL. `.env.crm` is a legacy connection file.
@@ -101,8 +101,8 @@ Check the database schema before importing positional values.
         date = c['joined'][5:7] + '/' + c['joined'][8:] + '/' + c['joined'][:4]
         values = [c['id'], c['name'], c['email'], f"{c['amount_cents']/100:.2f}", date, c['status']]
         statements.append('INSERT INTO customers VALUES (' + ','.join(sql_text(v) for v in values) + ');')
-    statements += [f"CREATE ROLE tti_reader LOGIN PASSWORD {sql_text(password)};", 'GRANT CONNECT ON DATABASE tti_management TO tti_reader;',
-        'GRANT USAGE ON SCHEMA public TO tti_reader;', 'GRANT SELECT ON ALL TABLES IN SCHEMA public TO tti_reader;',
+    statements += [f"CREATE ROLE mtb_reader LOGIN PASSWORD {sql_text(password)};", 'GRANT CONNECT ON DATABASE mtb_management TO mtb_reader;',
+        'GRANT USAGE ON SCHEMA public TO mtb_reader;', 'GRANT SELECT ON ALL TABLES IN SCHEMA public TO mtb_reader;',
         'REVOKE CREATE ON SCHEMA public FROM PUBLIC;', 'COMMIT;']
     (private / 'crm.sql').write_text('\n'.join(statements) + '\n')
     # This snapshot is operator-only. The model accesses CRM through PostgreSQL.

@@ -31,7 +31,7 @@ function render() {
     row.append(node('span',`${r.ticket} · ${r.model}`),track,node('span',isTime?seconds(r[metric])+' s':money(r[metric]),'bar-value'));return row;
   }));
   $('#chart-note').textContent=isTime?'Totals include failed attempts. These are measured resources, not success-adjusted speed scores.':'Estimates use dated API token prices. Actual subscription charges are unavailable.';
-  $('#result-count').textContent=`${records.length} task/model rows · ${total} attempts · no published TTI scores`;
+  $('#result-count').textContent=`${records.length} task/model rows · ${total} attempts · no published MTB scores`;
 }
 for (const button of document.querySelectorAll('[data-tier]')) button.addEventListener('click',()=>{tier=Number(button.dataset.tier);for(const b of document.querySelectorAll('[data-tier]'))b.setAttribute('aria-pressed',String(b===button));render();});
 for (const control of document.querySelectorAll('.controls select')) control.addEventListener('change',render);

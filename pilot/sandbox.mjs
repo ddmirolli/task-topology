@@ -53,7 +53,7 @@ export async function execute(workspace, command, { timeoutMs = 30_000, maxBytes
 }
 
 export async function probeSandbox(workspace) {
-  const secretDir = fs.mkdtempSync(path.join(os.tmpdir(), 'tti-denied-'));
+  const secretDir = fs.mkdtempSync(path.join(os.tmpdir(), 'mtb-denied-'));
   const sentinel = path.join(secretDir, 'answer'); fs.writeFileSync(sentinel, 'PRIVATE-SENTINEL');
   try {
     const script = `const fs=require('fs'); let denied=false; try { fs.readFileSync(${JSON.stringify(sentinel)}) } catch(e) { denied=e.code==='EPERM'||e.code==='EACCES' } if(!denied) process.exit(9); fs.writeFileSync('probe-ok','ok'); console.log('isolated')`;

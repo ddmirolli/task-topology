@@ -1,7 +1,7 @@
 # Small validation pilot
 
 Draft v0.2, 2026-09-18. The scoring and access rulings in SPEC.md are approved.
-The API spending proposal and replacement TTI formula remain unapproved.
+The API spending proposal and replacement MTB formula remain unapproved.
 Dan authorized continued validation through existing subscription access.
 
 Implementation: [pilot/README.md](pilot/README.md). The local runner and
@@ -24,7 +24,7 @@ canonical-path correction verified after collection.
 
 ## Question
 
-Can TTI grade different valid solutions fairly and record correct work,
+Can MTB grade different valid solutions fairly and record correct work,
 speed, and cost without rewarding delay or favoring a model?
 
 ## Proposed trial
@@ -93,8 +93,8 @@ A and B complete the same four tasks and fail the same fifth task:
 | A | 4 of 5 | 30 minutes | $2 | 8 | 2 |
 | B | 4 of 5 | 60 minutes | $2 | 4 | 2 |
 
-With all other scoring inputs equal, the eventual TTI formula must rank
-A above B. Duplicating B's wait time cannot improve X, Z, or TTI. This test
+With all other scoring inputs equal, the eventual MTB formula must rank
+A above B. Duplicating B's wait time cannot improve X, Z, or MTB. This test
 constrains the formula; it does not select weights for speed versus cost.
 
 ## Exit condition
@@ -107,6 +107,6 @@ Ties and unexpected rankings are acceptable. If a test is defective, record
 why, version the fix, and apply it to every affected comparison.
 
 Deliver one results table and the evidence behind it. Report uncertainties
-and grader disagreements. Leave X and TTI unavailable. No claim about hours
+and grader disagreements. Leave X and MTB unavailable. No claim about hours
 of reliable unattended work comes from this pilot. Use what it reveals to
 finish the grader and scoring design before expanding the benchmark.

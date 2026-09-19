@@ -27,7 +27,7 @@ npm run verify:pilot:browser
 ```
 
 Set `BROWSERBASE_API_KEY` and `BROWSERBASE_PROJECT_ID` in the invoking process.
-Set `TTI_RECEIPT` to a private file path to save the fixture verdicts and the
+Set `MTB_RECEIPT` to a private file path to save the fixture verdicts and the
 Browserbase session ID. The browser runs remotely. A request proxy serves
 responses from the isolated local app. This checks rendering and interaction;
 it does not test deployment or public network reachability.
@@ -65,7 +65,7 @@ Record failures too. Save the transcript and available evidence in a receipt:
 
 ```json
 {
-  "version": "tti-external-receipt/1",
+  "version": "mtb-external-receipt/1",
   "runId": "copy from manifest.json",
   "taskHash": "copy from manifest.json",
   "model": { "id": "reported model ID", "vendor": "reported vendor" },
@@ -103,7 +103,7 @@ It checks the published task and starting app, then runs the same behavioral
 grader used by the API adapter. It ignores any score supplied in the receipt.
 It neither calls a benchmark model nor requires a paid plan.
 
-External records use `tti-external-run/1`. Task success is independently graded.
+External records use `mtb-external-run/1`. Task success is independently graded.
 Identity, isolation, time, and usage remain submitter-reported until evidence
 review. `comparisonEligible` stays false, and any speed value is diagnostic.
 Unknown cost stays null without blocking task grading. Cost estimates and
@@ -171,7 +171,7 @@ more spend.
 
 ## Interpret the records
 
-`run.json` uses `tti-pilot-run/1`. `events.jsonl` is the append-only request and
+`run.json` uses `mtb-pilot-run/1`. `events.jsonl` is the append-only request and
 tool journal. `plan.json` contains the dated price source and rates.
 `results.json` groups outcomes by model within this fixed API client.
 API costs are calculated from provider usage and list prices, not invoice
@@ -182,7 +182,7 @@ Partial trial summaries are diagnostic, not rankings.
 The records report functional task success, limits, and raw evidence. They do
 not implement the full seven-part transcript rubric in GRADING.md. Human review
 must resolve scope or instruction questions before these results support any
-broader claim. X and TTI remain unavailable. Eighteen attempts do not establish
+broader claim. X and MTB remain unavailable. Eighteen attempts do not establish
 90 percent reliability.
 
 The task version combines the original ticket with the public contract under
@@ -248,7 +248,7 @@ Backend snapshot identity remains unverified when the CLI does not expose it.
 
 A restrictive Codex permission profile protects host files and dependencies.
 The client and tools receive the same canonical workspace path.
-The four TTI MCP tools use the existing sandbox for app work and HTTP tests.
+The four MTB MCP tools use the existing sandbox for app work and HTTP tests.
 Only that local MCP server has pre-approved tools. Native patch edits are also
 allowed inside the app workspace and recorded with their paths. Native shell execution,
 plugins, memories, desktop automation, browsing, and host skill discovery are disabled
@@ -292,7 +292,7 @@ The report binds the plan, frozen runner, price file, run IDs, task baselines,
 and client settings to the retained evidence. It keeps missing, invalid, and
 unstarted attempts visible. The report distinguishes app-check outcomes from execution validity. Rates
 remain unavailable when a planned batch stops early. All failed attempts retain their time and usage.
-No output from this script establishes full-rubric success, X, or TTI.
+No output from this script establishes full-rubric success, X, or MTB.
 Execution evidence that fails review also withholds cohort throughput and
 cost-efficiency rates. Analysis file hashes distinguish corrected source checks
 from the original frozen runner. Original receipts are not overwritten.
@@ -304,7 +304,7 @@ the SHA-256 of the complete receipt file, and records the review file's hash.
 
 ```json
 {
-  "version": "tti-review-holds/1",
+  "version": "mtb-review-holds/1",
   "holds": [
     {
       "attempt": 1,
@@ -326,5 +326,5 @@ trial when changing that setting. Never resume or reinterpret the old trial.
 The installed-client sandbox check is optional and makes no inference call:
 
 ```sh
-TTI_TEST_CODEX=1 npm run test:pilot
+MTB_TEST_CODEX=1 npm run test:pilot
 ```

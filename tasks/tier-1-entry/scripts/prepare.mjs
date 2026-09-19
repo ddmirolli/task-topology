@@ -10,7 +10,7 @@ export const tickets = Array.from({ length: 10 }, (_, i) => String(i + 1).padSta
 
 // This creates a local maintainer fixture. The benchmark sandbox is a separate component.
 export function prepare({ fixes = [], dependencies = false } = {}) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tti-tier1-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mtb-tier1-'));
   try {
     fs.cpSync(appDir, dir, { recursive: true, filter: (source) => {
       const relative = path.relative(appDir, source);

@@ -19,10 +19,10 @@ const palettes = {
 };
 const pngOptions = { compressionLevel: 9, adaptiveFiltering: false, palette: false };
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
-const sourceFile = join(brand, 'task-topology-glyph.svg');
+const sourceFile = join(brand, 'model-topography-glyph.svg');
 const source = await readFile(sourceFile, 'utf8');
 const sourceHash = sha256(source);
-const reference = await readFile(join(root, 'tti-glyph-c-reference.png'));
+const reference = await readFile(join(root, 'mtb-glyph-c-reference.png'));
 const referenceHash = 'b7e55e713d63d5701e7015c7e277bec87e7fe77b86968d77f2a4b357f4b5a2b5';
 assert.equal(sha256(reference), referenceHash, 'The immutable reference changed');
 
@@ -78,12 +78,12 @@ function add(path, data) {
   outputs.set(path, Buffer.isBuffer(data) ? data : Buffer.from(data));
 }
 
-const adaptivePath = 'task-topology-glyph-adaptive.svg';
+const adaptivePath = 'model-topography-glyph-adaptive.svg';
 const adaptiveStyle = `  <style>:root{color:${palettes.light.foreground}}@media(prefers-color-scheme:dark){:root{color:${palettes.dark.foreground}}}</style>\n`;
 const adaptive = source.replace(geometry, adaptiveStyle + geometry);
 assert.equal(adaptive.replace(adaptiveStyle, ''), source, 'Adaptive geometry must match the canonical SVG');
 add(adaptivePath, adaptive);
-const t3Path = 'task-topology-glyph-t3.svg';
+const t3Path = 'model-topography-glyph-t3.svg';
 const t3ViewBox = '36 36 440 440';
 const t3Icon = adaptive.replace('viewBox="0 0 512 512"', `viewBox="${t3ViewBox}"`);
 assert.equal(t3Icon.replace(`viewBox="${t3ViewBox}"`, 'viewBox="0 0 512 512"'), adaptive,
@@ -104,18 +104,18 @@ for (const theme of ['light', 'dark']) {
     [...source.matchAll(/<path d="([^"]+)"\/>/g)].map(m => m[0]).join('\n'));
   assert(svg.includes('viewBox="0 0 512 512"') && svg.includes('stroke-width="9"'));
   assert(!/transform=|<image|base64|<style/.test(svg));
-  add(`task-topology-glyph-${theme}.svg`, svg);
+  add(`model-topography-glyph-${theme}.svg`, svg);
 }
 
 for (const theme of Object.keys(palettes)) {
   for (const size of sizes) {
-    add(`png/${theme}/task-topology-${size}.png`, await (await raster(theme, size))
+    add(`png/${theme}/model-topography-${size}.png`, await (await raster(theme, size))
       .ensureAlpha().png(pngOptions).toBuffer());
   }
 }
 for (const theme of ['light', 'dark']) {
   for (const size of [512, 1024]) {
-    add(`jpg/task-topology-${theme}-${size}.jpg`, await (await raster(theme, size))
+    add(`jpg/model-topography-${theme}-${size}.jpg`, await (await raster(theme, size))
       .removeAlpha().jpeg({ quality: 96, chromaSubsampling: '4:4:4' }).toBuffer());
   }
 }
@@ -127,7 +127,7 @@ function makeIco() {
   const entries = [];
   let offset = header.length;
   for (const [index, size] of icoSizes.entries()) {
-    const png = outputs.get(`png/light/task-topology-${size}.png`);
+    const png = outputs.get(`png/light/model-topography-${size}.png`);
     const entry = 6 + index * 16;
     header[entry] = header[entry + 1] = size === 256 ? 0 : size;
     header.writeUInt16LE(1, entry + 4);
@@ -153,7 +153,7 @@ async function decoded(bytes, size, format) {
 
 const bounds = {};
 for (const size of sizes) {
-  const alpha = await decoded(outputs.get(`png/transparent/task-topology-${size}.png`), size, 'png');
+  const alpha = await decoded(outputs.get(`png/transparent/model-topography-${size}.png`), size, 'png');
   assert(alpha.meta.hasAlpha && alpha.info.channels === 4, 'Missing transparent alpha');
   let minX = size, minY = size, maxX = -1, maxY = -1, partial = false;
   for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
@@ -172,7 +172,7 @@ for (const size of sizes) {
   }
   bounds[size] = { minX, minY, maxX, maxY };
   for (const theme of ['light', 'dark']) {
-    const image = await decoded(outputs.get(`png/${theme}/task-topology-${size}.png`), size, 'png');
+    const image = await decoded(outputs.get(`png/${theme}/model-topography-${size}.png`), size, 'png');
     const bg = palettes[theme].background.match(/[0-9A-Fa-f]{2}/g).map(v => parseInt(v, 16));
     assert.deepEqual([...image.data.subarray(0, 3)], bg);
     for (let i = 3; i < image.data.length; i += 4) assert.equal(image.data[i], 255, 'Background not opaque');
@@ -186,7 +186,7 @@ for (const size of sizes) {
   }
 }
 for (const theme of ['light', 'dark']) for (const size of [512, 1024]) {
-  const jpg = await decoded(outputs.get(`jpg/task-topology-${theme}-${size}.jpg`), size, 'jpeg');
+  const jpg = await decoded(outputs.get(`jpg/model-topography-${theme}-${size}.jpg`), size, 'jpeg');
   assert(!jpg.meta.hasAlpha && jpg.info.channels === 3, 'JPEG must contain opaque RGB');
 }
 
@@ -204,7 +204,7 @@ for (const [index, size] of icoSizes.entries()) {
   assert.equal(ico.readUInt32LE(entry + 12), icoOffset);
   const length = ico.readUInt32LE(entry + 8);
   const png = ico.subarray(icoOffset, icoOffset + length);
-  assert(png.equals(outputs.get(`png/light/task-topology-${size}.png`)), 'ICO differs from production PNG');
+  assert(png.equals(outputs.get(`png/light/model-topography-${size}.png`)), 'ICO differs from production PNG');
   await decoded(png, size, 'png');
   icoOffset += length;
 }
@@ -223,7 +223,7 @@ const alignedReference = await sharp(reference).resize(538, 359).extract({ left:
 const referencePanel = await sharp({ create: { width: 512, height: 512, channels: 3, background: '#FFFFFF' } })
   .composite([{ input: alignedReference, left: 0, top: 71 }]).png(pngOptions).toBuffer();
 place(referencePanel, 24, 56);
-place(outputs.get('png/light/task-topology-512.png'), 568, 56);
+place(outputs.get('png/light/model-topography-512.png'), 568, 56);
 let row = 590;
 place(label('Light, native pixels'), 24, row);
 place(label('Dark, native pixels'), 568, row);
@@ -232,8 +232,8 @@ for (const size of qaSizes) {
   place(label(`${size}px`), 24, row);
   place(label(`${size}px`), 568, row);
   row += 30;
-  place(outputs.get(`png/light/task-topology-${size}.png`), 24, row);
-  place(outputs.get(`png/dark/task-topology-${size}.png`), 568, row);
+  place(outputs.get(`png/light/model-topography-${size}.png`), 24, row);
+  place(outputs.get(`png/dark/model-topography-${size}.png`), 568, row);
   row += size + 20;
 }
 add('qa/contact-sheet.png', await sharp({ create: { width: 1104, height: row + 4, channels: 3, background: '#E5E7EB' } })
@@ -243,27 +243,27 @@ const small = [];
 for (const [index, size] of [16, 24, 32, 48].entries()) {
   const x = 16 + index * 128;
   small.push({ input: label(`${size}px`, 110), left: x, top: 8 });
-  small.push({ input: outputs.get(`png/light/task-topology-${size}.png`), left: x, top: 44 });
-  small.push({ input: outputs.get(`png/dark/task-topology-${size}.png`), left: x, top: 110 });
+  small.push({ input: outputs.get(`png/light/model-topography-${size}.png`), left: x, top: 44 });
+  small.push({ input: outputs.get(`png/dark/model-topography-${size}.png`), left: x, top: 110 });
 }
 add('qa/favicon-native.png', await sharp({ create: { width: 528, height: 176, channels: 3, background: '#E5E7EB' } })
   .composite(small).png(pngOptions).toBuffer());
 add('qa/contact-sheet.html', `<!doctype html>
 <html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Task Topology Index asset QA</title>
+<title>Model Topography Benchmark asset QA</title>
 <style>body{margin:24px;font:16px system-ui;background:#e5e7eb;color:#111827}table{border-collapse:collapse}th,td{text-align:left;padding:12px;vertical-align:top}img{display:block}figure{margin:0}section{display:flex;gap:32px;flex-wrap:wrap}.reference{width:512px;height:512px;position:relative;overflow:hidden;background:white}.reference img{position:absolute;width:537.6px;height:358.4px;left:-12.1px;top:70.85px}figcaption{margin-bottom:12px}</style>
-<h1>Task Topology Index asset QA</h1>
+<h1>Model Topography Benchmark asset QA</h1>
 <p>All glyph previews use generated production assets. View at 100% zoom for native CSS pixel sizes.</p>
-<section><figure><figcaption>Original reference before height revision</figcaption><div class="reference"><img src="../../../tti-glyph-c-reference.png" alt="Original approved reference"></div></figure>
-<figure><figcaption>Approved 50% taller, 9-unit stroke</figcaption><img src="../png/light/task-topology-512.png" width="512" height="512" alt="Canonical vector rendered at 512 pixels"></figure></section>
+<section><figure><figcaption>Original reference before height revision</figcaption><div class="reference"><img src="../../../mtb-glyph-c-reference.png" alt="Original approved reference"></div></figure>
+<figure><figcaption>Approved 50% taller, 9-unit stroke</figcaption><img src="../png/light/model-topography-512.png" width="512" height="512" alt="Canonical vector rendered at 512 pixels"></figure></section>
 <table><thead><tr><th>Size</th><th>Light</th><th>Dark</th></tr></thead><tbody>
-${qaSizes.map(size => `<tr><th>${size}px</th>${['light', 'dark'].map(theme => `<td><img src="../png/${theme}/task-topology-${size}.png" width="${size}" height="${size}" alt="${theme} glyph at ${size} pixels"></td>`).join('')}</tr>`).join('\n')}
+${qaSizes.map(size => `<tr><th>${size}px</th>${['light', 'dark'].map(theme => `<td><img src="../png/${theme}/model-topography-${size}.png" width="${size}" height="${size}" alt="${theme} glyph at ${size} pixels"></td>`).join('')}</tr>`).join('\n')}
 </tbody></table></html>
 `);
 
 add('qa/adaptive-theme.html', `<!doctype html>
 <html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Task Topology Index adaptive icon QA</title>
+<title>Model Topography Benchmark adaptive icon QA</title>
 <style>body{margin:24px;font:16px system-ui;background:#e5e7eb;color:#111827}main{display:flex;gap:24px;flex-wrap:wrap}section{padding:24px;border-radius:12px}.light{color-scheme:light;background:${palettes.light.background};color:${palettes.light.foreground}}.dark{color-scheme:dark;background:${palettes.dark.background};color:${palettes.dark.foreground}}.sizes{display:flex;align-items:center;gap:20px}figure{margin:0}figcaption{margin-top:8px}button{margin-bottom:20px;padding:8px 16px}</style>
 <h1>Adaptive project icon</h1><p>Both panels load the same T3 SVG as an image. The parent color scheme selects its stroke. Native-size rows compare standard and tight framing.</p>
 <button type="button" onclick="document.querySelectorAll('section').forEach(panel=>{panel.classList.toggle('light');panel.classList.toggle('dark')})">Swap panel themes</button>
@@ -274,7 +274,7 @@ for (const [path, data] of outputs) {
   if (path.endsWith('.png')) await sharp(data, { failOn: 'warning' }).raw().toBuffer();
 }
 const manifest = {
-  source: 'task-topology-glyph.svg', sourceSha256: sourceHash, referenceSha256: referenceHash,
+  source: 'model-topography-glyph.svg', sourceSha256: sourceHash, referenceSha256: referenceHash,
   viewBox: '0 0 512 512', strokeWidth: 9, pathCount: paths.length, palettes, sizes, icoSizes,
   t3: { file: t3Path, viewBox: t3ViewBox, scaleRelativeToCanonical: 512 / 440 },
   renderer: sharp.versions, alphaBounds: bounds,
@@ -291,5 +291,5 @@ for (const [path, data] of outputs) {
   }
 }
 assert.equal(sha256(await readFile(sourceFile)), sourceHash, 'Generation modified the canonical SVG');
-assert.equal(sha256(await readFile(join(root, 'tti-glyph-c-reference.png'))), referenceHash);
+assert.equal(sha256(await readFile(join(root, 'mtb-glyph-c-reference.png'))), referenceHash);
 console.log(`${check ? 'Verified' : 'Generated and verified'} 43 production assets, 4 QA files, T3 icon configuration, and the manifest. Canonical geometry preserved by generation; immutable reference unchanged.`);

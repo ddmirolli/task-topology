@@ -1,9 +1,9 @@
-# Task Topology Index brand assets
+# Model Topography brand assets
 
-The SVG geometry is the Task Topology Index logo. All raster assets, sizes, and theme variants are deterministic renderings of that geometry.
+The SVG geometry is the Model Topography logo. All raster assets, sizes, and theme variants are deterministic renderings of that geometry.
 
-[`task-topology-glyph.svg`](task-topology-glyph.svg) contains the only canonical geometry.
-The original design reference is [`tti-glyph-c-reference.png`](../../tti-glyph-c-reference.png) at the repository root.
+[`model-topography-glyph.svg`](model-topography-glyph.svg) contains the only canonical geometry.
+The original design reference is [`mtb-glyph-c-reference.png`](../../mtb-glyph-c-reference.png) at the repository root.
 That PNG is immutable and is not a production asset. It appears only in QA comparisons.
 
 ## Regenerate and verify
@@ -53,7 +53,7 @@ uses the documented framing exception below. No asset has alternate path geometr
 The fixed theme variants add only explicit colors and an opaque background rectangle.
 The adaptive variant adds only CSS to select the foreground color. Its background is transparent.
 
-TTI compares model capability, unattended task duration, and successful work per dollar.
+MTB compares model capability, unattended task duration, and successful work per dollar.
 The glyph's warped sheet implies that three-dimensional space. It retains the
 reference's dominant rear-left peak, central saddle, smaller rear-right rise, broad
 perimeter, and open mesh. It does not plot benchmark data.
@@ -64,14 +64,14 @@ perimeter, and open mesh. It does not plot benchmark data.
   A parent CSS `color` does not propagate into an SVG loaded through an HTML `img`.
   Import the source as inline SVG or use it as a CSS mask without copying its paths.
 - Use the explicit light or dark SVG for an `img`, document, or fixed palette.
-- Use `task-topology-glyph-adaptive.svg` for an image that follows its parent's color scheme.
+- Use `model-topography-glyph-adaptive.svg` for an image that follows its parent's color scheme.
 - Use `png/transparent/` for dark glyphs on a supplied light background.
 - Use `png/light/` and `png/dark/` when the image needs its own background.
 - Use the 180px PNG for an Apple touch icon and the 192px PNG for an Android icon.
 - Use JPG only where required. All four JPGs contain opaque RGB, quality 96,
   with 4:4:4 chroma sampling.
 - Use `favicon/favicon.ico` for an ICO favicon. An application must add its own
-  icon link. This benchmark repository does not yet contain the public website.
+  icon link. The public website under `site/` includes its own favicon link.
 
 PNG sizes are 16, 24, 32, 48, 64, 128, 180, 192, 256, 512, and 1024px for each
 of the three palettes. JPG sizes are 512 and 1024px for light and dark.
@@ -85,7 +85,7 @@ background keeps the dark stroke visible against browser chrome in either theme.
 
 ## T3 project icon
 
-The root `t3.json` points to `public/brand/task-topology-glyph-t3.svg`.
+The root `t3.json` points to `public/brand/model-topography-glyph-t3.svg`.
 Leave the T3 project icon on **Automatic** to use this repository configuration.
 An explicit image, emoji, or icon override takes precedence.
 

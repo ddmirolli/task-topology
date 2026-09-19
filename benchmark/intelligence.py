@@ -51,10 +51,10 @@ def snapshot(output):
             raise ValueError('Dataset exceeds size limit')
         modified, etag = response.headers.get('Last-Modified'), response.headers.get('ETag')
     observations = normalize(raw)
-    record = {'version': 'tti-intelligence-snapshot/1', 'source': 'Epoch AI', 'metric': 'ECI',
+    record = {'version': 'mtb-intelligence-snapshot/1', 'source': 'Epoch AI', 'metric': 'ECI',
         'sourceUrl': SOURCE, 'methodologyUrl': 'https://epoch.ai/eci',
         'licenseUrl': 'https://creativecommons.org/licenses/by/4.0/',
-        'attribution': 'Epoch AI, Epoch Capabilities Index. Data normalized for Task Topology.',
+        'attribution': 'Epoch AI, Epoch Capabilities Index. Data normalized for Model Topography.',
         'fetchedAt': datetime.now(timezone.utc).isoformat(), 'lastModified': modified, 'etag': etag,
         'rawSha256': hashlib.sha256(raw).hexdigest(), 'identityMapping': 'unmapped', 'observations': observations}
     output.mkdir(parents=True)

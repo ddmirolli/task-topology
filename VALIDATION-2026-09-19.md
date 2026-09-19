@@ -1,6 +1,9 @@
 # Launch validation, 2026-09-19
 
-The diagnostic explorer is live at https://task-topology.vercel.app.
+The diagnostic explorer is available at https://modeltopography.com.
+This report records the earlier validation at the source revisions listed below.
+Current deployment status is in `LAUNCH.md`. Project names are normalized to
+the approved brand; original receipts and their source revisions are unchanged.
 It displays the original 18 attempts. Full benchmark scores remain unavailable.
 The new management task, intake, and external data import are partial launch
 components. They do not establish a complete hosted benchmark.
@@ -15,12 +18,12 @@ commit. Filters, tier states, sorting, and mobile overflow checks passed.
 Desktop and mobile screenshots were inspected in light and dark modes.
 
 The reproducible verifier is `scripts/verify-site.mjs`. Its private result and
-screenshots are in `/tmp/tti-site-final-qa`. The site exposes aggregate diagnostics
+screenshots are retained in the local validation archive. The site exposes aggregate diagnostics
 and the attributed Epoch snapshot. It does not expose raw model sessions or an
 upload service.
 
-The custom domain is attached to Vercel. Cloudflare DNS remains unconfigured.
-Vercel supplied the apex A target `76.76.21.21`. No DNS records were changed.
+Domain configuration at this historical checkpoint was incomplete.
+Use the current provider configuration and `LAUNCH.md` for deployment status.
 
 ## Component verification
 
@@ -30,7 +33,7 @@ and two intelligence-import tests. Later source-line review changes add three
 launch tests. The test commands are:
 
 ```sh
-TTI_TEST_CODEX=1 npm run test:pilot
+MTB_TEST_CODEX=1 npm run test:pilot
 npm run test:launch
 python3 -m unittest discover -s tasks/tier-2-management/tools -p 'test_*.py'
 python3 -m unittest discover -s benchmark -p 'test_*.py'
@@ -62,12 +65,11 @@ The final canary's citation records contain real source lines, but several lines
 do not support their associated reasons. The judge also missed the known native
 permission rejection caused by macOS path aliases. Its provisional pass does not
 clear the original execution hold. The full cohort was not judged with this
-adapter. No validated success rate, X, or TTI follows from these canaries.
+adapter. No validated success rate, X, or MTB follows from these canaries.
 
 Private evidence directories retain raw output and, except for the first rejected
-canary, the full judge session. The latest records are in
-`/tmp/tti-judge-source-lines-01`. The 18 original review packets remain in
-`/tmp/tti-cohort-review-v1`. Human audit and a qualified judge remain pending.
+canary, the full judge session. The local archive retains the latest source-line canary and all 18 original
+review packets. Human audit and a qualified judge remain pending.
 
 ## Remaining launch work
 

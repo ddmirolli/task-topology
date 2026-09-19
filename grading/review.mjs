@@ -26,7 +26,7 @@ export function reviewPacket(directory) {
   assert.equal(launch.promptHash, sha256(launch.prompt), 'Launch prompt changed');
   const facts = transcriptFacts(receipt.transcript), source = sessionEvidence(Buffer.from(session), launch.prompt);
   const packet = {
-    version: 'tti-review-packet/2', runId: receipt.runId, taskHash: receipt.taskHash,
+    version: 'mtb-review-packet/2', runId: receipt.runId, taskHash: receipt.taskHash,
     bindings: { receipt: sha256(receiptText), session: sha256(session), run: sha256(runText), launch: digest(launch),
       rubric: sha256(fs.readFileSync(path.join(root, 'GRADING.md'))),
       reviewerCode: sha256(fs.readFileSync(fileURLToPath(import.meta.url))),
@@ -46,9 +46,9 @@ export function reviewPacket(directory) {
 
 export function verifyPacket(packet) {
   const { packetHash, ...body } = packet;
-  assert.ok(['tti-review-packet/1', 'tti-review-packet/2'].includes(packet.version));
+  assert.ok(['mtb-review-packet/1', 'mtb-review-packet/2'].includes(packet.version));
   assert.equal(packetHash, digest(body), 'Review packet changed');
-  if (packet.version === 'tti-review-packet/2') {
+  if (packet.version === 'mtb-review-packet/2') {
     for (const name of ['session', 'events'])
       assert.equal(packet.sources[name], readableEvidence(packet.rawSources[name]), 'Readable evidence changed');
     assert.equal(sha256(packet.rawSources.session), packet.bindings.session, 'Raw session binding changed');
@@ -57,7 +57,7 @@ export function verifyPacket(packet) {
 
 export function reviewTemplate(packet) {
   verifyPacket(packet);
-  return { version: 'tti-transcript-review/1', packetHash: packet.packetHash,
+  return { version: 'mtb-transcript-review/1', packetHash: packet.packetHash,
     reviewer: { kind: 'model', id: '', version: '' },
     environment: { verdict: 'unknown', reason: '', evidence: [] },
     decisions: rules.map((name, index) => ({ rule: index + 1, name, verdict: 'unknown', reason: '', evidence: [], atSeconds: null })) };
@@ -76,7 +76,7 @@ function evidence(packet, decision) {
 
 export function gradeReview(packet, review) {
   verifyPacket(packet);
-  assert.equal(review.version, 'tti-transcript-review/1');
+  assert.equal(review.version, 'mtb-transcript-review/1');
   assert.equal(review.packetHash, packet.packetHash, 'Review belongs to another packet');
   assert.ok(['model', 'human'].includes(review.reviewer?.kind) && nonempty(review.reviewer.id) && nonempty(review.reviewer.version), 'Record reviewer identity and version');
   assert.ok(['valid', 'invalid', 'unknown'].includes(review.environment?.verdict), 'Record the environment verdict');
@@ -97,7 +97,7 @@ export function gradeReview(packet, review) {
   const outcome = review.environment.verdict === 'invalid' ? 'environment_failure'
     : !complete || packet.appPass === null ? 'pending_review'
       : failures.length || !packet.appPass ? 'failure' : 'pass';
-  return { version: 'tti-reviewed-run/1', runId: packet.runId, packetHash: packet.packetHash,
+  return { version: 'mtb-reviewed-run/1', runId: packet.runId, packetHash: packet.packetHash,
     reviewHash: digest(review), reviewer: review.reviewer, outcome, complete,
     appPass: packet.appPass, failures,
     firstFailureAtSeconds: failures.length && timeKnown ? Math.min(...failures.map(d => d.atSeconds)) : null,

@@ -1,5 +1,5 @@
 {
-  "version": "tti-subscription-plan/1",
+  "version": "mtb-subscription-plan/1",
   "tickets": ["01", "04", "07"],
   "models": [
     { "id": "gpt-5.6-luna", "effort": "medium" },
