@@ -53,6 +53,8 @@ export function prepareCohort(output, transcriptCalibration, reportCalibration) 
   if (transcriptCalibration && reportCalibration) {
     const transcript = JSON.parse(fs.readFileSync(path.join(transcriptCalibration, 'calibration.json')));
     const report = JSON.parse(fs.readFileSync(path.join(reportCalibration, 'calibration.json')));
+    assert.equal(transcript.version, 'mtb-judge-calibration/2', 'Transcript qualification requires every expected verdict');
+    assert.equal(report.version, 'mtb-report-calibration/2', 'Report qualification requires every expected verdict');
     assert.equal(transcript.calibrated, true); assert.equal(report.calibrated, true);
     const code = JSON.parse(fs.readFileSync(path.join(transcriptCalibration, 'code.json')));
     for (const [file, hash] of Object.entries(code)) assert.equal(sha256(fs.readFileSync(path.join(root, 'grading', file))), hash, 'Judge code changed since calibration');

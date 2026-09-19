@@ -62,8 +62,8 @@ source names, or quotes. Missing or ambiguous quotes stop review acceptance.
 This adapter's provisional decisions still require the stated human audit.
 Invalid judge output is retained and does not grant benchmark success.
 
-The current judge has not passed calibration. Its source-line canary missed the
-known environment defect in original cohort attempt 01. The full batch stopped.
+An earlier source-line canary missed the known environment defect in original
+cohort attempt 01. That batch stopped.
 See [launch validation](../VALIDATION-2026-09-19.md) for the evidence and limits.
 
 ## Version 2 calibration work
@@ -88,3 +88,20 @@ completes it.
 `calibrate-report.mjs` tests an accurate report, a wrong prose total, and a missing
 owner and deadline. Report qualification does not qualify transcript review.
 Neither qualification authorizes publishing scores.
+
+## Full calibration evaluation
+
+Calibration version 2 requires an expected verdict for every rule. A case fails
+when any judgment differs, including an unrelated false failure on a negative
+fixture. Missing labels are rejected. Cohort preparation rejects version 1
+qualification receipts because those receipts permitted unchecked decisions.
+
+The retained transcript reviews agree with the complete expected labels in all
+eight cases. Full report evaluation accepts two of three cases. The third review
+incorrectly rejects source attribution and support for the conclusion. Its missing
+owner and deadline are real failures, but they do not justify those extra labels.
+See [the evaluation](../VALIDATION-GRADING-2026-09-19.md).
+
+These retrospective agent findings do not replace fresh qualification or human
+audit. The benchmark applies written standards and supplies the evidence. Human
+audit checks the grader's decisions, not the definition of each task's standard.

@@ -33,6 +33,11 @@ test('semantic calibration rejects the wrong verdict and irrelevant but valid ci
   reviews[2].environment.verdict = 'invalid'; reviews[2].environment.evidence[0].line = 1;
   assert.equal(calibrate(cases, reviews, judge).calibrated, false);
   assert.throws(() => calibrate(cases, [reviews[0], reviews[0], reviews[2]], judge));
+  reviews[2].environment.evidence[0].line = 2;
+  const partial = structuredClone(cases); partial[2].rules[4] = null;
+  assert.throws(() => calibrate(partial, reviews, judge), /Freeze every expected rule verdict/);
+  reviews[2].decisions[4].verdict = 'fail';
+  assert.deepEqual(calibrate(cases, reviews, judge).results[2].mismatches, ['rule:5']);
 });
 
 test('all tiers retain identical success, failure, timeout, and publication boundaries', () => {

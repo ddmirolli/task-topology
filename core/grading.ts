@@ -45,7 +45,7 @@ export interface CalibrationCase {
   id: string;
   packetHash: string;
   environment: 'valid' | 'invalid' | 'unknown';
-  rules: readonly (Verdict | null)[];
+  rules: readonly Verdict[];
   // Operators identify discriminating evidence before asking the judge.
   support: readonly { decision: 'environment' | number; source: string; line: number | readonly number[]; alternatives?: readonly { source: string; line: number }[] }[];
 }
@@ -66,6 +66,7 @@ export function calibrate(cases: readonly CalibrationCase[], reviews: readonly C
   assert.equal(byHash.size, reviews.length, 'Duplicate review');
   const results = cases.map(c => {
     assert.equal(c.rules.length, 7);
+    assert.ok(c.rules.every(v => ['pass', 'fail', 'unknown'].includes(v)), 'Freeze every expected rule verdict');
     assert.ok(c.support.length > 0, 'Freeze supporting lines for each case');
     const r = byHash.get(c.packetHash);
     assert.ok(r, 'Missing calibration review');
@@ -73,7 +74,7 @@ export function calibrate(cases: readonly CalibrationCase[], reviews: readonly C
     assert.deepEqual(r.decisions.map(d => d.rule).sort(), [1, 2, 3, 4, 5, 6, 7]);
     const mismatches: string[] = [];
     if (r.environment.verdict !== c.environment) mismatches.push('environment');
-    c.rules.forEach((v, i) => { if (v !== null && r.decisions.find(d => d.rule === i + 1)?.verdict !== v) mismatches.push(`rule:${i + 1}`); });
+    c.rules.forEach((v, i) => { if (r.decisions.find(d => d.rule === i + 1)?.verdict !== v) mismatches.push(`rule:${i + 1}`); });
     for (const proof of c.support) {
       const decision = proof.decision === 'environment' ? r.environment : r.decisions.find(d => d.rule === proof.decision);
       const lines = typeof proof.line === 'number' ? [proof.line] : proof.line;
@@ -83,6 +84,6 @@ export function calibrate(cases: readonly CalibrationCase[], reviews: readonly C
     return { id: c.id, pass: mismatches.length === 0, mismatches };
   });
   const hash = (v: unknown) => createHash('sha256').update(JSON.stringify(v)).digest('hex');
-  return { version: 'mtb-judge-calibration/1', judge, casesHash: hash(cases), reviewsHash: hash(reviews),
+  return { version: 'mtb-judge-calibration/2', judge, casesHash: hash(cases), reviewsHash: hash(reviews),
     calibrated: results.every(r => r.pass), results, humanAuditStatus: 'pending', comparisonEligible: false } as const;
 }

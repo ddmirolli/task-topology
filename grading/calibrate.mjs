@@ -36,7 +36,7 @@ export async function runCalibration(output, model, archive) {
   if (archive) {
     for (const id of ['01', '02', '10']) {
       const packet = reviewPacket(path.join(archive, id));
-      const rules = Array(7).fill(null);
+      const rules = Array(7).fill('pass');
       if (id === '02') { rules[0] = 'fail'; rules[5] = 'fail'; }
       if (id === '10') rules[5] = 'fail';
       const source = id === '02' ? 'result' : 'session';

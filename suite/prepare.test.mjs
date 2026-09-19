@@ -25,3 +25,16 @@ test('prepared cohort is balanced, alternated, frozen, and cannot launch executi
     } finally { process.env.PATH = priorPath; }
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
+
+test('cohort preparation rejects historical partial calibration receipts', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mtb-cohort-qualification-'));
+  try {
+    const transcript = path.join(dir, 'transcript'), report = path.join(dir, 'report');
+    fs.mkdirSync(transcript); fs.mkdirSync(report);
+    fs.writeFileSync(path.join(transcript, 'calibration.json'), JSON.stringify({ version: 'mtb-judge-calibration/1', calibrated: true }));
+    fs.writeFileSync(path.join(report, 'calibration.json'), JSON.stringify({ version: 'mtb-report-calibration/1', calibrated: true }));
+    assert.throws(() => prepareCohort(path.join(dir, 'old-transcript'), transcript, report), /Transcript qualification requires every expected verdict/);
+    fs.writeFileSync(path.join(transcript, 'calibration.json'), JSON.stringify({ version: 'mtb-judge-calibration/2', calibrated: true }));
+    assert.throws(() => prepareCohort(path.join(dir, 'old-report'), transcript, report), /Report qualification requires every expected verdict/);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
